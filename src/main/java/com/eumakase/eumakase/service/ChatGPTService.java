@@ -1,7 +1,7 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.config.ChatGPTConfig;
-import com.eumakase.eumakase.dto.ChatGPT.*;
+import com.eumakase.eumakase.dto.chatGPT.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

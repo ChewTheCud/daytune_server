@@ -1,4 +1,4 @@
-package com.eumakase.eumakase.dto.ChatGPT;
+package com.eumakase.eumakase.dto.chatGPT;
 
 import lombok.*;
 
