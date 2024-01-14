@@ -19,7 +19,7 @@ public class ChatGPTConfig {
     public static final String BEARER = "Bearer ";
     public static final String MEDIA_TYPE = "application/json; charset=UTF-8";
     public static final Integer MAX_TOKEN = 300;
-    public static final Double TEMPERATURE = 0.0;
+    public static final Double TEMPERATURE = 0.0; //사용할 샘플링 온도 0~2. 값이 높을수록 무작위 출력, 값이 낮을수록 집중적&결정적
     public static final Double TOP_P = 1.0;
     public static final Integer CHOICE_NUMBER = 1;
 

@@ -55,7 +55,8 @@ public class ChatGPTService {
     public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto) {
         // 메시지 리스트를 생성
         List<Message> messages = Arrays.asList(
-                new Message("system", "Analyzing the content, guessing the emotions, listing them only in words, and answering only the words in Korean"),
+                new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
+                //new Message("system", "You are a counselor who can give healing to users who have kept a diary for today. Please empathize with the user in two sentences."),
                 new Message("user", promptRequestDto.getPrompt())
         );
 
