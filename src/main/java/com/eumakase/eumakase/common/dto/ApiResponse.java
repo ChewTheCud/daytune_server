@@ -1,4 +1,4 @@
-package com.eumakase.eumakase.dto.common;
+package com.eumakase.eumakase.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
