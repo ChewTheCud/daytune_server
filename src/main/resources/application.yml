@@ -15,3 +15,8 @@ logging.level:
   org.hibernate.SQL: debug
 # org.hibernate.type: trace #??? ?? 2.x, hibernate5
 # org.hibernate.orm.jdbc.bind: trace #??? ?? 3.x, hibernate6
+
+chatgpt:
+  model: gpt-4-1106-preview
+  secret-key: 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
+  url: https://api.openai.com/v1/chat/completions
