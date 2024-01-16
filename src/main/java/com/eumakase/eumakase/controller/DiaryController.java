@@ -3,6 +3,8 @@ package com.eumakase.eumakase.controller;
 import com.eumakase.eumakase.common.dto.ApiResponse;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
+import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
+import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.service.DiaryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,25 @@ public class DiaryController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Diary 생성에 실패했습니다."));
+        }
+    }
+
+    /**
+     * Diary 조회 (단일)
+     */
+    @GetMapping("/{diaryId}")
+    public ResponseEntity<ApiResponse<DiaryReadResponseDto>> getDiary(@PathVariable Long diaryId) {
+        try {
+            DiaryReadResponseDto diaryReadResponseDto = diaryService.getDiary(diaryId);
+            return ResponseEntity.ok(ApiResponse.success("Diary 조회에 성공했습니다.",diaryReadResponseDto));
+        } catch (DiaryException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Diary 조회에 실패했습니다."));
         }
     }
 }

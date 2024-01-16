@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class DiaryService {
+
     private final DiaryRepository diaryRepository;
 
     public DiaryService(DiaryRepository diaryRepository) {
@@ -37,5 +38,15 @@ public class DiaryService {
             // 예외 처리 로직
             throw new DiaryException("Diary 생성 중 오류가 발생했습니다.");
         }
+    }
+
+    /**
+     * Diary 조회 (단일)
+     */
+    public DiaryReadResponseDto getDiary(Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
+
+        return DiaryReadResponseDto.of(diary);
     }
 }
