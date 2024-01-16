@@ -1,6 +1,6 @@
 package com.eumakase.eumakase.controller;
 
-import com.eumakase.eumakase.dto.common.ApiResponse;
+import com.eumakase.eumakase.common.dto.ApiResponse;
 import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
 import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.service.ChatGPTService;
