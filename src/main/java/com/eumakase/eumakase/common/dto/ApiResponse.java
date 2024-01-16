@@ -26,6 +26,11 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> success(String status, String message, T data) {
         return new ApiResponse<>(status, message, data);
     }
+
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>("SUCCESS", message, data);
+    }
+
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>("SUCCESS", "정상적으로 생성되었습니다.", data);
     }
@@ -35,6 +40,6 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>("ERROR", "에러가 발생했습니다");
+        return new ApiResponse<>("ERROR", message);
     }
 }
