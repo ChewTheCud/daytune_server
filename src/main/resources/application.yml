@@ -4,14 +4,14 @@ spring:
     username: root
     password:
     driver-class-name: org.h2.Driver
-jpa:
-  hibernate:
-    ddl-auto: create
-  properties:
+  jpa:
     hibernate:
-#      show_sql: true
-      format_sql: true
-logging.level:
+      ddl-auto: create
+    properties:
+      hibernate:
+#       show_sql: true
+        format_sql: true
+  logging.level:
   org.hibernate.SQL: debug
 # org.hibernate.type: trace #??? ?? 2.x, hibernate5
 # org.hibernate.orm.jdbc.bind: trace #??? ?? 3.x, hibernate6
