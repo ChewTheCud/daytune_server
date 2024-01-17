@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class DiaryService {
@@ -48,5 +50,24 @@ public class DiaryService {
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
         return DiaryReadResponseDto.of(diary);
+    }
+
+    /**
+     * Diary 삭제
+     */
+    public void deleteDiary(Long diaryId) {
+        // Diary를 찾고 없으면 예외 발생
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
+
+        // Diary 삭제
+        diaryRepository.delete(diary);
+
+        // 삭제 후 다시 조회하여 확인
+        Optional<Diary> deletedDiary = diaryRepository.findById(diaryId);
+        if (deletedDiary.isPresent()) {
+            // 삭제 실패 시 예외 발생
+            throw new DiaryException("Diary 삭제에 실패했습니다.");
+        }
     }
 }

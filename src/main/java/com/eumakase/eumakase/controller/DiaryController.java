@@ -30,7 +30,7 @@ public class DiaryController {
     public ResponseEntity<ApiResponse<DiaryCreateResponseDto>> createDiary(@Valid @RequestBody DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
             DiaryCreateResponseDto diaryCreateResponseDto = diaryService.createDiary(diaryCreateRequestDto);
-            return ResponseEntity.ok(ApiResponse.success(diaryCreateResponseDto));
+            return ResponseEntity.ok(ApiResponse.success("Diary 생성에 성공했습니다.",diaryCreateResponseDto));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -54,6 +54,23 @@ public class DiaryController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Diary 조회에 실패했습니다."));
+        }
+    }
+
+    /**
+     * Diary 삭제
+     */
+    @DeleteMapping("/{diaryId}")
+    public ResponseEntity<ApiResponse<Void>> deleteDiary(@PathVariable Long diaryId) {
+        try {
+            diaryService.deleteDiary(diaryId);
+            return ResponseEntity.ok(ApiResponse.success("Diary 삭제에 성공했습니다.", null));
+        } catch (DiaryException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Diary 삭제에 실패했습니다."));
         }
     }
 }
