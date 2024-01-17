@@ -28,7 +28,7 @@ public class ChatGPTController {
     public ResponseEntity<ApiResponse<PromptResponseDto>> sendPrompt(@RequestBody PromptRequestDto promptRequestDto) {
         try {
             PromptResponseDto promptResponse = chatGPTService.sendPrompt(promptRequestDto);
-            return ResponseEntity.ok(ApiResponse.success(promptResponse));
+            return ResponseEntity.ok(ApiResponse.success("생성에 성공했습니다.",promptResponse));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
