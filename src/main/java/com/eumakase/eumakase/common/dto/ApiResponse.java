@@ -13,32 +13,25 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
+    // 성공 응답을 위한 생성자
     private ApiResponse(String status, String message, T data) {
         this.status = status;
         this.message = message;
         this.data = data;
     }
+
+    // 오류 응답을 위한 생성자
     private ApiResponse(String status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public static <T> ApiResponse<T> success(String status, String message, T data) {
-        return new ApiResponse<>(status, message, data);
-    }
-
+    // 성공 응답 메서드
     public static <T> ApiResponse<T> success(String message, T data) {
         return new ApiResponse<>("SUCCESS", message, data);
     }
 
-    public static <T> ApiResponse<T> success(T data) {
-        return new ApiResponse<>("SUCCESS", "정상적으로 생성되었습니다.", data);
-    }
-
-    public static <T> ApiResponse<T> error(String status, String message) {
-        return new ApiResponse<>(status, message);
-    }
-
+    // 오류 응답 메서드
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>("ERROR", message);
     }
