@@ -1,5 +1,6 @@
 package com.eumakase.eumakase.dto.chatGPT;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +13,6 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Data
 public class PromptRequestDto implements Serializable {
+    @NotBlank
     private String prompt;
 }
