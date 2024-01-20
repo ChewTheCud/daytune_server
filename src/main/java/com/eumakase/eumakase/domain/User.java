@@ -2,18 +2,17 @@ package com.eumakase.eumakase.domain;
 
 import com.eumakase.eumakase.common.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
+@Table(name = "users")
 public class User extends BaseEntity {
 
     @Id
@@ -22,6 +21,9 @@ public class User extends BaseEntity {
 
     @Column
     private String email;
+
+    @Column
+    private String password;
 
     @Column
     private String nickname;
@@ -34,6 +36,9 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "access_token")
+    private String accessToken;
     
     @Column(name = "last_login_date")
     private LocalDateTime lastLoginDate;
