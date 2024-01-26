@@ -1,10 +1,12 @@
 package com.eumakase.eumakase.domain;
 
 import com.eumakase.eumakase.common.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @EqualsAndHashCode(callSuper = true)
 @Builder
@@ -22,6 +24,7 @@ public class User extends BaseEntity {
     @Column
     private String email;
 
+    @JsonIgnore
     @Column
     private String password;
 
@@ -37,9 +40,14 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "access_token")
-    private String accessToken;
-    
     @Column(name = "last_login_date")
     private LocalDateTime lastLoginDate;
+
+    public User(Optional<User> findUser) {
+        super();
+    }
+
+    public void updateLastLoginDate() {
+        this.lastLoginDate = LocalDateTime.now();
+    }
 }

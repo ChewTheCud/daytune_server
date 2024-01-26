@@ -1,12 +1,15 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
+import com.eumakase.eumakase.dto.auth.LoginRequestDto;
+import com.eumakase.eumakase.dto.auth.LoginResponseDto;
 import com.eumakase.eumakase.dto.auth.SignUpRequestDto;
 import com.eumakase.eumakase.dto.auth.SignUpResponseDto;
 import com.eumakase.eumakase.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -33,6 +36,21 @@ public class AuthController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("회원가입에 실패했습니다."));
+        }
+    }
+
+    /**
+     * Login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(@RequestBody @Validated LoginRequestDto loginRequestDto){
+        try {
+            LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+            return ResponseEntity.ok(ApiResponse.success("로그인에 성공했습니다.",loginResponseDto));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("로그인에 실패했습니다."));
         }
     }
 }
