@@ -35,4 +35,31 @@ public class JwtIssuer {
                 .withClaim("a", roles) // 사용자 역할을 커스텀 클레임으로 추가.
                 .sign(Algorithm.HMAC256(properties.getSecretKey())); // HMAC256 알고리즘과 properties 객체의 비밀 키를 사용하여 JWT 서명.
     }
+
+    /**
+     * 리프레시 토큰을 발행하는 메서드.
+     *
+     * @param userId 사용자 ID
+     * @param email 사용자 이메일
+     * @return 서명된 리프레시 토큰 문자열
+     */
+    public String issueRefreshToken(long userId, String email) {
+        return JWT.create()
+                .withSubject(String.valueOf(userId)) // 사용자 ID를 주제로 설정
+                .withExpiresAt(Instant.now().plus(Duration.of(7, ChronoUnit.DAYS))) // 만료 시간을 현재로부터 7일 후로 설정
+                .withClaim("e", email) // 사용자 이메일을 클레임으로 추가
+                .sign(Algorithm.HMAC256(properties.getSecretKey())); // HMAC256 알고리즘을 사용하여 서명
+    }
+
+    //리프레시 토큰의 유효성 검증
+    public boolean validateRefreshToken(String token) {
+        try {
+            JWT.require(Algorithm.HMAC256(properties.getSecretKey()))
+                    .build()
+                    .verify(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

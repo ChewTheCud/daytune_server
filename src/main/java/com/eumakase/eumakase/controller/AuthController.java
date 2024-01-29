@@ -1,10 +1,7 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
-import com.eumakase.eumakase.dto.auth.LoginRequestDto;
-import com.eumakase.eumakase.dto.auth.LoginResponseDto;
-import com.eumakase.eumakase.dto.auth.SignUpRequestDto;
-import com.eumakase.eumakase.dto.auth.SignUpResponseDto;
+import com.eumakase.eumakase.dto.auth.*;
 import com.eumakase.eumakase.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -51,6 +48,21 @@ public class AuthController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("로그인에 실패했습니다."));
+        }
+    }
+
+    /**
+     * Access Token Reissue
+     */
+    @PostMapping("/reissue")
+    public ResponseEntity<ApiResponse<ReissueAccessTokenResponseDto>> reissue(@RequestBody ReissueAccessTokenRequestDto reissueAccessTokenRequestDto) {
+        try {
+            ReissueAccessTokenResponseDto jwtReissueResponseDto = authService.reissue(reissueAccessTokenRequestDto.getRefreshToken());
+            return ResponseEntity.ok(ApiResponse.success("토큰 재발급에 성공했습니다.", jwtReissueResponseDto));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("토큰 재발급에 실패했습니다."));
         }
     }
 }
