@@ -43,9 +43,20 @@ public class AuthService {
         if(findUser.isPresent()) {
             User user = findUser.get();
             user.updateLastLoginDate();
-            String token = jwtIssue(user);
+            String accessToken = jwtIssue(user);
+            String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
 
-            return LoginResponseDto.of(user, token);
+            // 기존의 리프레시 토큰이 있으면 삭제
+            refreshTokenRepository.findByUser(user)
+                    .ifPresent(refreshTokenRepository::delete);
+
+            // 기존 리프레시 토큰을 찾아 업데이트, 없으면 새로 생성
+            RefreshToken existingRefreshToken = refreshTokenRepository.findByUser(user)
+                    .orElse(new RefreshToken(user, refreshToken));
+            existingRefreshToken.setRefreshToken(refreshToken); // 토큰 업데이트
+            refreshTokenRepository.save(existingRefreshToken);
+
+            return LoginResponseDto.of(user, accessToken, refreshToken);
         } else {
             // TODO: 예외처리 구현
             return LoginResponseDto.builder()

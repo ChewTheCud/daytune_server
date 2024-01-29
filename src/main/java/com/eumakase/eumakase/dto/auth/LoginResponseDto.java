@@ -17,13 +17,15 @@ public class LoginResponseDto implements Serializable {
     private String email;
     private String nickname;
     private String accessToken;
+    private String refreshToken;
 
-    public static LoginResponseDto of(User user, String token) {
+    public static LoginResponseDto of(User user, String accessToken, String refreshToken) {
         return LoginResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .accessToken(token)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 }
