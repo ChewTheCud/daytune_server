@@ -21,7 +21,8 @@ spring:
 
 security:
   jwt:
-    secret-key: common-secret-key // 길게 바꿔서 넣기
+    secret-key: common-secret-key # 길게 바꿔서 넣기
+    password-suffix: daytune
 
 chatgpt:
   model: gpt-4-1106-preview

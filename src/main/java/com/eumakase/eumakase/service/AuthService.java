@@ -13,6 +13,7 @@ import com.eumakase.eumakase.security.JwtIssuer;
 import com.eumakase.eumakase.security.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,8 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    @Value("${security.jwt.password-suffix}")
+    private String passwordSuffix;
     private final JwtIssuer jwtIssuer;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
@@ -71,15 +74,14 @@ public class AuthService {
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
         try {
-
             // TODO: 24.01.20 이메일 중복 여부 판별
 
             // TODO: 24.01.20 닉네임 중복 여부 판별
 
-            User user = signUpRequestDto.toEntity(signUpRequestDto, passwordEncoder);
-            User savedUser = userRepository.save(user);
+            User user = signUpRequestDto.toEntity(signUpRequestDto, passwordEncoder, passwordSuffix);
+            userRepository.save(user);
 
-            return SignUpResponseDto.of(savedUser);
+            return SignUpResponseDto.of(user);
         } catch (Exception e) {
             // 예외 처리 로직
             throw new UserException(400, "User 생성 중 오류가 발생했습니다.");
@@ -117,7 +119,7 @@ public class AuthService {
         // 인증 객체 생성
         var authenticationToken = new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
-                user.getEmail()+"emokase"
+                user.getEmail()+passwordSuffix
         );
 
         // 사용자 인증 처리
