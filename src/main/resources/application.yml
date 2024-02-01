@@ -1,4 +1,7 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+
   datasource:
     url: jdbc:h2:tcp://localhost/~/eumakase
     username: root
@@ -24,3 +27,6 @@ chatgpt:
   model: gpt-4-1106-preview
   secret-key: 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
   url: https://api.openai.com/v1/chat/completions
+
+kakao:
+  url: https://kapi.kakao.com/v2/user/me
