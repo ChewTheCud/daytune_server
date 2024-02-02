@@ -3,16 +3,15 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
 import com.eumakase.eumakase.repository.UserRepository;
-import com.eumakase.eumakase.security.CustomUserDetailService;
 import com.eumakase.eumakase.security.JwtDecoder;
 import com.eumakase.eumakase.security.JwtIssuer;
-import com.eumakase.eumakase.security.UserPrincipal;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.eumakase.eumakase.security.UserPrincipal;;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
-import java.util.Optional;
 
 @Transactional
 @Service
@@ -33,43 +31,65 @@ import java.util.Optional;
 public class AuthService {
     @Value("${security.jwt.password-suffix}")
     private String passwordSuffix;
+
+    // JWT 발급 및 검증을 위한 JwtIssuer 객체
     private final JwtIssuer jwtIssuer;
+
+    // 사용자 정보를 저장하고 관리하는 UserRepository 객체
     private final UserRepository userRepository;
+
+    // Spring Security의 인증 관리자
     private final AuthenticationManager authenticationManager;
+
+    // 리프레시 토큰을 관리하는 RefreshTokenRepository 객체
     private final RefreshTokenRepository refreshTokenRepository;
+
+    // 비밀번호 암호화를 위한 PasswordEncoder 객체
     private final PasswordEncoder passwordEncoder;
-    private final CustomUserDetailService customUserDetailService;
+
+    // JWT 토큰을 디코딩하기 위한 JwtDecoder 객체
     private final JwtDecoder jwtDecoder;
 
+    // 소셜 로그인 관련 서비스를 제공하는 SocialService 객체
+    private final SocialService socialService;
+
+    /**
+     * 일반 로그인 처리 메서드.
+     * 이메일을 사용하여 사용자를 찾고 JWT 토큰을 발급함.
+     */
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        Optional<User> findUser = userRepository.findByEmail(loginRequestDto.getEmail());
-        if(findUser.isPresent()) {
-            User user = findUser.get();
-            user.updateLastLoginDate();
-            String accessToken = jwtIssue(user);
-            String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+        User user = userRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new AuthException("User not found with email: " + loginRequestDto.getEmail()));
 
-            // 기존의 리프레시 토큰이 있으면 삭제
-            refreshTokenRepository.findByUser(user)
-                    .ifPresent(refreshTokenRepository::delete);
-
-            // 기존 리프레시 토큰을 찾아 업데이트, 없으면 새로 생성
-            RefreshToken existingRefreshToken = refreshTokenRepository.findByUser(user)
-                    .orElse(new RefreshToken(user, refreshToken));
-            existingRefreshToken.setRefreshToken(refreshToken); // 토큰 업데이트
-            refreshTokenRepository.save(existingRefreshToken);
-
-            return LoginResponseDto.of(user, accessToken, refreshToken);
-        } else {
-            // TODO: 예외처리 구현
-            return LoginResponseDto.builder()
-                    .accessToken("failed")
-                    .build();
-        }
+        return createLoginResponse(user);
     }
 
     /**
-     * User 생성
+     * 소셜 로그인 처리 메서드.
+     * 소셜 로그인 타입에 따라 사용자 프로필 정보를 가져온 후 JWT 토큰 발급.
+     */
+    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
+        String socialType = socialLoginRequestDto.getSocialType();
+        String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
+
+        // if(socialType.equals("kakao")) {
+            KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+            String snsId = kakaoResponseDto.getId();
+            String email = kakaoResponseDto.getKakaoAccount().getEmail();
+            String nickname = kakaoResponseDto.getKakaoAccount().getProfile().getNickname();
+
+            User user = userRepository.findBySnsId(snsId)
+                    .orElseGet(() -> createUserFromSocialData(snsId, email, nickname));
+
+            return createSocialLoginResponse(user);
+        // }
+
+       // TODO: Apple Oauth2 로그인 로직 추가
+    }
+
+    /**
+     * 사용자 회원가입 처리 메서드.
+     * SignUpRequestDto를 받아 새로운 User 객체를 생성하고 저장함.
      */
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
@@ -99,7 +119,7 @@ public class AuthService {
 
         // 리프레시 토큰으로부터 사용자 정보 추출
         String email = jwtDecoder.extractEmailFromRefreshToken(refreshToken);
-        System.out.println("email:"+email);
+
         // 해당 이메일의 사용자가 존재하는지 확인
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(400, "User not found"));
@@ -114,8 +134,11 @@ public class AuthService {
         return ReissueAccessTokenResponseDto.of(newAccessToken);
     }
 
-
+    /**
+     * 사용자 정보를 바탕으로 JWT 액세스 토큰을 발급하는 메서드.
+     */
     public String jwtIssue(User user){
+
         // 인증 객체 생성
         var authenticationToken = new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
@@ -140,5 +163,37 @@ public class AuthService {
         var token = jwtIssuer.issue(principal.getUserId(), principal.getEmail(), roles);
 
         return token;
+    }
+
+    // 새로운 사용자를 생성하는 Helper 메서드
+    private User createUserFromSocialData(String snsId, String email, String nickname) {
+
+        SocialSignUpRequestDto socialSignUpRequestDto = null;
+        User user = socialSignUpRequestDto.toEntity(snsId, email, nickname, passwordEncoder, passwordSuffix);
+
+        return userRepository.save(user);
+    }
+
+    // 일반 로그인 응답을 생성하는 Helper 메서드
+    private LoginResponseDto createLoginResponse(User user) {
+        String accessToken = jwtIssue(user);
+        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+        manageRefreshToken(user, refreshToken);
+        return LoginResponseDto.of(user, accessToken, refreshToken);
+    }
+
+    // 소셜 로그인 응답을 생성하는 Helper 메서드
+    private SocialLoginResponseDto createSocialLoginResponse(User user) {
+        String accessToken = jwtIssue(user);
+        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+        manageRefreshToken(user, refreshToken);
+        return SocialLoginResponseDto.of(user, accessToken, refreshToken);
+    }
+
+    // 리프레시 토큰을 관리하는 Helper 메서드
+    private void manageRefreshToken(User user, String refreshToken) {
+        refreshTokenRepository.findByUser(user)
+                .ifPresent(refreshTokenRepository::delete);
+        refreshTokenRepository.save(new RefreshToken(user, refreshToken));
     }
 }

@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.domain;
 
 import com.eumakase.eumakase.common.domain.BaseEntity;
+import com.eumakase.eumakase.util.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,6 +21,9 @@ public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private String snsId;
 
     @Column
     private String email;

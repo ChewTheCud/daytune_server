@@ -52,6 +52,21 @@ public class AuthController {
     }
 
     /**
+     * Social Login
+     */
+    @PostMapping("/login/social")
+    public ResponseEntity<ApiResponse<SocialLoginResponseDto>> socialLogin(@RequestBody @Validated SocialLoginRequestDto socialLoginRequestDto){
+        try {
+            SocialLoginResponseDto socialLoginResponseDto = authService.socialLogin(socialLoginRequestDto);
+            return ResponseEntity.ok(ApiResponse.success("소셜로그인에 성공했습니다.",socialLoginResponseDto));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("소셜로그인에 실패했습니다."));
+        }
+    }
+
+    /**
      * Access Token Reissue
      */
     @PostMapping("/reissue")
