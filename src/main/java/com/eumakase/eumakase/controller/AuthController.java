@@ -70,7 +70,7 @@ public class AuthController {
      * Access Token Reissue
      */
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<ReissueAccessTokenResponseDto>> reissue(@RequestBody ReissueAccessTokenRequestDto reissueAccessTokenRequestDto) {
+    public ResponseEntity<ApiResponse<ReissueAccessTokenResponseDto>> reissue(@Valid @RequestBody ReissueAccessTokenRequestDto reissueAccessTokenRequestDto) {
         try {
             ReissueAccessTokenResponseDto jwtReissueResponseDto = authService.reissue(reissueAccessTokenRequestDto.getRefreshToken());
             return ResponseEntity.ok(ApiResponse.success("토큰 재발급에 성공했습니다.", jwtReissueResponseDto));
