@@ -2,6 +2,7 @@ package com.eumakase.eumakase.dto.diary;
 
 import com.eumakase.eumakase.domain.Diary;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.io.Serializable;
@@ -14,10 +15,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 public class DiaryCreateRequestDto implements Serializable {
-
-    @NotBlank
-    private String title;
-
     @NotBlank
     private String content;
 
@@ -26,7 +23,6 @@ public class DiaryCreateRequestDto implements Serializable {
 
     public Diary toEntity(final DiaryCreateRequestDto diaryCreateRequestDto) {
         return Diary.builder()
-                .title(diaryCreateRequestDto.getTitle())
                 .content(diaryCreateRequestDto.getContent())
                 .mood(diaryCreateRequestDto.getMood())
                 .build();
