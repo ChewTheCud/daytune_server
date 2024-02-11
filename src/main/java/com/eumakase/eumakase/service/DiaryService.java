@@ -4,9 +4,11 @@ import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
+import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class DiaryService {
+    @Autowired
+    private MusicService musicService;
 
     private final DiaryRepository diaryRepository;
 
@@ -33,6 +37,12 @@ public class DiaryService {
 
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
+
+            // Music 생성 로직
+            MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
+            musicCreateRequestDto.setDiaryId(savedDiary.getId());
+
+            musicService.createMusic(musicCreateRequestDto);
 
             // DiaryCreateResponseDto 객체 생성 및 반환
             return DiaryCreateResponseDto.of(savedDiary);

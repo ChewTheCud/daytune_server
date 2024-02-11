@@ -1,9 +1,5 @@
 package com.eumakase.eumakase.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import com.eumakase.eumakase.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,19 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Entity
-public class Music extends BaseEntity {
+public class PromptCategoryDetail extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary_id")
-    private Diary diary;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prompt_category_id")
     private PromptCategory promptCategory;
 
-    @Column(name = "file_url")
-    private String fileUrl;
+    private String prompt;
 }
