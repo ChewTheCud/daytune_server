@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - develop
+      - main
 
 env:
   AWS_REGION: ap-northeast-2
-  S3_BUCKET_NAME: daytune-s3-dev
+  S3_BUCKET_NAME: daytune-s3
   CODE_DEPLOY_APPLICATION_NAME: daytune-codedeploy
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: daytune-codedeploy-dev
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME_DEV: daytune-codedeploy-dev
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME_PROD: daytune-codedeploy-prod
 
 permissions:
   contents: read
@@ -50,13 +52,23 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
+    # 환경에 따라 배포 그룹 이름 설정
+    - name: Set deployment group name
+      id: set_deployment_group
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+          echo "::set-output name=DEPLOYMENT_GROUP_NAME::${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME_DEV }}"
+        elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          echo "::set-output name=DEPLOYMENT_GROUP_NAME::${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME_PROD }}"
+        fi    
+
     # (5) 빌드 결과물을 S3 버킷에 업로드
     - name: Upload to AWS S3
       run: |
         aws deploy push \
           --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
           --ignore-hidden-files \
-          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+          --s3-location s3://$S3_BUCKET_NAME/${{ github.ref_name }}/$GITHUB_SHA.zip \
           --source .
 
     # (6) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
@@ -65,5 +77,5 @@ jobs:
         aws deploy create-deployment \
           --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+          --deployment-group-name ${{ steps.set_deployment_group.outputs.DEPLOYMENT_GROUP_NAME }} \
+          --s3-location bucket=$S3_BUCKET_NAME,key=${{ github.ref_name }}/$GITHUB_SHA.zip,bundleType=zip
