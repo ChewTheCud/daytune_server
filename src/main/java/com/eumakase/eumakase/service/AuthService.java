@@ -12,6 +12,7 @@ import com.eumakase.eumakase.security.JwtDecoder;
 import com.eumakase.eumakase.security.JwtIssuer;
 import com.eumakase.eumakase.security.UserPrincipal;;
 
+import com.eumakase.eumakase.util.enums.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -151,7 +153,6 @@ public class AuthService {
      * 사용자 정보를 바탕으로 JWT 액세스 토큰을 발급하는 메서드.
      */
     public String jwtIssue(User user){
-
         // 인증 객체 생성
         var authenticationToken = new UsernamePasswordAuthenticationToken(
                 user.getEmail(),
@@ -193,12 +194,15 @@ public class AuthService {
 
     // 일반 로그인 응답을 생성하는 Helper 메서드
     private LoginResponseDto createLoginResponse(User user) {
-        System.out.println("basic user:"+user);
         String accessToken = jwtIssue(user);
-        System.out.println("basic accessToken:"+accessToken);
         String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
 
         manageRefreshToken(user, refreshToken);
+
+        // DateTimeUtil을 사용하여 현재 시간으로 lastLoginDate 업데이트
+        user.setLastLoginDate(DateTimeUtil.format(LocalDateTime.now())); // 필요한 경우 DateTimeUtil.now()로 대체 가능
+        userRepository.save(user); // 변경사항 저장
+
         return LoginResponseDto.of(user, accessToken, refreshToken);
     }
 
@@ -207,6 +211,11 @@ public class AuthService {
         String accessToken = jwtIssue(user);
         String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
         manageRefreshToken(user, refreshToken);
+
+        // DateTimeUtil을 사용하여 현재 시간으로 lastLoginDate 업데이트
+        user.setLastLoginDate(DateTimeUtil.format(LocalDateTime.now())); // 필요한 경우 DateTimeUtil.now()로 대체 가능
+        userRepository.save(user); // 변경사항 저장
+        
         return SocialLoginResponseDto.of(user, accessToken, refreshToken);
     }
 
