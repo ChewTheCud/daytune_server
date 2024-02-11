@@ -25,9 +25,6 @@ public class Diary extends BaseEntity {
     private Music music;
 
     @Column
-    private String title;
-
-    @Column
     private String content;
 
     @Column
