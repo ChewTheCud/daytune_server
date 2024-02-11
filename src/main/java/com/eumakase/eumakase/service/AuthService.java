@@ -12,7 +12,7 @@ import com.eumakase.eumakase.security.JwtDecoder;
 import com.eumakase.eumakase.security.JwtIssuer;
 import com.eumakase.eumakase.security.UserPrincipal;;
 
-import com.eumakase.eumakase.util.enums.DateTimeUtil;
+import com.eumakase.eumakase.util.DateTimeUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

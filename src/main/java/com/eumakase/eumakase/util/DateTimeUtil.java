@@ -1,4 +1,4 @@
-package com.eumakase.eumakase.util.enums;
+package com.eumakase.eumakase.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

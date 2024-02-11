@@ -1,12 +1,15 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.UserRepository;
+import com.eumakase.eumakase.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,9 @@ public class DiaryService {
     @Autowired
     private MusicService musicService;
 
+    @Autowired
+    private UserRepository userRepository; // UserRepository 주입
+
     private final DiaryRepository diaryRepository;
 
     public DiaryService(DiaryRepository diaryRepository) {
@@ -32,8 +38,12 @@ public class DiaryService {
     @Transactional
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
-            // DiaryCreateRequestDto 객체를 Diary 엔티티로 변환
-            Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto);
+            //로그인된 사용자 Email 조회 후 User 정보 가져오는 로직
+            String currentUserEmail = SecurityUtils.getCurrentUsername();
+            User user = userRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + currentUserEmail));
+
+            Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user);
 
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
