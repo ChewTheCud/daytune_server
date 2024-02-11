@@ -1,6 +1,10 @@
 spring:
   main:
     allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 10MB # 최대 파일 업로드 크기
+      max-request-size: 20MB # 최대 요청 크기
 
   datasource:
     url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
@@ -31,3 +35,6 @@ chatgpt:
 
 kakao:
   url: https://kapi.kakao.com/v2/user/me
+
+firebase:
+  bucket-name: daytune-3722b.appspot.com
