@@ -24,6 +24,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 
 @Transactional
 @Service
@@ -74,13 +76,24 @@ public class AuthService {
 
         // if(socialType.equals("kakao")) {
             KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+
             String snsId = kakaoResponseDto.getId();
             String email = kakaoResponseDto.getKakaoAccount().getEmail();
             String nickname = kakaoResponseDto.getKakaoAccount().getProfile().getNickname();
+            String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
 
-            User user = userRepository.findBySnsId(snsId)
-                    .orElseGet(() -> createUserFromSocialData(snsId, email, nickname));
+        Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
+        User user;
+        if (existingUser.isPresent()) {
+            System.out.println("Existing...");
+            user = existingUser.get();
+        } else {
+            System.out.println("User does not exist. Creating new user...");
+            // 사용자가 존재하지 않는 경우, createUserFromSocialData 메소드를 호출하여 새로운 사용자를 생성합니다.
+            user = createUserFromSocialData(snsId, email, nickname, profileImageUrl);
+            // 새로운 사용자 생성 로직 처리 예시
+        }
             return createSocialLoginResponse(user);
         // }
 
@@ -144,10 +157,10 @@ public class AuthService {
                 user.getEmail(),
                 user.getEmail()+passwordSuffix
         );
-
+        System.out.println("social authenticationToken:"+authenticationToken);
         // 사용자 인증 처리
         var authentication = authenticationManager.authenticate(authenticationToken);
-
+        System.out.println("social authentication:"+authentication);
         // 인증 정보를 Security Context에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -166,18 +179,25 @@ public class AuthService {
     }
 
     // 새로운 사용자를 생성하는 Helper 메서드
-    private User createUserFromSocialData(String snsId, String email, String nickname) {
+    private User createUserFromSocialData(String snsId, String email, String nickname, String profileImageUrl) {
+        String tempPassword = UUID.randomUUID().toString();
 
-        SocialSignUpRequestDto socialSignUpRequestDto = null;
-        User user = socialSignUpRequestDto.toEntity(snsId, email, nickname, passwordEncoder, passwordSuffix);
+        // SocialSignUpRequestDto 객체 생성 시, tempPassword도 함께 설정
+        SocialSignUpRequestDto socialSignUpRequestDto = new SocialSignUpRequestDto(
+                snsId, email, tempPassword, nickname, profileImageUrl);
+
+        User user = socialSignUpRequestDto.toEntity(snsId, email, nickname, profileImageUrl, passwordEncoder, passwordSuffix);
 
         return userRepository.save(user);
     }
 
     // 일반 로그인 응답을 생성하는 Helper 메서드
     private LoginResponseDto createLoginResponse(User user) {
+        System.out.println("basic user:"+user);
         String accessToken = jwtIssue(user);
+        System.out.println("basic accessToken:"+accessToken);
         String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+
         manageRefreshToken(user, refreshToken);
         return LoginResponseDto.of(user, accessToken, refreshToken);
     }
@@ -191,9 +211,18 @@ public class AuthService {
     }
 
     // 리프레시 토큰을 관리하는 Helper 메서드
-    private void manageRefreshToken(User user, String refreshToken) {
-        refreshTokenRepository.findByUser(user)
-                .ifPresent(refreshTokenRepository::delete);
-        refreshTokenRepository.save(new RefreshToken(user, refreshToken));
+    @Transactional
+    public void manageRefreshToken(User user, String refreshToken) {
+        refreshTokenRepository.findByUser(user).ifPresentOrElse(
+                existingToken -> {
+                    // 기존 토큰이 있으면, 새로운 리프레시 토큰 값으로 업데이트
+                    existingToken.setRefreshToken(refreshToken);
+                    refreshTokenRepository.save(existingToken);
+                },
+                () -> {
+                    // 새로운 리프레시 토큰 저장
+                    refreshTokenRepository.save(new RefreshToken(user, refreshToken));
+                }
+        );
     }
 }

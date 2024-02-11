@@ -1,5 +1,6 @@
 package com.eumakase.eumakase.dto.auth.kakao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,5 +16,7 @@ import java.util.Map;
 public class KakaoResponseDto implements Serializable {
     private String id;
     private Map<String, String> properties;
+
+    @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 }

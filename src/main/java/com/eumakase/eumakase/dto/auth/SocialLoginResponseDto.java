@@ -17,6 +17,7 @@ public class SocialLoginResponseDto implements Serializable {
     private String snsId;
     private String email;
     private String nickname;
+    private String profileImageUrl;
     private String accessToken;
     private String refreshToken;
 
@@ -26,6 +27,7 @@ public class SocialLoginResponseDto implements Serializable {
                 .snsId(user.getSnsId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .profileImageUrl(user.getProfileImageUrl())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -28,15 +28,18 @@ public class SocialSignUpRequestDto implements Serializable {
 
     private String nickname;
 
+    private String profileImageUrl;
 
 
-    public User toEntity(String snsId, String nickname, String email, PasswordEncoder passwordEncoder, String passwordSuffix) {
+
+    public User toEntity(String snsId, String email, String nickname, String profileImageUrl, PasswordEncoder passwordEncoder, String passwordSuffix) {
         return User.builder()
                 .snsId(snsId)
                 .email(email)
-                // 비밀번호 암호화 (snsId+custom암호키)
-                .password(passwordEncoder.encode(snsId+passwordSuffix))
+                // 비밀번호 암호화 (email+custom암호키)
+                .password(passwordEncoder.encode(email+passwordSuffix))
                 .nickname(nickname)
+                .profileImageUrl(profileImageUrl)
                 .role(Role.ROLE_USER)
                 .build();
     }

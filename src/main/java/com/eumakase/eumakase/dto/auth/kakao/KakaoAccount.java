@@ -1,5 +1,6 @@
 package com.eumakase.eumakase.dto.auth.kakao;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,22 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Data
 public class KakaoAccount {
-    private Boolean profileNeedsAgreement;
+    @JsonProperty("profile_nickname_needs_agreement")
+    private Boolean profileNicknameNeedsAgreement;
+
+    @JsonProperty("profile_image_needs_agreement")
+    private Boolean profileImageNeedsAgreement;
+
     private Profile profile;
+
+    @JsonProperty("email_needs_agreement")
     private Boolean emailNeedsAgreement;
+
+    @JsonProperty("is_email_valid")
     private Boolean isEmailValid;
+
+    @JsonProperty("is_email_verified")
     private Boolean isEmailVerified;
+
     private String email;
 }
