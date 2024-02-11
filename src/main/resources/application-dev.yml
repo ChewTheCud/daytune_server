@@ -1,0 +1,33 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+    username: root
+    password: cbejzjem2023!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+#       show_sql: true
+        format_sql: true
+  logging.level:
+  org.hibernate.SQL: debug
+# org.hibernate.type: trace #??? ?? 2.x, hibernate5
+# org.hibernate.orm.jdbc.bind: trace #??? ?? 3.x, hibernate6
+
+security:
+  jwt:
+    secret-key: common-secret-key # 길게 바꿔서 넣기
+    password-suffix: daytune
+
+chatgpt:
+  model: gpt-4-1106-preview
+  secret-key: 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
+  url: https://api.openai.com/v1/chat/completions
+
+kakao:
+  url: https://kapi.kakao.com/v2/user/me
