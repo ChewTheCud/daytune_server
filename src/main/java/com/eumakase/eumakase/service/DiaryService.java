@@ -48,11 +48,13 @@ public class DiaryService {
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
 
-            // Music 생성 로직
-            MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
-            musicCreateRequestDto.setDiaryId(savedDiary.getId());
+            // Music 생성 로직 - 일기당 세 개의 음악 데이터 생성
+            for (int i = 0; i < 3; i++) {
+                MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
+                musicCreateRequestDto.setDiaryId(savedDiary.getId());
 
-            musicService.createMusic(musicCreateRequestDto);
+                musicService.createMusic(musicCreateRequestDto);
+            }
 
             // DiaryCreateResponseDto 객체 생성 및 반환
             return DiaryCreateResponseDto.of(savedDiary);
