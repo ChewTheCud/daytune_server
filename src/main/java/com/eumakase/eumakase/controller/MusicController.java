@@ -1,13 +1,8 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
-import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
-import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
-import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
-import com.eumakase.eumakase.exception.DiaryException;
-import com.eumakase.eumakase.service.DiaryService;
+import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
 import com.eumakase.eumakase.service.MusicService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,11 +24,14 @@ public class MusicController {
      */
     //
     @GetMapping("/urls")
-    public ResponseEntity<ApiResponse<Void>> updateMusicUrls() {
-        System.out.println("test");
+    public ResponseEntity<ApiResponse<String>> updateMusicUrls() {
         try {
-            musicService.updateMusicFileUrls();
-            return ResponseEntity.ok(ApiResponse.success("Music 데이터 FileUrl 추가에 성공했습니다.", null));
+            MusicUpdateFileUrlsResultDto result = musicService.updateMusicFileUrls();
+
+            String message = String.format("총 %d개의 미완성 음악 데이터 중, %d개 데이터에 성공적으로 파일 URL을 할당했습니다.",
+                    result.getTotalNullUrls(), result.getUpdatedUrlsCount());
+
+            return ResponseEntity.ok(ApiResponse.success(message, null));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Music 데이터 FileUrl 추가에 실패했습니다."));
