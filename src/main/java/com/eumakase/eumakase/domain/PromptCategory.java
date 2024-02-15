@@ -19,7 +19,9 @@ public class PromptCategory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    @JoinColumn(name = "main_prompt")
+    private String mainPrompt;
+    private String color;
     private String description;
 
     @OneToMany(mappedBy = "promptCategory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
