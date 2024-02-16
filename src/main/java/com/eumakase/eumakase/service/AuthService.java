@@ -141,7 +141,7 @@ public class AuthService {
 
         // 리프레시 토큰으로부터 사용자 정보 추출
         String snsId = jwtDecoder.extractSnsIdFromRefreshToken(refreshToken);
-        System.out.println("snsId:"+snsId);
+
         // 해당 sndId의 사용자가 존재하는지 확인
         User user = userRepository.findBySnsId(snsId)
                 .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));

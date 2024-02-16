@@ -26,6 +26,9 @@ public class UserPrincipal implements UserDetails {
         return authorities; // 사용자에게 부여된 권한 반환
     }
 
+    public Long getId() {
+        return userId;
+    }
     @Override
     public String getPassword() {
         return password; // 사용자 비밀번호 반환

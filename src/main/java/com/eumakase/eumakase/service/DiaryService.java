@@ -9,7 +9,7 @@ import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.UserRepository;
-import com.eumakase.eumakase.util.SecurityUtils;
+import com.eumakase.eumakase.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class DiaryService {
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
             //로그인된 사용자 snsId 조회 후 User 정보 가져오는 로직
-            String snsId = SecurityUtils.getCurrentUsername();
+            String snsId = SecurityUtil.getCurrentUsername();
             User user = userRepository.findByEmail(snsId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found with snsId: " + snsId));
 
