@@ -1,6 +1,8 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.User;
+import com.eumakase.eumakase.exception.AuthException;
+import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
 import com.eumakase.eumakase.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,18 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public void updateUserNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
+
+        if (nickname.length() < 2 || nickname.length() > 10) {
+            throw new AuthException("닉네임은 2~10글자 사이여야 합니다.");
+        }
+
+        user.setNickname(nickname);
+        userRepository.save(user);
     }
 
     @Transactional
