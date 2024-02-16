@@ -16,8 +16,10 @@ import java.io.IOException;
 @Component
 class UnauthorizedHandler implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        // HttpServletResponse의 sendError 메서드를 사용하여 HTTP 401 Unauthorized 에러 반환
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"status\": \"ERROR\", \"message\": \"Access Token 값이 유효하지 않습니다.\"}");
     }
 }

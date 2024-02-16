@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -27,6 +28,11 @@ public class WebSecurityConfig {
     private final UnauthorizedHandler unauthorizedHandler;
 
     @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return new UnauthorizedHandler();
+    }
+
+    @Bean
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
         // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 전에 추가.
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -37,7 +43,7 @@ public class WebSecurityConfig {
                 .sessionManagement(sessionManagementConfigurer
                         -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션을 사용하지 않음을 나타내는 STATELESS 정책 설정.
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화.
-                .exceptionHandling((exception)-> exception.authenticationEntryPoint(unauthorizedHandler)) // 인증되지 않은 요청에 대한 처리 핸들러 설정.
+                .exceptionHandling((exception)-> exception.authenticationEntryPoint(authenticationEntryPoint())) // 인증되지 않은 요청에 대한 처리 핸들러 설정.
                 .authorizeHttpRequests(registry -> registry // HTTP 요청에 대한 권한 설정.
                         .requestMatchers("/").permitAll() // 루트 경로에 대한 요청은 모두 허용.
                         .requestMatchers("/api/v1/auth/login/social", "/api/v1/auth/reissue").permitAll() // 로그인 및 회원가입 경로에 대한 요청은 모두 허용.
