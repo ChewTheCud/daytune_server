@@ -5,6 +5,9 @@ spring:
     multipart:
       max-file-size: 10MB # 최대 파일 업로드 크기
       max-request-size: 20MB # 최대 요청 크기
+  web:
+    resources:
+      add-mappings: false
 
   datasource:
     url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
