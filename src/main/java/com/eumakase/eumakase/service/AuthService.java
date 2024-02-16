@@ -81,18 +81,25 @@ public class AuthService {
 
             String snsId = kakaoResponseDto.getId();
             String email = kakaoResponseDto.getKakaoAccount().getEmail();
-            String nickname = kakaoResponseDto.getKakaoAccount().getProfile().getNickname();
             String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
         User user;
         if (existingUser.isPresent()) {
-            System.out.println("Existing...");
             user = existingUser.get();
         } else {
-            System.out.println("User does not exist. Creating new user...");
-            // 사용자가 존재하지 않는 경우, createUserFromSocialData 메소드를 호출하여 새로운 사용자를 생성합니다.
+            String nickname = socialLoginRequestDto.getNickname();
+
+            // nickname 값이 null이거나 2~10글자가 아닐 경우 예외 처리
+            if (nickname == null) {
+                throw new AuthException("nickname 파라미터는 공백일 수 없습니다.");
+            }
+            if (nickname.length() < 2 || nickname.length() > 10) {
+                throw new AuthException("닉네임은 2~10글자 사이여야 합니다.");
+            }
+
+            // 사용자가 존재하지 않는 경우, createUserFromSocialData 메소드를 호출하여 새로운 사용자를 생성.
             user = createUserFromSocialData(snsId, email, nickname, profileImageUrl);
             // 새로운 사용자 생성 로직 처리 예시
         }
@@ -129,7 +136,7 @@ public class AuthService {
     public ReissueAccessTokenResponseDto reissue(String refreshToken) {
         // 리프레시 토큰 검증
         if (!jwtIssuer.validateRefreshToken(refreshToken)) {
-            throw new AuthException("Invalid refresh token");
+            throw new AuthException("유효하지 않은 refresh token 입니다.");
         }
 
         // 리프레시 토큰으로부터 사용자 정보 추출
@@ -142,7 +149,7 @@ public class AuthService {
         // 리프레시 토큰이 해당 사용자에게 속하는지 확인
         refreshTokenRepository.findByUser(user)
                 .filter(rt -> rt.getRefreshToken().equals(refreshToken))
-                .orElseThrow(() -> new AuthException("Invalid refresh token"));
+                .orElseThrow(() -> new AuthException("사용자에게 발급되지 않은 refresh token 입니다."));
 
         // 새로운 액세스 토큰 발급
         String newAccessToken =  jwtIssuer.issue(user.getId(), user.getSnsId(), Collections.singletonList(user.getRole().toString()));

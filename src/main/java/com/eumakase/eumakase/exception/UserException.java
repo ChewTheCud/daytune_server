@@ -4,4 +4,7 @@ public class UserException extends RuntimeException {
     public UserException(int i, String message) {
         super(message);
     }
+    public UserException(String message) {
+        super(message);
+    }
 }
