@@ -19,14 +19,14 @@ import java.util.List;
 public class CustomUserDetailService implements UserDetailsService {
     private final UserService userService;
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        var user = userService.findByEmail(email).orElseThrow();
+    public UserDetails loadUserByUsername(String sndId) throws UsernameNotFoundException {
+        var user = userService.findBySnsId(sndId).orElseThrow();
 
         //Spring Security의 UserDetails 인터페이스를 구현한 사용자의 세부 정보를 나타냄
-        // 여기서는 사용자 ID, 이메일, 권한, 비밀번호 등의 정보를 포함
+        // 여기서는 사용자 ID, sns ID, 권한, 비밀번호 등의 정보를 포함
         return UserPrincipal.builder()
                 .userId(user.getId())
-                .email(user.getEmail())
+                .snsId(user.getSnsId())
                 .authorities(List.of(new SimpleGrantedAuthority(user.getRole().toString())))
                 .password(user.getPassword())
                 .build();

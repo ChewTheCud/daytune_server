@@ -133,11 +133,11 @@ public class AuthService {
         }
 
         // 리프레시 토큰으로부터 사용자 정보 추출
-        String email = jwtDecoder.extractEmailFromRefreshToken(refreshToken);
-
-        // 해당 이메일의 사용자가 존재하는지 확인
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(400, "User not found"));
+        String snsId = jwtDecoder.extractSnsIdFromRefreshToken(refreshToken);
+        System.out.println("snsId:"+snsId);
+        // 해당 sndId의 사용자가 존재하는지 확인
+        User user = userRepository.findBySnsId(snsId)
+                .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
 
         // 리프레시 토큰이 해당 사용자에게 속하는지 확인
         refreshTokenRepository.findByUser(user)
@@ -145,7 +145,7 @@ public class AuthService {
                 .orElseThrow(() -> new AuthException("Invalid refresh token"));
 
         // 새로운 액세스 토큰 발급
-        String newAccessToken =  jwtIssuer.issue(user.getId(), user.getEmail(), Collections.singletonList(user.getRole().toString()));
+        String newAccessToken =  jwtIssuer.issue(user.getId(), user.getSnsId(), Collections.singletonList(user.getRole().toString()));
         return ReissueAccessTokenResponseDto.of(newAccessToken);
     }
 
@@ -155,13 +155,13 @@ public class AuthService {
     public String jwtIssue(User user){
         // 인증 객체 생성
         var authenticationToken = new UsernamePasswordAuthenticationToken(
-                user.getEmail(),
-                user.getEmail()+passwordSuffix
+                user.getSnsId(),
+                user.getSnsId()+passwordSuffix
         );
-        System.out.println("social authenticationToken:"+authenticationToken);
+
         // 사용자 인증 처리
         var authentication = authenticationManager.authenticate(authenticationToken);
-        System.out.println("social authentication:"+authentication);
+
         // 인증 정보를 Security Context에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -174,7 +174,7 @@ public class AuthService {
                 .toList();
 
         // JWT 토큰 발급
-        var token = jwtIssuer.issue(principal.getUserId(), principal.getEmail(), roles);
+        var token = jwtIssuer.issue(principal.getUserId(), principal.getSnsId(), roles);
 
         return token;
     }
@@ -209,7 +209,7 @@ public class AuthService {
     // 소셜 로그인 응답을 생성하는 Helper 메서드
     private SocialLoginResponseDto createSocialLoginResponse(User user) {
         String accessToken = jwtIssue(user);
-        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getSnsId());
         manageRefreshToken(user, refreshToken);
 
         // DateTimeUtil을 사용하여 현재 시간으로 lastLoginDate 업데이트

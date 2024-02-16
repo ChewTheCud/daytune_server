@@ -23,13 +23,13 @@ public class JwtDecoder {
                 .verify(token); // 제공된 JWT 토큰 검증 및 디코드
     }
 
-    //refresh token에서 이메일 추출
-    public String extractEmailFromRefreshToken(String token) {
+    //refresh token에서 snsId 추출
+    public String extractSnsIdFromRefreshToken(String token) {
         try {
             // 토큰 디코딩
             DecodedJWT decodedJWT = decode(token);
 
-            // 'email' 클레임을 사용하여 이메일 추출
+            // 'e' 클레임을 사용하여 snsId 추출
             // 토큰 생성 시 사용한 클레임 키와 동일해야함
             return decodedJWT.getClaim("e").asString();
         } catch (Exception e) {

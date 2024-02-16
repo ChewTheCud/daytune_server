@@ -16,14 +16,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<User> findBySnsId(String sndId) {
+        return userRepository.findBySnsId(sndId);
     }
 
     public Long getCurrentUserId() {
-        String username = SecurityUtils.getCurrentUsername(); // 위 메서드를 호출하여 사용자명 가져오기
-        if (username != null) {
-            Optional<User> userOptional = userRepository.findByEmail(username);
+        String snsId = SecurityUtils.getCurrentUsername(); // 위 메서드를 호출하여 사용자명(여기서는 sndId) 가져오기
+        if (snsId != null) {
+            Optional<User> userOptional = userRepository.findBySnsId(snsId);
             if (userOptional.isPresent()) {
                 User user = userOptional.get(); // Optional에서 User 인스턴스를 가져옴
                 return user.getId(); // 사용자 ID 반환

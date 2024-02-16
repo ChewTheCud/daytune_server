@@ -38,10 +38,10 @@ public class DiaryService {
     @Transactional
     public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
-            //로그인된 사용자 Email 조회 후 User 정보 가져오는 로직
-            String currentUserEmail = SecurityUtils.getCurrentUsername();
-            User user = userRepository.findByEmail(currentUserEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + currentUserEmail));
+            //로그인된 사용자 snsId 조회 후 User 정보 가져오는 로직
+            String snsId = SecurityUtils.getCurrentUsername();
+            User user = userRepository.findByEmail(snsId)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found with snsId: " + snsId));
 
             Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user);
 
