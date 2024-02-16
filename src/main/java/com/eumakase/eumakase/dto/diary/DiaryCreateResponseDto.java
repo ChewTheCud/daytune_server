@@ -14,12 +14,10 @@ import java.io.Serializable;
 @Data
 public class DiaryCreateResponseDto implements Serializable {
     private String content;
-    private String mood;
 
     public static DiaryCreateResponseDto of(Diary diary) {
         return DiaryCreateResponseDto.builder()
                 .content(diary.getContent())
-                .mood(diary.getMood())
                 .build();
     }
 }

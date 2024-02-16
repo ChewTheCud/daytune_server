@@ -26,7 +26,6 @@ public class DiaryCreateRequestDto implements Serializable {
         return Diary.builder()
                 .user(user)
                 .content(diaryCreateRequestDto.getContent())
-                .mood(diaryCreateRequestDto.getMood())
                 .build();
     }
 }
