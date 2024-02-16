@@ -71,24 +71,24 @@ public class UserController {
         }
     }
 
-    /**
-     * 사용자 강제 탈퇴
-     */
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse<Void>> withdrawUser(@PathVariable Long userId, @AuthenticationPrincipal UserPrincipal currentUser) {
-        try {
-            Long authenticatedUserId = currentUser.getId();
-            SecurityUtil.verifyUserId(authenticatedUserId, userId);
-            userService.withdrawUser(userId);
-            return ResponseEntity.ok(ApiResponse.success("사용자 계정이 성공적으로 탈퇴되었습니다."));
-        } catch (AuthException e) {
-            return ResponseEntity
-                    .status(e.getStatusCode())
-                    .body(ApiResponse.error(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("탈퇴 처리 중 문제가 발생했습니다."));
-        }
-    }
+//    /**
+//     * 사용자 강제 탈퇴
+//     */
+//    @DeleteMapping("/{userId}")
+//    public ResponseEntity<ApiResponse<Void>> withdrawUser(@PathVariable Long userId, @AuthenticationPrincipal UserPrincipal currentUser) {
+//        try {
+//            Long authenticatedUserId = currentUser.getId();
+//            SecurityUtil.verifyUserId(authenticatedUserId, userId);
+//            userService.withdrawUser(userId);
+//            return ResponseEntity.ok(ApiResponse.success("사용자 계정이 성공적으로 탈퇴되었습니다."));
+//        } catch (AuthException e) {
+//            return ResponseEntity
+//                    .status(e.getStatusCode())
+//                    .body(ApiResponse.error(e.getMessage()));
+//        } catch (Exception e) {
+//            return ResponseEntity
+//                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(ApiResponse.error("탈퇴 처리 중 문제가 발생했습니다."));
+//        }
+//    }
 }
