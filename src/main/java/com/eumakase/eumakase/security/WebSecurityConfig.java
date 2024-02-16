@@ -42,7 +42,7 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeHttpRequests(registry -> registry // HTTP 요청에 대한 권한 설정.
                         .requestMatchers("/").permitAll() // 루트 경로에 대한 요청은 모두 허용.
-                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/login/social", "/api/v1/auth/signup", "/api/v1/auth/reissue").permitAll() // 로그인 및 회원가입 경로에 대한 요청은 모두 허용.
+                        .requestMatchers("/api/v1/auth/login/social", "/api/v1/auth/reissue").permitAll() // 로그인 및 회원가입 경로에 대한 요청은 모두 허용.
                         .requestMatchers("/admin/**").hasRole("ADMIN") // '/admin/'으로 시작하는 경로는 'ADMIN' 역할을 가진 사용자만 접근 가능.
                         .anyRequest().authenticated()); // 그 외 모든 요청은 인증된 사용자만 접근 가능.
 
