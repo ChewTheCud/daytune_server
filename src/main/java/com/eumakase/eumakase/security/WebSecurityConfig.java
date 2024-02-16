@@ -37,9 +37,7 @@ public class WebSecurityConfig {
                 .sessionManagement(sessionManagementConfigurer
                         -> sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션을 사용하지 않음을 나타내는 STATELESS 정책 설정.
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화.
-                .exceptionHandling()
-                .authenticationEntryPoint(unauthorizedHandler) // 인증되지 않은 요청에 대한 처리 핸들러 설정.
-                .and()
+                .exceptionHandling((exception)-> exception.authenticationEntryPoint(unauthorizedHandler)) // 인증되지 않은 요청에 대한 처리 핸들러 설정.
                 .authorizeHttpRequests(registry -> registry // HTTP 요청에 대한 권한 설정.
                         .requestMatchers("/").permitAll() // 루트 경로에 대한 요청은 모두 허용.
                         .requestMatchers("/api/v1/auth/login/social", "/api/v1/auth/reissue").permitAll() // 로그인 및 회원가입 경로에 대한 요청은 모두 허용.
