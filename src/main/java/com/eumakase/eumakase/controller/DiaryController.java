@@ -5,10 +5,13 @@ import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.exception.UserException;
+import com.eumakase.eumakase.security.UserPrincipal;
 import com.eumakase.eumakase.service.DiaryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,10 +30,16 @@ public class DiaryController {
      * Diary 생성
      */
     @PostMapping("")
-    public ResponseEntity<ApiResponse<DiaryCreateResponseDto>> createDiary(@Valid @RequestBody DiaryCreateRequestDto diaryCreateRequestDto) {
+    public ResponseEntity<ApiResponse<DiaryCreateResponseDto>> createDiary(@Valid @RequestBody DiaryCreateRequestDto diaryCreateRequestDto,
+                                                                           @AuthenticationPrincipal UserPrincipal currentUser) {
+        Long authenticatedUserId = currentUser.getId();
         try {
-            DiaryCreateResponseDto diaryCreateResponseDto = diaryService.createDiary(diaryCreateRequestDto);
+            DiaryCreateResponseDto diaryCreateResponseDto = diaryService.createDiary(authenticatedUserId, diaryCreateRequestDto);
             return ResponseEntity.ok(ApiResponse.success("Diary 생성에 성공했습니다.",diaryCreateResponseDto));
+        } catch (UserException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

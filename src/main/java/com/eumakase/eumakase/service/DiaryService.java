@@ -7,6 +7,7 @@ import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.UserRepository;
 import com.eumakase.eumakase.util.SecurityUtil;
@@ -36,13 +37,10 @@ public class DiaryService {
      * Diary 생성
      */
     @Transactional
-    public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto diaryCreateRequestDto) {
+    public DiaryCreateResponseDto createDiary(Long userId, DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
-            //로그인된 사용자 snsId 조회 후 User 정보 가져오는 로직
-            String snsId = SecurityUtil.getCurrentUsername();
-            User user = userRepository.findByEmail(snsId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with snsId: " + snsId));
-
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
             Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user);
 
             // Diary 저장
@@ -59,7 +57,6 @@ public class DiaryService {
             // DiaryCreateResponseDto 객체 생성 및 반환
             return DiaryCreateResponseDto.of(savedDiary);
         } catch (Exception e) {
-            // 예외 처리 로직
             throw new DiaryException("Diary 생성 중 오류가 발생했습니다.");
         }
     }

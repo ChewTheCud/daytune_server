@@ -20,12 +20,13 @@ public class DiaryCreateRequestDto implements Serializable {
     private String content;
 
     @NotBlank
-    private String mood;
+    private String prompt;
 
     public Diary toEntity(final DiaryCreateRequestDto diaryCreateRequestDto, User user) {
         return Diary.builder()
                 .user(user)
                 .content(diaryCreateRequestDto.getContent())
+                .prompt(diaryCreateRequestDto.getPrompt()) // Modify this line
                 .build();
     }
 }
