@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -69,6 +70,17 @@ public class DiaryService {
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
         return DiaryReadResponseDto.of(diary);
+    }
+
+    /**
+     * Diary 조회 (전체)
+     */
+    public List<Diary> getAllDiariesByUserId(Long userId) {
+        List<Diary> diaries = diaryRepository.findByUserId(userId);
+        if (diaries.isEmpty()) {
+            throw new DiaryException("User ID가 " + userId + "인 Diary 데이터를 찾을 수 없습니다.");
+        }
+        return diaries;
     }
 
     /**

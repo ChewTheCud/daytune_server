@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
+import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Diary API
@@ -63,6 +67,27 @@ public class DiaryController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Diary 조회에 실패했습니다."));
+        }
+    }
+
+    /**
+     * 특정 유저의 Diary 조회 (전체)
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<List<DiaryReadResponseDto>>> getAllDiariesByUserId(@PathVariable Long userId) {
+        try {
+            List<Diary> diaries = diaryService.getAllDiariesByUserId(userId);
+            List<DiaryReadResponseDto> response = diaries.stream()
+                    .map(DiaryReadResponseDto::of)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(ApiResponse.success("사용자의 모든 Diray 조회에 성공했습니다", response));
+        } catch (DiaryException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Diary 삭제에 실패했습니다."));
         }
     }
 
