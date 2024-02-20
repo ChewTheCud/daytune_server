@@ -20,7 +20,7 @@ public class DiaryReadResponseDto implements Serializable {
     public static DiaryReadResponseDto of(Diary diary) {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
-                //.userId(diary.getUser() != null ? diary.getUser().getId() : null) // TODO: 24.01.17 로그인 기능 구현 후 반영
+                .userId(diary.getUser() != null ? diary.getUser().getId() : null)
                 .content(diary.getContent())
                 .build();
     }
