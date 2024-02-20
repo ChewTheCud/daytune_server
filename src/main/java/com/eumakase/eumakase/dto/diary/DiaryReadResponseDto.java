@@ -4,6 +4,7 @@ import com.eumakase.eumakase.domain.Diary;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * Diary 생성 응답 DTO
@@ -16,12 +17,14 @@ public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
     private String content;
+    private LocalDateTime createdDate;
 
     public static DiaryReadResponseDto of(Diary diary) {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
                 .content(diary.getContent())
+                .createdDate(diary.getCreatedDate())
                 .build();
     }
 }
