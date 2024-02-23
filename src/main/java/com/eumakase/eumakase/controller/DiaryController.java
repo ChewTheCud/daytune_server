@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Diary API
  */
 @RestController
-@RequestMapping(value = "/api/v1/diary")
+@RequestMapping(value = "/api/v1/diaries")
 public class DiaryController {
     private final DiaryService diaryService;
 
@@ -73,10 +73,11 @@ public class DiaryController {
     /**
      * 특정 유저의 Diary 조회 (전체)
      */
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<DiaryReadResponseDto>>> getAllDiariesByUserId(@PathVariable Long userId) {
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<DiaryReadResponseDto>>> getAllDiariesByUserId(@AuthenticationPrincipal UserPrincipal currentUser) {
         try {
-            List<Diary> diaries = diaryService.getAllDiariesByUserId(userId);
+            Long authenticatedUserId = currentUser.getId();
+            List<Diary> diaries = diaryService.getAllDiariesByUserId(authenticatedUserId);
             List<DiaryReadResponseDto> response = diaries.stream()
                     .map(DiaryReadResponseDto::of)
                     .collect(Collectors.toList());
