@@ -1,11 +1,11 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
+import com.eumakase.eumakase.dto.user.UserReadResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.security.UserPrincipal;
 import com.eumakase.eumakase.service.UserService;
-import com.eumakase.eumakase.util.SecurityUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +22,27 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
+    /**
+     * 사용자 정보 조회 (단일)
+     */
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<UserReadResponseDto>> getUser(@AuthenticationPrincipal UserPrincipal currentUser) {
+        try {
+            Long authenticatedUserId = currentUser.getId();
+            UserReadResponseDto userReadResponseDto = userService.getUser(authenticatedUserId);
+            return ResponseEntity.ok(ApiResponse.success("사용자 정보 조회에 성공했습니다.",userReadResponseDto));
+        } catch (UserException e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("사용자 정보 조회에 실패했습니다."));
+        }
+    }
+
 
     /**
      * Update User Nickname

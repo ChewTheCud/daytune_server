@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.User;
+import com.eumakase.eumakase.dto.user.UserReadResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -22,6 +23,13 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public UserReadResponseDto getUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
+
+        return UserReadResponseDto.of(user);
     }
 
     public void updateUserNickname(Long userId, String nickname) {
