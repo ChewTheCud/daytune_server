@@ -56,7 +56,7 @@ public class AuthController {
     /**
      * Social Login
      */
-    @PostMapping("/login/social")
+    @PostMapping("/social")
     public ResponseEntity<ApiResponse<SocialLoginResponseDto>> socialLogin(@RequestBody @Validated SocialLoginRequestDto socialLoginRequestDto){
         try {
             SocialLoginResponseDto socialLoginResponseDto = authService.socialLogin(socialLoginRequestDto);
