@@ -28,5 +28,8 @@ public class Diary extends BaseEntity {
     private String content;
 
     @Column
+    private String summary;
+
+    @Column
     private String prompt;
 }

@@ -17,6 +17,7 @@ public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
     private String content;
+    private String summary;
     private LocalDateTime createdDate;
 
     public static DiaryReadResponseDto of(Diary diary) {
@@ -24,6 +25,7 @@ public class DiaryReadResponseDto implements Serializable {
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
                 .content(diary.getContent())
+                .summary(diary.getSummary())
                 .createdDate(diary.getCreatedDate())
                 .build();
     }
