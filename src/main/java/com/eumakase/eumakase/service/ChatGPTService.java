@@ -21,6 +21,9 @@ public class ChatGPTService {
     private final String url;
     private final ChatGPTConfig chatGPTConfig;
 
+    @Value("${chatgpt.secret-key}")
+    private String SECRET_KEY;
+
     public ChatGPTService(ChatGPTConfig chatGPTConfig, @Value("${chatgpt.model}") String model, @Value("${chatgpt.url}") String url) {
         this.chatGPTConfig = chatGPTConfig;
         this.model = model;
@@ -32,7 +35,7 @@ public class ChatGPTService {
      */
     public HttpEntity<ChatGPTRequestDto> buildHttpEntity(ChatGPTRequestDto chatGPTRequestDto) {
         HttpHeaders headers = chatGPTConfig.httpHeaders();
-
+        headers.setBearerAuth(SECRET_KEY);
         return new HttpEntity<>(chatGPTRequestDto, headers);
     }
 
@@ -40,12 +43,13 @@ public class ChatGPTService {
      * ChatGPT API에 요청 -> 응답을 ChatGPTResponseDto로 반환
      */
     public ChatGPTResponseDto getResponse(HttpEntity<ChatGPTRequestDto> requestEntity) {
+        System.out.println("requestEntity: "+requestEntity);
         ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(
                 url,
                 HttpMethod.POST,
                 requestEntity,
                 ChatGPTResponseDto.class);
-
+System.out.println("responseEntity: "+responseEntity);
         return responseEntity.getBody();
     }
 
@@ -71,12 +75,13 @@ public class ChatGPTService {
                 ChatGPTConfig.TOP_P,
                 ChatGPTConfig.CHOICE_NUMBER
         );
-
+        System.out.println("chatGPTRequestDto: "+ chatGPTRequestDto);
         // [STEP2] API 응답을 받음
         ChatGPTResponseDto chatGPTResponseDto =  this.getResponse(this.buildHttpEntity(chatGPTRequestDto));
-
+        System.out.println("chatGPTResponseDto: "+ chatGPTResponseDto);
         // [STEP3] 첫 번째 선택지의 메시지 내용을 반환
         Choice firstChoice = chatGPTResponseDto.getChoices().get(0);
+        System.out.println("firstChoice: "+ firstChoice);
         return new PromptResponseDto(firstChoice.getMessage().getContent());
     }
 }
