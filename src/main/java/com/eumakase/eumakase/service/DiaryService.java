@@ -2,6 +2,8 @@ package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.User;
+import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
+import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;

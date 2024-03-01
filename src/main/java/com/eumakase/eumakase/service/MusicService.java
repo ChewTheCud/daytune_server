@@ -22,6 +22,9 @@ public class MusicService {
     @Autowired
     private FileService fileService;
 
+    @Autowired
+    private ChatGPTService chatGPTService;
+
     private final MusicRepository musicRepository;
     private final DiaryRepository diaryRepository;
 
@@ -79,6 +82,10 @@ public class MusicService {
         for (Map.Entry<Long, List<Music>> entry : groupedByDiaryId.entrySet()) {
             Long diaryId = entry.getKey(); // 현재 처리 중인 diaryId
             List<Music> musics = entry.getValue(); // 해당 diaryId에 속한 Music 데이터 목록
+
+            // 해당 diary의 content를 요약해서 DJ의 한마디 컨셉으로 summary 업데이트
+            // diaryService내 updateDiarySummary 구현시 순환참조 문제로 chatGPTService에 구현
+            chatGPTService.updateDiarySummary(diaryId);
 
             // diaryId에 해당하는 모든 파일 URL 가져오기
             List<String> fileUrls = fileService.getFileDownloadUrlsByDiaryId(diaryId.toString());

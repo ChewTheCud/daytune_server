@@ -1,14 +1,20 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.config.ChatGPTConfig;
+import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.chatGPT.*;
+import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +29,9 @@ public class ChatGPTService {
 
     @Value("${chatgpt.secret-key}")
     private String SECRET_KEY;
+
+    @Autowired
+    private DiaryRepository diaryRepository;
 
     public ChatGPTService(ChatGPTConfig chatGPTConfig, @Value("${chatgpt.model}") String model, @Value("${chatgpt.url}") String url) {
         this.chatGPTConfig = chatGPTConfig;
@@ -59,8 +68,8 @@ System.out.println("responseEntity: "+responseEntity);
     public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto) {
         // 메시지 리스트를 생성
         List<Message> messages = Arrays.asList(
-                new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
-                //new Message("system", "You are a counselor who can give healing to users who have kept a diary for today. Please empathize with the user in two sentences."),
+                //new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
+                new Message("system", "You are a counselor who can give healing to users who have kept a diary for today. Please empathize with the user in two sentences."),
                 new Message("user", promptRequestDto.getPrompt())
         );
 
@@ -83,5 +92,25 @@ System.out.println("responseEntity: "+responseEntity);
         Choice firstChoice = chatGPTResponseDto.getChoices().get(0);
         System.out.println("firstChoice: "+ firstChoice);
         return new PromptResponseDto(firstChoice.getMessage().getContent());
+    }
+
+    /**
+     * Diary 내 summary 업데이트 (GPT 연동)
+     */
+    // diaryService내 updateDiarySummary 구현시 순환참조 문제로 chatGPTService에 구현
+    @Transactional
+    public void updateDiarySummary(Long diaryId) {
+        // Diary를 찾고 없으면 예외 발생
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
+
+        // summary가 비어있는 경우에만 요약 작업 수행
+        if (diary.getSummary() == null || diary.getSummary().isEmpty()) {
+            PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
+            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto);
+
+            diary.setSummary(promptResponseDto.getContent());
+            diaryRepository.save(diary);
+        }
     }
 }
