@@ -1,11 +1,12 @@
 package com.eumakase.eumakase.service;
 
+import com.eumakase.eumakase.common.constant.PromptMessages;
 import com.eumakase.eumakase.config.ChatGPTConfig;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.chatGPT.*;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
-import com.eumakase.eumakase.repository.UserRepository;
+import com.eumakase.eumakase.util.enums.PromptType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class ChatGPTService {
-
+    PromptMessages promptMessages;
     private final String model;
     private final String url;
     private final ChatGPTConfig chatGPTConfig;
@@ -65,11 +66,19 @@ System.out.println("responseEntity: "+responseEntity);
     /**
      * ChatGPT 프롬프트 답변 생성
      */
-    public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto) {
+    public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto, PromptType promptType) {
+        String systemMessage = "";
+        if (promptType == PromptType.CONTENT_EMOTION_ANALYSIS) {
+            systemMessage= PromptMessages.CONTENT_EMOTION_ANALYSIS;
+        }
+        if (promptType == PromptType.COUNSELOR_CONCEPT) {
+            systemMessage= PromptMessages.COUNSELOR_CONCEPT;
+        }
+        
         // 메시지 리스트를 생성
         List<Message> messages = Arrays.asList(
                 //new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
-                new Message("system", "You are a counselor who can give healing to users who have kept a diary for today. Please empathize with the user in two sentences."),
+                new Message("system", systemMessage),
                 new Message("user", promptRequestDto.getPrompt())
         );
 
@@ -107,7 +116,7 @@ System.out.println("responseEntity: "+responseEntity);
         // summary가 비어있는 경우에만 요약 작업 수행
         if (diary.getSummary() == null || diary.getSummary().isEmpty()) {
             PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
-            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto);
+            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto, PromptType.COUNSELOR_CONCEPT);
 
             diary.setSummary(promptResponseDto.getContent());
             diaryRepository.save(diary);

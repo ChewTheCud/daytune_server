@@ -3,11 +3,15 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.PromptCategory;
+import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
+import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
+import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.util.enums.PromptType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -87,6 +91,9 @@ public class MusicService {
             // diaryService내 updateDiarySummary 구현시 순환참조 문제로 chatGPTService에 구현
             chatGPTService.updateDiarySummary(diaryId);
 
+            // 해당 diary의 prompt + content를 GPT로 요약한 prompt
+            String generationMusicPrompt = generateMusicPrompt(diaryId);
+
             // diaryId에 해당하는 모든 파일 URL 가져오기
             List<String> fileUrls = fileService.getFileDownloadUrlsByDiaryId(diaryId.toString());
 
@@ -105,6 +112,7 @@ public class MusicService {
                     // 이는 각 Music 데이터가 고유한 URL을 가지도록 하기 위함
                     String fileUrl = availableUrls.remove(0); // 사용 가능한 첫 번째 URL 할당
                     music.setFileUrl(fileUrl); // Music 데이터에 file_url 설정
+                    music.setGenerationPrompt(generationMusicPrompt); // 모든 Music에 동일한 prompt 적용
                     musicsToUpdate.add(music); // 수정된 Music 객체를 업데이트 리스트에 추가
 
                     updatedUrlsCount++; // 업데이트된 URL 개수 증가
@@ -137,5 +145,17 @@ public class MusicService {
             // 삭제 실패 시 예외 발생
             throw new MusicException("Music 삭제에 실패했습니다.");
         }
+    }
+
+    /**
+     * 일기 내용 속 감정 추출 (GPT연동) 후, 기존 일기 프롬프트 + 감정 추출 내용을 반환
+     */
+    private String generateMusicPrompt(Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("Diary not found with id: " + diaryId));
+        PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
+        PromptResponseDto promptResponseDto = chatGPTService.sendPrompt(promptRequestDto, PromptType.CONTENT_EMOTION_ANALYSIS);
+
+        return diary.getPrompt() + " , " + promptResponseDto.getContent(); // 요약된 내용 반환
     }
 }
