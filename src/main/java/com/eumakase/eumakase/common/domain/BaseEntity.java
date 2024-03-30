@@ -21,12 +21,4 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedDate;
-
-    public void updateCreateDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public void updateModifiedDate(LocalDateTime updatedDate) {
-        this.updatedDate = updatedDate;
-    }
 }
