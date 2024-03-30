@@ -1,22 +1,23 @@
 package com.eumakase.eumakase.service;
 
-import com.eumakase.eumakase.domain.Diary;
-import com.eumakase.eumakase.domain.Music;
-import com.eumakase.eumakase.domain.PromptCategory;
+import com.eumakase.eumakase.domain.*;
 import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
 import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
-import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.FCMTokenRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.repository.UserRepository;
 import com.eumakase.eumakase.util.enums.PromptType;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,19 @@ public class MusicService {
     @Autowired
     private ChatGPTService chatGPTService;
 
+    @Autowired
+    private FCMService fcmService;
+
     private final MusicRepository musicRepository;
     private final DiaryRepository diaryRepository;
 
-    public MusicService(MusicRepository musicRepository, DiaryRepository diaryRepository) {
+    private final FCMTokenRepository fcmTokenRepository;
+
+
+    public MusicService(MusicRepository musicRepository, DiaryRepository diaryRepository, UserRepository userRepository, FCMTokenRepository fcmTokenRepository) {
         this.musicRepository = musicRepository;
         this.diaryRepository = diaryRepository;
+        this.fcmTokenRepository = fcmTokenRepository;
     }
 
     /**
@@ -67,7 +75,7 @@ public class MusicService {
      * @return
      */
     @Transactional
-    public MusicUpdateFileUrlsResultDto updateMusicFileUrls() {
+    public MusicUpdateFileUrlsResultDto updateMusicFileUrls() throws IOException, FirebaseMessagingException {
         // file_url이 비어 있는 모든 Music 데이터 조회
         // 이는 아직 파일 URL이 할당되지 않은 음악 데이터를 식별하기 위함
         List<Music> emptyFileUrlMusics = musicRepository.findByFileUrlIsNull();
@@ -81,6 +89,8 @@ public class MusicService {
         List<Music> musicsToUpdate = new ArrayList<>();
 
         int updatedUrlsCount = 0; // 업데이트된 URL의 개수를 추적
+
+        Set<String> fcmTokens = new HashSet<>(); // FCM 토큰을 저장할 세트
 
         // 각 diaryId 그룹에 대해서 반복 처리
         for (Map.Entry<Long, List<Music>> entry : groupedByDiaryId.entrySet()) {
@@ -116,6 +126,9 @@ public class MusicService {
                     musicsToUpdate.add(music); // 수정된 Music 객체를 업데이트 리스트에 추가
 
                     updatedUrlsCount++; // 업데이트된 URL 개수 증가
+
+                    String fcmToken = String.valueOf(fcmTokenRepository.findByUser(music.getDiary().getUser()));
+                    fcmTokens.add(fcmToken); // 각 Music의 사용자 FCM 토큰을 수집
                 }
             }
         }
@@ -124,6 +137,15 @@ public class MusicService {
         if (!musicsToUpdate.isEmpty()) {
             musicRepository.saveAll(musicsToUpdate);
         }
+
+        // 모든 대상 사용자에게 푸시 알림 발송
+        if (!fcmTokens.isEmpty()) {
+            for (String token : fcmTokens) {
+                fcmService.sendPushNotification("Music 생성 완료", "당신의 Diary에 모든 Music 파일이 성공적으로 추가되었습니다.", token);
+            }
+        }
+
+
         // 결과 객체 생성 및 반환
         return new MusicUpdateFileUrlsResultDto(emptyFileUrlMusics.size(), updatedUrlsCount);
     }

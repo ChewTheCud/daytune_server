@@ -28,6 +28,17 @@ public class FCMService {
         this.userRepository = userRepository;
     }
 
+    public void sendPushNotification(String title, String message, String fcmToken) throws IOException, FirebaseMessagingException {
+        // FCM 메시지 구성
+        Message fcmMessage = Message.builder()
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(message)
+                        .build())
+                .setToken(fcmToken) // FCM 토큰 사용
+                .build();
+        firebaseMessaging.send(fcmMessage);
+    }
 
     // FCM 토큰 저장 또는 업데이트
     public void updateFcmToken(Long userId, String fcmToken) {
