@@ -57,6 +57,8 @@ public class AuthService {
     // 소셜 로그인 관련 서비스를 제공하는 SocialService 객체
     private final SocialService socialService;
 
+    private final FCMService fcmService;
+
     /**
      * 일반 로그인 처리 메서드.
      * 이메일을 사용하여 사용자를 찾고 JWT 토큰을 발급함.
@@ -75,6 +77,7 @@ public class AuthService {
     public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
+        String fcmToken = socialLoginRequestDto.getFcmToken();
 
         // if(socialType.equals("kakao")) {
             KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
@@ -103,7 +106,7 @@ public class AuthService {
             user = createUserFromSocialData(snsId, email, nickname, profileImageUrl);
             // 새로운 사용자 생성 로직 처리 예시
         }
-            return createSocialLoginResponse(user);
+            return createSocialLoginResponse(user, fcmToken);
         // }
 
        // TODO: Apple Oauth2 로그인 로직 추가
@@ -214,7 +217,7 @@ public class AuthService {
     }
 
     // 소셜 로그인 응답을 생성하는 Helper 메서드
-    private SocialLoginResponseDto createSocialLoginResponse(User user) {
+    private SocialLoginResponseDto createSocialLoginResponse(User user, String fcmToken) {
         String accessToken = jwtIssue(user);
         String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getSnsId());
         manageRefreshToken(user, refreshToken);
@@ -222,6 +225,9 @@ public class AuthService {
         // DateTimeUtil을 사용하여 현재 시간으로 lastLoginDate 업데이트
         user.setLastLoginDate(DateTimeUtil.format(LocalDateTime.now())); // 필요한 경우 DateTimeUtil.now()로 대체 가능
         userRepository.save(user); // 변경사항 저장
+
+
+        fcmService.updateFcmToken(user.getId(), fcmToken);
         
         return SocialLoginResponseDto.of(user, accessToken, refreshToken);
     }
