@@ -39,5 +39,15 @@ chatgpt:
 kakao:
   url: https://kapi.kakao.com/v2/user/me
 
+apple:
+  auth:
+    url: https://appleid.apple.com
+  grant-type: authorization_code
+  client-id: com.chewthecud.daytune.serviceID
+  key-id: KP2729287P
+  team-id: 5WAUHBZJ8Z
+  audience: https://appleid.apple.com
+  private-key: MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgzRRDtyK0dKbQybMyMV8jw863ODUpyt+j6tRtdQ091PqgCgYIKoZIzj0DAQehRANCAAS4L3ht+UpWcjJNHkozue494jufo265Wrg5K6L1ZxLrsE70cPWiPKBxvadT68Kvfvj4d/vTG7B3btc2YHpUuK/Z
+
 firebase:
   bucket-name: daytune-3722b.appspot.com

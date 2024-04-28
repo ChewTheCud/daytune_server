@@ -3,6 +3,7 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
+import com.eumakase.eumakase.dto.auth.apple.AppleResponseDto;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
@@ -75,13 +76,21 @@ public class AuthService {
     public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
-
-        // if(socialType.equals("kakao")) {
+        String snsId = "", email = "", profileImageUrl = "";
+        if(socialType.equals("kakao")) {
             KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
 
-            String snsId = kakaoResponseDto.getId();
-            String email = kakaoResponseDto.getKakaoAccount().getEmail();
-            String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+            snsId = kakaoResponseDto.getId();
+            email = kakaoResponseDto.getKakaoAccount().getEmail();
+            profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        }
+        if(socialType.equals("apple")) {
+            AppleResponseDto appleResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
+
+            snsId = appleResponseDto.getSubject();
+            email = appleResponseDto.getEmail();
+            profileImageUrl = null;
+        }
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
@@ -104,7 +113,6 @@ public class AuthService {
             // 새로운 사용자 생성 로직 처리 예시
         }
             return createSocialLoginResponse(user);
-        // }
 
        // TODO: Apple Oauth2 로그인 로직 추가
     }
