@@ -1,10 +1,13 @@
 package com.eumakase.eumakase.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.eumakase.eumakase.config.AppleProperties;
 import com.eumakase.eumakase.config.KakaoProperties;
 import com.eumakase.eumakase.config.SocialConfig;
-import com.eumakase.eumakase.dto.auth.apple.AppleResponseDto;
-import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleSocialTokenInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,12 +19,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.springframework.web.client.RestClientException;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -41,7 +44,9 @@ public class SocialService {
     }
 
     /**
-     * HTTP 요청 엔티티 생성 (Kakao)
+     * HTTP 요청 엔티티 생성
+     *  @param oauthAccessToken 사용자의 OAuth 액세스 토큰
+     *  @return 구성된 HTTP 요청 엔티티
      */
     public HttpEntity<String> buildHttpEntity(String oauthAccessToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -51,50 +56,52 @@ public class SocialService {
     }
 
     /**
-     * Kakao 유저정보조회 API에 요청 -> 응답을 KakaoResponseDto로 반환
+     * Kakao 유저정보조회 API 호출 -> 응답을 KakaoUserInfoResponseDto로 반환
+     * @param oauthAccessToken 사용자의 OAuth 액세스 토큰
+     * @return 사용자 정보를 담고 있는 KakaoUserInfoResponseDto 객체
      */
-    public KakaoResponseDto getKakaoUserProfile(String oauthAccessToken) {
+    public KakaoUserInfoResponseDto getKakaoUserProfile(String oauthAccessToken) {
         HttpEntity<String> requestEntity = buildHttpEntity(oauthAccessToken);
-        ResponseEntity<KakaoResponseDto> responseEntity = socialConfig.restTemplate().exchange(
+        ResponseEntity<KakaoUserInfoResponseDto> responseEntity = socialConfig.restTemplate().exchange(
                 kakaoProperties.getUrl(),
                 HttpMethod.GET,
                 requestEntity,
-                KakaoResponseDto.class);
+                KakaoUserInfoResponseDto.class);
 
         return responseEntity.getBody();
     }
 
-    public AppleResponseDto getAppleUserProfile(String authorizationCode) throws IOException {
+    /**
+     * Apple 토큰 인증 API 호출 -> 응답받은 ID 토큰을 JWT Decoding 처리 -> AppleUserInfoResponseDto로 반환
+     * @param authorizationCode 사용자로부터 받은 인증 코드
+     * @return 디코딩된 사용자 정보를 담고 있는 AppleUserInfoResponseDto 객체
+     */
+    public AppleUserInfoResponseDto getAppleUserProfile(String authorizationCode) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE));
-        System.out.println("test generateClientSecret():"+generateClientSecret());
         HttpEntity<String> request = new HttpEntity<>("client_id=" + appleProperties.getClientId() +
                 "&client_secret=" + generateClientSecret() +
                 "&grant_type=" + appleProperties.getGrantType() +
                 "&code=" + authorizationCode, headers);
 
-        System.out.println("request body:" + request.getBody());
-        System.out.println("request header:" + request.getHeaders());
+        ResponseEntity<AppleSocialTokenInfoResponseDto> response = socialConfig.restTemplate().exchange(
+                appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleSocialTokenInfoResponseDto.class);
 
-        try {
-            ResponseEntity<AppleResponseDto> response = socialConfig.restTemplate().exchange(
-                    appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleResponseDto.class);
-            System.out.println("test response:" + response);
-            return response.getBody();
-        } catch (RestClientException e) {
-        // RestClientException 처리
-        System.err.println("RestClientException occurred: " + e.getMessage());
-        // 적절한 예외 처리 로직을 여기에 추가하세요. 예를 들어, 로그 기록, 오류 응답 반환 등
-    } catch (Exception e) {
-        // 그 외 예외 처리
-        System.err.println("An unexpected error occurred: " + e.getMessage());
-        // 추가 예외 처리 로직
+        DecodedJWT decodedJWT = JWT.decode(Objects.requireNonNull(response.getBody()).getIdToken());
+
+        AppleUserInfoResponseDto appleUserInfoResponseDto = new AppleUserInfoResponseDto();
+
+        appleUserInfoResponseDto.setSubject(decodedJWT.getClaim("sub").asString());
+        appleUserInfoResponseDto.setEmail(decodedJWT.getClaim("email").asString());
+
+        return appleUserInfoResponseDto;
     }
 
-        return socialConfig.restTemplate().exchange(
-                appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleResponseDto.class).getBody();
-    }
-
+    /**
+     * Apple의 인증 서버와의 통신에 사용될 JWT을 생성하기 위해 사용되는 ClientSecret
+     * ClientSecret은 토큰 요청 시 서명 목적으로 사용되며, 공개키/비공개키 인증 메커니즘이 포함됨
+     * @return 생성된 JWT ClientSecret
+     */
     private String generateClientSecret() {
         LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
 
@@ -109,14 +116,16 @@ public class SocialService {
                 .compact();
     }
 
+    /**
+     * 애플의 JWT 클라이언트 시크릿 생성을 위한 비공개 키 로드
+     * @return 로드된 RSA 비공개 키
+     */
     private PrivateKey getPrivateKey() {
-
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
         JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
 
         try {
             byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
-
             PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
             return converter.getPrivateKey(privateKeyInfo);
         } catch (Exception e) {

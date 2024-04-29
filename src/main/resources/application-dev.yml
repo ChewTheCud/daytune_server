@@ -43,7 +43,7 @@ apple:
   auth:
     url: https://appleid.apple.com
   grant-type: authorization_code
-  client-id: com.chewthecud.daytune.serviceID
+  client-id: com.chewthecud.daytune
   key-id: KP2729287P
   team-id: 5WAUHBZJ8Z
   audience: https://appleid.apple.com

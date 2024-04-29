@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 /**
- * 애플 ID 토큰 응답 정보 DTO
+ * 애플 유저 정보 DTO
  */
 @Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @AllArgsConstructor
 @Data
-public class AppleResponseDto {
+public class AppleUserInfoResponseDto {
+    // 고유ID
     @JsonProperty("sub")
     private String subject;
 

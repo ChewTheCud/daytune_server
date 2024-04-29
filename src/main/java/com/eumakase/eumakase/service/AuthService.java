@@ -3,8 +3,8 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
-import com.eumakase.eumakase.dto.auth.apple.AppleResponseDto;
-import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -84,17 +84,17 @@ public class AuthService {
         }
 
         if(socialType.equals("KAKAO")) {
-            KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+            KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
 
-            snsId = kakaoResponseDto.getId();
-            email = kakaoResponseDto.getKakaoAccount().getEmail();
-            profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+            snsId = kakaoUserInfoResponseDto.getId();
+            email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
+            profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
         }
         if(socialType.equals("APPLE")) {
-            AppleResponseDto appleResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
-            System.out.println("appleResponseDto: "+ appleResponseDto);
-            snsId = appleResponseDto.getSubject();
-            email = appleResponseDto.getEmail();
+            AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
+            System.out.println("appleResponseDto: "+ appleUserInfoResponseDto);
+            snsId = appleUserInfoResponseDto.getSubject();
+            email = appleUserInfoResponseDto.getEmail();
             profileImageUrl = null;
         }
 
