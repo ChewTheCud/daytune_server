@@ -5,13 +5,17 @@ import com.eumakase.eumakase.config.KakaoProperties;
 import com.eumakase.eumakase.config.SocialConfig;
 import com.eumakase.eumakase.dto.auth.apple.AppleResponseDto;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.PrivateKey;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Date;
 
@@ -60,43 +64,49 @@ public class SocialService {
         return responseEntity.getBody();
     }
 
-
-    private String generateClientSecret() {
-        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
-        return Jwts.builder()
-                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
-                .setIssuer(appleProperties.getTeamId())
-                .setAudience(appleProperties.getAudience())
-                .setSubject(appleProperties.getClientId())
-                .setExpiration(Date.from(expiration.atZone(ZoneId.systemDefault()).toInstant()))
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.ES256, getPrivateKey())
-                .compact();
-    }
-
-    private PrivateKey getPrivateKey() {
-        try {
-            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
-            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
-            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-            return converter.getPrivateKey(privateKeyInfo);
-        } catch (Exception e) {
-            throw new RuntimeException("Error converting private key from String", e);
-        }
-    }
-
-    public AppleResponseDto getAppleUserProfile(String authorizationCode) {
+    public AppleResponseDto getAppleUserProfile(String authorizationCode) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
+        System.out.println("test generateClientSecret():"+generateClientSecret());
         HttpEntity<String> request = new HttpEntity<>("client_id=" + appleProperties.getClientId() +
                 "&client_secret=" + generateClientSecret() +
                 "&grant_type=" + appleProperties.getGrantType() +
                 "&code=" + authorizationCode, headers);
 
+        System.out.println("request body:" + request.getBody());
+
         ResponseEntity<AppleResponseDto> response = socialConfig.restTemplate().exchange(
                 appleProperties.getClientId() + "/auth/token", HttpMethod.POST, request, AppleResponseDto.class);
 
+        System.out.println("test response:" + response);
         return response.getBody();
+    }
+
+    private String generateClientSecret() throws IOException {
+        LocalDateTime expiration = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(5);
+        return Jwts.builder()
+                .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
+                .setIssuer(appleProperties.getTeamId())
+                .setAudience(appleProperties.getAudience())
+                .setSubject(appleProperties.getClientId())
+                .setExpiration(Date.from(expiration.toInstant(ZoneOffset.UTC)))
+                .setIssuedAt(Date.from(Instant.now()))
+                .signWith(SignatureAlgorithm.ES256, getPrivateKey())
+                .compact();
+    }
+
+    private PrivateKey getPrivateKey() throws IOException {
+        ASN1InputStream asn1InputStream = null;
+        try {
+            byte[] privateKeyBytes = Base64.getDecoder().decode(appleProperties.getPrivateKey());
+            asn1InputStream = new ASN1InputStream(privateKeyBytes);
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(asn1InputStream.readObject());
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+            return converter.getPrivateKey(privateKeyInfo);
+        } catch (IllegalArgumentException | IOException e) {
+            throw new IllegalArgumentException("Failed to decode or convert private key", e);
+        } finally {
+            asn1InputStream.close();
+        }
     }
 }

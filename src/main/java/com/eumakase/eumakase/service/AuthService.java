@@ -25,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -73,7 +74,7 @@ public class AuthService {
      * 소셜 로그인 처리 메서드.
      * 소셜 로그인 타입에 따라 사용자 프로필 정보를 가져온 후 JWT 토큰 발급.
      */
-    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
+    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) throws IOException {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
         String snsId = "", email = "", profileImageUrl = "";
@@ -91,7 +92,7 @@ public class AuthService {
         }
         if(socialType.equals("APPLE")) {
             AppleResponseDto appleResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
-
+            System.out.println("appleResponseDto: "+ appleResponseDto);
             snsId = appleResponseDto.getSubject();
             email = appleResponseDto.getEmail();
             profileImageUrl = null;
