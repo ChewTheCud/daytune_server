@@ -23,6 +23,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.springframework.web.client.RestClientException;
 
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
 /**
  * SNS에 대한 OAuth 토큰 검증 및 API 요청 수행
  */
@@ -64,7 +66,7 @@ public class SocialService {
 
     public AppleResponseDto getAppleUserProfile(String authorizationCode) throws IOException {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setContentType(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE));
         System.out.println("test generateClientSecret():"+generateClientSecret());
         HttpEntity<String> request = new HttpEntity<>("client_id=" + appleProperties.getClientId() +
                 "&client_secret=" + generateClientSecret() +
@@ -72,7 +74,7 @@ public class SocialService {
                 "&code=" + authorizationCode, headers);
 
         System.out.println("request body:" + request.getBody());
-        System.out.println("request:" + appleProperties.getClientId() + "/auth/token");
+        System.out.println("request header:" + request.getHeaders());
 
         try {
             ResponseEntity<AppleResponseDto> response = socialConfig.restTemplate().exchange(
