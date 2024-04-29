@@ -77,14 +77,19 @@ public class AuthService {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
         String snsId = "", email = "", profileImageUrl = "";
-        if(socialType.equals("kakao")) {
+
+        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE")) {
+            throw new IllegalArgumentException(socialType + "은 지원하지 않는 소셜 타입입니다.");
+        }
+
+        if(socialType.equals("KAKAO")) {
             KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
 
             snsId = kakaoResponseDto.getId();
             email = kakaoResponseDto.getKakaoAccount().getEmail();
             profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
         }
-        if(socialType.equals("apple")) {
+        if(socialType.equals("APPLE")) {
             AppleResponseDto appleResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
 
             snsId = appleResponseDto.getSubject();
