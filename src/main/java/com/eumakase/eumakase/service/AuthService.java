@@ -3,7 +3,8 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
-import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -72,32 +74,49 @@ public class AuthService {
      * 소셜 로그인 처리 메서드.
      * 소셜 로그인 타입에 따라 사용자 프로필 정보를 가져온 후 JWT 토큰 발급.
      */
-    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
+    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) throws IOException {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
+        String snsId = "", email = "", profileImageUrl = "";
 
-        // if(socialType.equals("kakao")) {
-            KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE")) {
+            throw new IllegalArgumentException(socialType + "은 지원하지 않는 소셜 타입입니다.");
+        }
 
-            String snsId = kakaoResponseDto.getId();
-            String email = kakaoResponseDto.getKakaoAccount().getEmail();
-            String nickname = kakaoResponseDto.getKakaoAccount().getProfile().getNickname();
-            String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        if(socialType.equals("KAKAO")) {
+            KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+            snsId = kakaoUserInfoResponseDto.getId();
+            email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
+            profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        }
+        if(socialType.equals("APPLE")) {
+            AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
+            snsId = appleUserInfoResponseDto.getSubject();
+            email = appleUserInfoResponseDto.getEmail();
+            profileImageUrl = null;
+        }
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
         User user;
         if (existingUser.isPresent()) {
-            System.out.println("Existing...");
             user = existingUser.get();
         } else {
-            System.out.println("User does not exist. Creating new user...");
-            // 사용자가 존재하지 않는 경우, createUserFromSocialData 메소드를 호출하여 새로운 사용자를 생성합니다.
+            String nickname = socialLoginRequestDto.getNickname();
+
+            // nickname 값이 null이거나 2~10글자가 아닐 경우 예외 처리
+            if (nickname == null) {
+                throw new AuthException("nickname 파라미터는 공백일 수 없습니다.");
+            }
+            if (nickname.length() < 2 || nickname.length() > 10) {
+                throw new AuthException("닉네임은 2~10글자 사이여야 합니다.");
+            }
+
+            // 사용자가 존재하지 않는 경우, createUserFromSocialData 메소드를 호출하여 새로운 사용자를 생성.
             user = createUserFromSocialData(snsId, email, nickname, profileImageUrl);
             // 새로운 사용자 생성 로직 처리 예시
         }
             return createSocialLoginResponse(user);
-        // }
 
        // TODO: Apple Oauth2 로그인 로직 추가
     }
@@ -129,23 +148,23 @@ public class AuthService {
     public ReissueAccessTokenResponseDto reissue(String refreshToken) {
         // 리프레시 토큰 검증
         if (!jwtIssuer.validateRefreshToken(refreshToken)) {
-            throw new AuthException("Invalid refresh token");
+            throw new AuthException("유효하지 않은 refresh token 입니다.");
         }
 
         // 리프레시 토큰으로부터 사용자 정보 추출
-        String email = jwtDecoder.extractEmailFromRefreshToken(refreshToken);
+        String snsId = jwtDecoder.extractSnsIdFromRefreshToken(refreshToken);
 
-        // 해당 이메일의 사용자가 존재하는지 확인
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException(400, "User not found"));
+        // 해당 sndId의 사용자가 존재하는지 확인
+        User user = userRepository.findBySnsId(snsId)
+                .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
 
         // 리프레시 토큰이 해당 사용자에게 속하는지 확인
         refreshTokenRepository.findByUser(user)
                 .filter(rt -> rt.getRefreshToken().equals(refreshToken))
-                .orElseThrow(() -> new AuthException("Invalid refresh token"));
+                .orElseThrow(() -> new AuthException("사용자에게 발급되지 않은 refresh token 입니다."));
 
         // 새로운 액세스 토큰 발급
-        String newAccessToken =  jwtIssuer.issue(user.getId(), user.getEmail(), Collections.singletonList(user.getRole().toString()));
+        String newAccessToken =  jwtIssuer.issue(user.getId(), user.getSnsId(), Collections.singletonList(user.getRole().toString()));
         return ReissueAccessTokenResponseDto.of(newAccessToken);
     }
 
@@ -155,13 +174,13 @@ public class AuthService {
     public String jwtIssue(User user){
         // 인증 객체 생성
         var authenticationToken = new UsernamePasswordAuthenticationToken(
-                user.getEmail(),
-                user.getEmail()+passwordSuffix
+                user.getSnsId(),
+                user.getSnsId()+passwordSuffix
         );
-        System.out.println("social authenticationToken:"+authenticationToken);
+
         // 사용자 인증 처리
         var authentication = authenticationManager.authenticate(authenticationToken);
-        System.out.println("social authentication:"+authentication);
+
         // 인증 정보를 Security Context에 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -174,7 +193,7 @@ public class AuthService {
                 .toList();
 
         // JWT 토큰 발급
-        var token = jwtIssuer.issue(principal.getUserId(), principal.getEmail(), roles);
+        var token = jwtIssuer.issue(principal.getUserId(), principal.getSnsId(), roles);
 
         return token;
     }
@@ -209,7 +228,7 @@ public class AuthService {
     // 소셜 로그인 응답을 생성하는 Helper 메서드
     private SocialLoginResponseDto createSocialLoginResponse(User user) {
         String accessToken = jwtIssue(user);
-        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getEmail());
+        String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getSnsId());
         manageRefreshToken(user, refreshToken);
 
         // DateTimeUtil을 사용하여 현재 시간으로 lastLoginDate 업데이트

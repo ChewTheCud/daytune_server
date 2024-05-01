@@ -7,14 +7,16 @@ import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.UserRepository;
-import com.eumakase.eumakase.util.SecurityUtils;
+import com.eumakase.eumakase.util.SecurityUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -36,28 +38,26 @@ public class DiaryService {
      * Diary 생성
      */
     @Transactional
-    public DiaryCreateResponseDto createDiary(DiaryCreateRequestDto diaryCreateRequestDto) {
+    public DiaryCreateResponseDto createDiary(Long userId, DiaryCreateRequestDto diaryCreateRequestDto) {
         try {
-            //로그인된 사용자 Email 조회 후 User 정보 가져오는 로직
-            String currentUserEmail = SecurityUtils.getCurrentUsername();
-            User user = userRepository.findByEmail(currentUserEmail)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + currentUserEmail));
-
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
             Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user);
 
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
 
-            // Music 생성 로직
-            MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
-            musicCreateRequestDto.setDiaryId(savedDiary.getId());
+            // Music 생성 로직 - 일기당 세 개의 음악 데이터 생성
+            for (int i = 0; i < 3; i++) {
+                MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
+                musicCreateRequestDto.setDiaryId(savedDiary.getId());
 
-            musicService.createMusic(musicCreateRequestDto);
+                musicService.createMusic(musicCreateRequestDto);
+            }
 
             // DiaryCreateResponseDto 객체 생성 및 반환
             return DiaryCreateResponseDto.of(savedDiary);
         } catch (Exception e) {
-            // 예외 처리 로직
             throw new DiaryException("Diary 생성 중 오류가 발생했습니다.");
         }
     }
@@ -70,6 +70,17 @@ public class DiaryService {
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
         return DiaryReadResponseDto.of(diary);
+    }
+
+    /**
+     * Diary 조회 (전체)
+     */
+    public List<Diary> getAllDiariesByUserId(Long userId) {
+        List<Diary> diaries = diaryRepository.findByUserId(userId);
+        if (diaries.isEmpty()) {
+            throw new DiaryException("User ID가 " + userId + "인 Diary 데이터를 찾을 수 없습니다.");
+        }
+        return diaries;
     }
 
     /**

@@ -16,7 +16,7 @@ public class JwtToPrincipalConverter {
     public UserPrincipal convert(DecodedJWT jwt) {
         return UserPrincipal.builder()
                 .userId(Long.valueOf(jwt.getSubject())) // JWT 'sub' (subject) 클레임에서 사용자 ID 추출
-                .email(jwt.getClaim("e").asString()) // 'e' 커스텀 클레임에서 이메일 추출
+                .snsId(jwt.getClaim("e").asString()) // 'snsId' 커스텀 클레임에서 이메일 추출
                 .authorities(extractAuthoritiesFromClaim(jwt)) // 권한 정보 추출
                 .build();
     }

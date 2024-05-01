@@ -19,4 +19,6 @@ public class SocialLoginRequestDto implements Serializable {
 
     @NotBlank
     private String oauthAccessToken;
+
+    private String nickname;
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Data
-public class KakaoResponseDto implements Serializable {
+public class KakaoUserInfoResponseDto implements Serializable {
     private String id;
     private Map<String, String> properties;
 

@@ -33,7 +33,7 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(new ClassPathResource("daytune-3722b-firebase-adminsdk-ee8uq-fe5091e9e0.json").getInputStream()))
+                    .setCredentials(GoogleCredentials.fromStream(new ClassPathResource("daytune-3722b-firebase-adminsdk-ee8uq-3ac1946af3.json").getInputStream()))
                     .setStorageBucket(BUCKET_NAME)
                     .build();
 

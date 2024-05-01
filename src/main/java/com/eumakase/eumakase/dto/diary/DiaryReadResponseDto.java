@@ -4,6 +4,7 @@ import com.eumakase.eumakase.domain.Diary;
 import lombok.*;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * Diary 생성 응답 DTO
@@ -16,14 +17,14 @@ public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
     private String content;
-    private String mood;
+    private LocalDateTime createdDate;
 
     public static DiaryReadResponseDto of(Diary diary) {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
-                //.userId(diary.getUser() != null ? diary.getUser().getId() : null) // TODO: 24.01.17 로그인 기능 구현 후 반영
+                .userId(diary.getUser() != null ? diary.getUser().getId() : null)
                 .content(diary.getContent())
-                .mood(diary.getMood())
+                .createdDate(diary.getCreatedDate())
                 .build();
     }
 }

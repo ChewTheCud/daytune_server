@@ -21,12 +21,12 @@ public class Diary extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "music_id")
-    private Music music;
+    @JoinColumn(name = "prompt_category_id")
+    private PromptCategory promptCategory;
 
     @Column
     private String content;
 
     @Column
-    private String mood;
+    private String prompt;
 }

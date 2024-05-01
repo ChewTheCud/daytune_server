@@ -16,14 +16,12 @@ public class MusicCreateResponseDto implements Serializable {
     private Long id;
     private Long diaryId;
     private Long promptCategoryId;
-    private String promptCategoryTitle;
 
     public static MusicCreateResponseDto of(Music music) {
         return MusicCreateResponseDto.builder()
                 .id(music.getId())
                 .diaryId(music.getDiary().getId())
                 .promptCategoryId(music.getPromptCategory() != null ? music.getPromptCategory().getId() : null)
-                .promptCategoryTitle(music.getPromptCategory() != null ? music.getPromptCategory().getTitle() : null)
                 .build();
     }
 }

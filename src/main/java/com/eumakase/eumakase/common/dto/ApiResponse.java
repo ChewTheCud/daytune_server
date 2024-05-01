@@ -31,6 +31,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>("SUCCESS", message, data);
     }
 
+    public static <T> ApiResponse<T> success(String message) {
+        return new ApiResponse<>("SUCCESS", message);
+    }
+
     // 오류 응답 메서드
     public static <T> ApiResponse<T> error(String message) {
         return new ApiResponse<>("ERROR", message);

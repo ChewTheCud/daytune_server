@@ -20,13 +20,13 @@ public abstract class BaseEntity {
 
     @LastModifiedDate
     @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime modifiedDate;
+    private LocalDateTime updatedDate;
 
     public void updateCreateDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 
-    public void updateModifiedDate(LocalDateTime modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void updateModifiedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
     }
 }

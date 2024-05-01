@@ -15,7 +15,6 @@ import java.util.Optional;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "users")
 public class User extends BaseEntity {
 
     @Id
@@ -38,6 +37,9 @@ public class User extends BaseEntity {
     @Column(name = "profile_image_url")
     private String profileImageUrl;
 
+    @Column(name = "birth_date")
+    private String birthDate;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -46,6 +48,9 @@ public class User extends BaseEntity {
 
     @Column(name = "last_login_date")
     private LocalDateTime lastLoginDate;
+
+    @Column(name = "deleted_date")
+    private LocalDateTime deletedDate;
 
     public User(Optional<User> findUser) {
         super();

@@ -15,6 +15,7 @@ import java.util.Collection;
 @Builder
 public class UserPrincipal implements UserDetails {
     private final Long userId; // 사용자의 고유 ID
+    private final String snsId; // 사용자의 고유 SNS ID
     private final String email; // 사용자의 이메일 주소
     @JsonIgnore
     private final String password; // 사용자의 비밀번호, JSON 직렬화 시 무시됨
@@ -25,6 +26,9 @@ public class UserPrincipal implements UserDetails {
         return authorities; // 사용자에게 부여된 권한 반환
     }
 
+    public Long getId() {
+        return userId;
+    }
     @Override
     public String getPassword() {
         return password; // 사용자 비밀번호 반환
@@ -32,7 +36,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // 사용자 이름으로 이메일 사용
+        return snsId; // 사용자 이름으로 snsId 사용
     }
 
     // 계정 만료 여부 반환 (true: 만료되지 않음)

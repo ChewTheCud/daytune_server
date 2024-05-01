@@ -28,13 +28,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // HTTP 요청에 대한 JWT 인증 필터
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        extractTokenFromRequest(request) // 요청으로부터 JWT 추출
-                .map(jwtDecoder::decode) // JWT 디코드
-                .map(jwtToPrincipalConverter::convert) // 디코드된 JWT를 UserPrincipal 객체로 변환
-                .map(UserPrincipalAuthenticationToken::new) // UserPrincipal 객체를 사용하여 인증 토큰 생성
-                .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication)); // 생성된 인증 토큰을 보안 컨텍스트에 설정
+        try {
+            extractTokenFromRequest(request) // 요청으로부터 JWT 추출
+                    .map(jwtDecoder::decode) // JWT 디코드
+                    .map(jwtToPrincipalConverter::convert) // 디코드된 JWT를 UserPrincipal 객체로 변환
+                    .map(UserPrincipalAuthenticationToken::new) // UserPrincipal 객체를 사용하여 인증 토큰 생성
+                    .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication)); // 생성된 인증 토큰을 보안 컨텍스트에 설정
 
-        filterChain.doFilter(request, response); // 다음 필터로 요청과 응답 전달
+            filterChain.doFilter(request, response); // 다음 필터로 요청과 응답 전달
+        } catch (Exception ex) {
+            // Spring Security에 예외 처리를 위임 (AuthenticationEntryPoint로 처리)
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+        }
     }
 
     // HTTP 요청 헤더로부터 JWT 추출
