@@ -5,15 +5,18 @@ spring:
     multipart:
       max-file-size: 10MB # 최대 파일 업로드 크기
       max-request-size: 20MB # 최대 요청 크기
+  web:
+    resources:
+      add-mappings: false
 
   datasource:
-    url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+    url: jdbc:mysql://daytune-db-prod.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
     username: root
     password: cbejzjem2023!
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
 #       show_sql: true
@@ -35,6 +38,16 @@ chatgpt:
 
 kakao:
   url: https://kapi.kakao.com/v2/user/me
+
+apple:
+  auth:
+    url: https://appleid.apple.com
+  grant-type: authorization_code
+  client-id: com.chewthecud.daytune
+  key-id: KP2729287P
+  team-id: 5WAUHBZJ8Z
+  audience: https://appleid.apple.com
+  private-key: MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgzRRDtyK0dKbQybMyMV8jw863ODUpyt+j6tRtdQ091PqgCgYIKoZIzj0DAQehRANCAAS4L3ht+UpWcjJNHkozue494jufo265Wrg5K6L1ZxLrsE70cPWiPKBxvadT68Kvfvj4d/vTG7B3btc2YHpUuK/Z
 
 firebase:
   bucket-name: daytune-3722b.appspot.com
