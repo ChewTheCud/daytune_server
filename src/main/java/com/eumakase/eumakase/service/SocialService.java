@@ -8,6 +8,7 @@ import com.eumakase.eumakase.config.SocialConfig;
 import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.apple.AppleSocialTokenInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
+import com.eumakase.eumakase.exception.AuthException;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.springframework.web.client.HttpClientErrorException;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
@@ -84,17 +86,31 @@ public class SocialService {
                 "&grant_type=" + appleProperties.getGrantType() +
                 "&code=" + authorizationCode, headers);
 
-        ResponseEntity<AppleSocialTokenInfoResponseDto> response = socialConfig.restTemplate().exchange(
-                appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleSocialTokenInfoResponseDto.class);
+        try {
+            ResponseEntity<AppleSocialTokenInfoResponseDto> response = socialConfig.restTemplate().exchange(
+                    appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleSocialTokenInfoResponseDto.class);
 
-        DecodedJWT decodedJWT = JWT.decode(Objects.requireNonNull(response.getBody()).getIdToken());
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new HttpClientErrorException(response.getStatusCode(), "Failed to retrieve Apple user profile");
+            }
 
-        AppleUserInfoResponseDto appleUserInfoResponseDto = new AppleUserInfoResponseDto();
+            DecodedJWT decodedJWT = JWT.decode(Objects.requireNonNull(response.getBody()).getIdToken());
 
-        appleUserInfoResponseDto.setSubject(decodedJWT.getClaim("sub").asString());
-        appleUserInfoResponseDto.setEmail(decodedJWT.getClaim("email").asString());
+            AppleUserInfoResponseDto appleUserInfoResponseDto = new AppleUserInfoResponseDto();
+            appleUserInfoResponseDto.setSubject(decodedJWT.getClaim("sub").asString());
+            appleUserInfoResponseDto.setEmail(decodedJWT.getClaim("email").asString());
 
-        return appleUserInfoResponseDto;
+            return appleUserInfoResponseDto;
+
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                throw new AuthException("유효하지 않거나 만료된 oauthAccessToken입니다.");
+            } else {
+                // General HTTP client error handling
+                System.err.println("HTTP client error occurred: " + e.getStatusCode() + " " + e.getLocalizedMessage());
+                throw e;
+            }
+        }
     }
 
     /**

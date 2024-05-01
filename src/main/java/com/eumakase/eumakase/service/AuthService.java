@@ -85,14 +85,12 @@ public class AuthService {
 
         if(socialType.equals("KAKAO")) {
             KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
-
             snsId = kakaoUserInfoResponseDto.getId();
             email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
             profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
         }
         if(socialType.equals("APPLE")) {
             AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
-            System.out.println("appleResponseDto: "+ appleUserInfoResponseDto);
             snsId = appleUserInfoResponseDto.getSubject();
             email = appleUserInfoResponseDto.getEmail();
             profileImageUrl = null;

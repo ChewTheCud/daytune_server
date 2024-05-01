@@ -17,5 +17,4 @@ public class AppleUserInfoResponseDto {
 
     @JsonProperty("email")
     private String email;
-
 }
