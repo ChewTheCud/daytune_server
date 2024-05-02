@@ -26,7 +26,7 @@ public class UserController {
     /**
      * 사용자 정보 조회 (단일)
      */
-    @GetMapping("")
+    @GetMapping("/")
     public ResponseEntity<ApiResponse<UserReadResponseDto>> getUser(@AuthenticationPrincipal UserPrincipal currentUser) {
         try {
             Long authenticatedUserId = currentUser.getId();
