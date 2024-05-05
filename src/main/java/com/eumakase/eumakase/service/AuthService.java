@@ -3,7 +3,8 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
-import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -72,16 +74,27 @@ public class AuthService {
      * 소셜 로그인 처리 메서드.
      * 소셜 로그인 타입에 따라 사용자 프로필 정보를 가져온 후 JWT 토큰 발급.
      */
-    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
+    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) throws IOException {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
+        String snsId = "", email = "", profileImageUrl = "";
 
-        // if(socialType.equals("kakao")) {
-            KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE")) {
+            throw new IllegalArgumentException(socialType + "은 지원하지 않는 소셜 타입입니다.");
+        }
 
-            String snsId = kakaoResponseDto.getId();
-            String email = kakaoResponseDto.getKakaoAccount().getEmail();
-            String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        if(socialType.equals("KAKAO")) {
+            KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+            snsId = kakaoUserInfoResponseDto.getId();
+            email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
+            profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        }
+        if(socialType.equals("APPLE")) {
+            AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
+            snsId = appleUserInfoResponseDto.getSubject();
+            email = appleUserInfoResponseDto.getEmail();
+            profileImageUrl = null;
+        }
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
@@ -104,7 +117,6 @@ public class AuthService {
             // 새로운 사용자 생성 로직 처리 예시
         }
             return createSocialLoginResponse(user);
-        // }
 
        // TODO: Apple Oauth2 로그인 로직 추가
     }
