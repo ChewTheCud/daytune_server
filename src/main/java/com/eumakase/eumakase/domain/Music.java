@@ -25,9 +25,15 @@ public class Music extends BaseEntity {
     @JoinColumn(name = "diary_id")
     private Diary diary;
 
+    @Column
+    private String generationPrompt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prompt_category_id")
     private PromptCategory promptCategory;
+
+    @Column(name = "suno_ai_music_id")
+    private String sunoAiMusicId;
 
     @Column(name = "file_url")
     private String fileUrl;
