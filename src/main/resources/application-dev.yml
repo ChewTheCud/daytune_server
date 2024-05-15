@@ -8,6 +8,8 @@ spring:
   web:
     resources:
       add-mappings: false
+  jackson:
+    time-zone: Asia/Seoul
 
   datasource:
     url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
