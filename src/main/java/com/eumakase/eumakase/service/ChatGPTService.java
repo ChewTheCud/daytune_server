@@ -74,7 +74,7 @@ System.out.println("responseEntity: "+responseEntity);
         if (promptType == PromptType.COUNSELOR_CONCEPT) {
             systemMessage= PromptMessages.COUNSELOR_CONCEPT;
         }
-        
+
         // 메시지 리스트를 생성
         List<Message> messages = Arrays.asList(
                 //new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
@@ -93,13 +93,11 @@ System.out.println("responseEntity: "+responseEntity);
                 ChatGPTConfig.TOP_P,
                 ChatGPTConfig.CHOICE_NUMBER
         );
-        System.out.println("chatGPTRequestDto: "+ chatGPTRequestDto);
+
         // [STEP2] API 응답을 받음
         ChatGPTResponseDto chatGPTResponseDto =  this.getResponse(this.buildHttpEntity(chatGPTRequestDto));
-        System.out.println("chatGPTResponseDto: "+ chatGPTResponseDto);
         // [STEP3] 첫 번째 선택지의 메시지 내용을 반환
         Choice firstChoice = chatGPTResponseDto.getChoices().get(0);
-        System.out.println("firstChoice: "+ firstChoice);
         return new PromptResponseDto(firstChoice.getMessage().getContent());
     }
 
