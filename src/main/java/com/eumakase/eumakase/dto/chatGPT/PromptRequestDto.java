@@ -10,9 +10,13 @@ import java.io.Serializable;
 /**
  * 프롬프트 질문 요청시 DTO
  */
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Data
 public class PromptRequestDto implements Serializable {
     @NotBlank
     private String prompt;
+
+    public PromptRequestDto(String prompt) {
+        this.prompt = prompt;
+    }
 }

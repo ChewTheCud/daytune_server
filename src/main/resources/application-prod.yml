@@ -8,6 +8,8 @@ spring:
   web:
     resources:
       add-mappings: false
+  jackson:
+    time-zone: Asia/Seoul
 
   datasource:
     url: jdbc:mysql://daytune-db-prod.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
@@ -35,6 +37,9 @@ chatgpt:
   model: gpt-4-1106-preview
   secret-key: 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
   url: https://api.openai.com/v1/chat/completions
+
+sunoai:
+  url: http://43.202.174.144:3000/api
 
 kakao:
   url: https://kapi.kakao.com/v2/user/me

@@ -6,6 +6,7 @@ import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.security.UserPrincipal;
 import com.eumakase.eumakase.service.DiaryService;
@@ -39,7 +40,10 @@ public class DiaryController {
         Long authenticatedUserId = currentUser.getId();
         try {
             DiaryCreateResponseDto diaryCreateResponseDto = diaryService.createDiary(authenticatedUserId, diaryCreateRequestDto);
-            return ResponseEntity.ok(ApiResponse.success("Diary 생성에 성공했습니다.",diaryCreateResponseDto));
+            // 비동기 작업 호출
+            diaryService.handleDiaryCreationAsync(diaryCreateResponseDto.getId());
+
+            return ResponseEntity.ok(ApiResponse.success("Diary 생성에 성공했습니다.", diaryCreateResponseDto));
         } catch (UserException e) {
             return ResponseEntity
                     .badRequest()

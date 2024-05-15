@@ -13,10 +13,12 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 public class DiaryCreateResponseDto implements Serializable {
+    private Long id;
     private String content;
 
     public static DiaryCreateResponseDto of(Diary diary) {
         return DiaryCreateResponseDto.builder()
+                .id(diary.getId())
                 .content(diary.getContent())
                 .build();
     }
