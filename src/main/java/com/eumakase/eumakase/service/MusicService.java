@@ -5,6 +5,8 @@ import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.PromptCategory;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
+import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
+import com.eumakase.eumakase.dto.music.MusicUpdateInfo;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIResponseDto;
 import com.eumakase.eumakase.exception.MusicException;
@@ -110,6 +112,7 @@ public class MusicService {
         try {
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, buildHttpEntity().getHeaders());
 
+            System.out.println("SunoAIRequestDto: "+ requestEntity);
             // SunoAI API 호출
             ResponseEntity<List<SunoAIResponseDto>> response = sunoAIConfig.restTemplate().exchange(
                     sunoAIProperties.getUrl() + "/generate",
@@ -179,48 +182,60 @@ public class MusicService {
     }
 
     /**
-     * Music 엔티티의 fileUrl 필드 업데이트
+     * Music 테이블의 fileUrl이 비어있는 레코드들을 업데이트합니다.
+     * @return MusicUpdateFileUrlsResultDto - 업데이트된 음악 파일 정보와 업데이트되지 않은 음악 파일 정보를 포함합니다.
      */
     @Transactional
-    public void updateMusicFileUrls() {
-        // fileUrl이 비어있는 Music 데이터를 조회
-        List<Music> musicList = musicRepository.findByFileUrlIsNull();
+    public MusicUpdateFileUrlsResultDto updateMusicFileUrls() {
+        // fileUrl이 비어있는 Music 데이터를 조회.
+        List<Music> musicList = musicRepository.findBySunoAiMusicIdIsNotNullAndFileUrlIsNull();
 
-        // suno_ai_music_id 목록 추출
+        // 조회된 Music 데이터에서 suno_ai_music_id 목록을 추출.
         List<String> sunoAiMusicIds = musicList.stream()
                 .map(Music::getSunoAiMusicId)
                 .collect(Collectors.toList());
 
+        // 업데이트된 음악 파일과 업데이트되지 않은 음악 파일 정보를 저장할 리스트를 초기화.
+        List<MusicUpdateInfo> updatedMusicFiles = new ArrayList<>();
+        List<MusicUpdateInfo> notUpdatedMusicFiles = new ArrayList<>();
+
+        // 업데이트할 음악 데이터가 없는 경우
         if (sunoAiMusicIds.isEmpty()) {
             log.info("업데이트할 음악 데이터가 없습니다.");
-            return;
+            return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
         }
 
-        // SunoAI 음악 세부 정보 조회
-        try {
-            List<Map<String, String>> musicDetails = getSunoAIMusicDetails(String.join(",", sunoAiMusicIds));
+        // SunoAI API를 통해 음악 세부 정보를 조회하여 5개씩 처리.
+        for (int i = 0; i < sunoAiMusicIds.size(); i += 5) {
+            // 조회가 필요한 Suno AI id 목록을 추출합니다.
+            List<String> sunoMusicIds = sunoAiMusicIds.subList(i, Math.min(i + 5, sunoAiMusicIds.size()));
+            try {
+                // SunoAI API를 호출하여 음악 세부 정보를 조회.
+                List<Map<String, String>> musicDetails = getSunoAIMusicDetails(String.join(",", sunoMusicIds));
 
-            // suno_ai_music_id로 그룹화된 map 생성
-            Map<String, String> idToUrlMap = musicDetails.stream()
-                    .collect(Collectors.toMap(
-                            music -> music.get("id"),
-                            music -> music.get("audio_url")
-                    ));
+                // 조회된 음악 세부 정보를 id와 audio_url로 매핑.
+                Map<String, String> idToUrlMap = musicDetails.stream()
+                        .collect(Collectors.toMap(
+                                music -> music.get("id"),
+                                music -> music.get("audio_url")
+                        ));
 
-            // 각 Music 엔티티에 fileUrl 설정
-            for (Music music : musicList) {
-                String audioUrl = idToUrlMap.get(music.getSunoAiMusicId());
-                if (audioUrl != null) {
-                    music.setFileUrl(audioUrl);
+                // 각 Music 엔티티에 대해 파일 URL을 설정하고 업데이트된 정보 리스트에 추가
+                for (Music music : musicList) {
+                    String audioUrl = idToUrlMap.get(music.getSunoAiMusicId());
+                    if (audioUrl != null) {
+                        music.setFileUrl(audioUrl);
+                        updatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
+                    } else {
+                        notUpdatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), null));
+                    }
                 }
+                musicRepository.saveAll(musicList);
+            } catch (Exception e) {
+                log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
             }
-
-            // 업데이트된 Music 엔티티를 저장
-            musicRepository.saveAll(musicList);
-            log.info("총 {}개의 음악 파일 URL이 업데이트되었습니다.", musicList.size());
-        } catch (Exception e) {
-            log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
         }
+        return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
     }
 
     /**

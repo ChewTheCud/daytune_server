@@ -57,22 +57,21 @@ public class MusicController {
         }
     }
 
-//    /**
-//     * 음악 파일 URL 업데이트
-//     */
-//    //
-//    @GetMapping("/urls")
-//    public ResponseEntity<ApiResponse<String>> updateMusicUrls() {
-//        try {
-//            MusicUpdateFileUrlsResultDto result = musicService.updateMusicFileUrls();
-//
-//            String message = String.format("총 %d개의 미완성 음악 데이터 중, %d개 데이터에 성공적으로 파일 URL을 할당했습니다.",
-//                    result.getTotalNullUrls(), result.getUpdatedUrlsCount());
-//
-//            return ResponseEntity.ok(ApiResponse.success(message, null));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body(ApiResponse.error("Music 데이터 FileUrl 추가에 실패했습니다."));
-//        }
-//    }
+    /**
+     * 음악 파일 URL 업데이트
+     */
+    //
+    @GetMapping("/urls")
+    public ResponseEntity<ApiResponse<MusicUpdateFileUrlsResultDto>> updateMusicUrls() {
+        try {
+            MusicUpdateFileUrlsResultDto result = musicService.updateMusicFileUrls();
+            String message = String.format("총 %d개의 음악 데이터 중, %d개 데이터가 성공적으로 파일 URL이 업데이트되었습니다.",
+                    result.getUpdatedMusicFiles().size() + result.getNotUpdatedMusicFiles().size(), result.getUpdatedMusicFiles().size());
+
+            return ResponseEntity.ok(ApiResponse.success(message, result));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Music 데이터 FileUrl 추가에 실패했습니다."));
+        }
+    }
 }
