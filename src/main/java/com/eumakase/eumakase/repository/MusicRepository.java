@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MusicRepository extends JpaRepository<Music, Long> {
     List<Music> findBySunoAiMusicIdIsNotNullAndFileUrlIsNull();
+    List<Music> findByDiaryIdAndIdNot(Long diaryId, Long musicId);
 }

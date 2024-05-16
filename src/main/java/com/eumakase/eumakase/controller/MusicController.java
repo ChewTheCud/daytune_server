@@ -1,9 +1,11 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
+import com.eumakase.eumakase.dto.music.MusicSelectionRequestDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
+import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.service.MusicService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,6 +74,27 @@ public class MusicController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Music 데이터 FileUrl 추가에 실패했습니다."));
+        }
+    }
+
+    /**
+     * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제.
+     * @param requestDto 선택할 음악과 일기의 정보를 담은 DTO
+     * @return 성공 또는 실패 응답
+     */
+    @PostMapping("/select")
+    public ResponseEntity<ApiResponse<Void>> selectMusic(@RequestBody MusicSelectionRequestDto requestDto) {
+        try {
+            // 음악을 선택하고 나머지 음악을 삭제
+            musicService.selectMusic(requestDto.getDiaryId(), requestDto.getMusicId());
+            return ResponseEntity.ok(ApiResponse.success("음악 선택에 성공했습니다.", null));
+        } catch (MusicException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("음악 선택에 실패했습니다."));
         }
     }
 }

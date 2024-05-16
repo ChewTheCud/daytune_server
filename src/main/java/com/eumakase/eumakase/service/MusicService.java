@@ -12,6 +12,10 @@ import com.eumakase.eumakase.dto.sunoAI.SunoAIResponseDto;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.util.FileUtil;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.firebase.cloud.StorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -22,24 +26,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class MusicService {
-    private final FileService fileService;
     private final SunoAIConfig sunoAIConfig;
     private final SunoAIConfig.SunoAIProperties sunoAIProperties;
-    private final ChatGPTService chatGPTService;
     private final MusicRepository musicRepository;
     private final DiaryRepository diaryRepository;
 
-    public MusicService(FileService fileService, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, ChatGPTService chatGPTService, MusicRepository musicRepository, DiaryRepository diaryRepository) {
-        this.fileService = fileService;
+    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, ChatGPTService, MusicRepository musicRepository, DiaryRepository diaryRepository) {
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
-        this.chatGPTService = chatGPTService;
         this.musicRepository = musicRepository;
         this.diaryRepository = diaryRepository;
     }
@@ -255,6 +258,70 @@ public class MusicService {
         if (deletedMusic.isPresent()) {
             // 삭제 실패 시 예외 발생
             throw new MusicException("Music 삭제에 실패했습니다.");
+        }
+    }
+
+
+    /**
+     * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제합니다.
+     * 선택된 음악을 Firebase Storage에 저장하고, 해당 음악의 URL을 업데이트합니다.
+     *
+     * @param diaryId 선택된 음악이 속한 일기의 ID
+     * @param musicId 선택된 음악의 ID
+     * @throws MusicException 이미 선택된 음악일 경우 예외 발생
+     */
+    @Transactional
+    public void selectMusic(Long diaryId, Long musicId) {
+        // 일기 엔티티를 조회합니다. 존재하지 않을 경우 예외를 발생시킵니다.
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("Diary not found with id: " + diaryId));
+
+        // 선택된 음악 엔티티를 조회합니다. 존재하지 않을 경우 예외를 발생시킵니다.
+        Music selectedMusic = musicRepository.findById(musicId)
+                .orElseThrow(() -> new IllegalArgumentException("Music not found with id: " + musicId));
+
+        // 이미 선택된 음악인지 확인합니다. 선택된 음악일 경우 예외를 발생시킵니다.
+        if (selectedMusic.getFileUrl() != null && selectedMusic.getFileUrl().startsWith("https://storage.googleapis.com/")) {
+            throw new MusicException("이미 선택된 음악입니다.");
+        }
+
+        // 선택된 음악을 제외한 나머지 음악 목록을 조회합니다.
+        List<Music> otherMusics = musicRepository.findByDiaryIdAndIdNot(diaryId, musicId);
+
+        // 나머지 음악들을 삭제합니다.
+        musicRepository.deleteAll(otherMusics);
+
+        // 선택된 음악을 Firebase Storage에 저장합니다.
+        String firebaseUrl = uploadFileToFirebaseStorage(selectedMusic);
+
+        // 선택된 음악의 URL을 업데이트합니다.
+        selectedMusic.setFileUrl(firebaseUrl);
+        musicRepository.save(selectedMusic);
+    }
+
+    /**
+     * 선택된 음악 파일을 Firebase Storage에 업로드.
+     * @param music 선택된 음악 엔티티
+     * @return 업로드된 파일의 Firebase Storage URL
+     */
+    private String uploadFileToFirebaseStorage(Music music) {
+        try {
+            // 원격 파일을 다운로드
+            File tempFile = FileUtil.downloadFile(music.getFileUrl());
+
+            // Firebase Storage에 파일을 업로드
+            Bucket bucket = StorageClient.getInstance().bucket();
+            String blobName = "music/diaryId_" + music.getDiary().getId() + ".mp3"; //파일명
+            Blob blob = bucket.create(blobName, new FileInputStream(tempFile), "audio/mpeg");
+
+            // 임시 파일 삭제
+            tempFile.delete();
+
+            // Firebase Storage URL을 반환
+            return blob.getMediaLink();
+        } catch (IOException e) {
+            log.error("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.", e);
+            throw new RuntimeException("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.");
         }
     }
 }
