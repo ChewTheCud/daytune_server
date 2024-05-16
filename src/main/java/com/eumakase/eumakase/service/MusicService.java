@@ -5,6 +5,7 @@ import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.PromptCategory;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
+import com.eumakase.eumakase.dto.music.MusicReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateInfo;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
@@ -185,6 +186,21 @@ public class MusicService {
     }
 
     /**
+     * 특정 일기의 음악 정보 조회
+     * @param diaryId 일기의 ID
+     * @return 일기에 속한 음악들의 정보 리스트
+     */
+    public List<MusicReadResponseDto> getMusicByDiaryId(Long diaryId) {
+        List<Music> musics = musicRepository.findByDiaryId(diaryId);
+        if (!diaryRepository.existsById(diaryId)) {
+            throw new MusicException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다.");
+        }
+        return musics.stream()
+                .map(music -> new MusicReadResponseDto(music.getId(), music.getFileUrl()))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Music 테이블의 fileUrl이 비어있는 레코드들을 업데이트합니다.
      * @return MusicUpdateFileUrlsResultDto - 업데이트된 음악 파일 정보와 업데이트되지 않은 음악 파일 정보를 포함합니다.
      */
@@ -260,7 +276,6 @@ public class MusicService {
             throw new MusicException("Music 삭제에 실패했습니다.");
         }
     }
-
 
     /**
      * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제합니다.
