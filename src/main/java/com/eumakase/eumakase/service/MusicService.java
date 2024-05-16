@@ -40,7 +40,7 @@ public class MusicService {
     private final MusicRepository musicRepository;
     private final DiaryRepository diaryRepository;
 
-    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, ChatGPTService, MusicRepository musicRepository, DiaryRepository diaryRepository) {
+    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository) {
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
         this.musicRepository = musicRepository;
