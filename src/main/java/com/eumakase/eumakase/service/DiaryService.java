@@ -2,6 +2,7 @@ package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.User;
+import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
 import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
@@ -11,6 +12,7 @@ import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.MusicRepository;
 import com.eumakase.eumakase.repository.UserRepository;
 import com.eumakase.eumakase.util.enums.PromptType;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,12 +30,14 @@ public class DiaryService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
+    private final MusicRepository musicRepository;
     private final ChatGPTService chatGPTService;
     private final MusicService musicService;
 
-    public DiaryService(UserRepository userRepository, DiaryRepository diaryRepository, ChatGPTService chatGPTService, MusicService musicService) {
+    public DiaryService(UserRepository userRepository, DiaryRepository diaryRepository, MusicRepository musicRepository, ChatGPTService chatGPTService, MusicService musicService) {
         this.userRepository = userRepository;
         this.diaryRepository = diaryRepository;
+        this.musicRepository = musicRepository;
         this.chatGPTService = chatGPTService;
         this.musicService = musicService;
     }
@@ -137,7 +142,11 @@ public class DiaryService {
     public DiaryReadResponseDto getDiary(Long diaryId) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
-        return DiaryReadResponseDto.of(diary);
+
+        // 해당 일기에 연결된 음악 URL을 가져옴 (첫 번째 음악 URL 사용)
+        List<Music> musics = musicRepository.findByDiaryId(diaryId);
+        String musicUrl = musics.isEmpty() ? null : musics.get(0).getFileUrl();
+        return DiaryReadResponseDto.of(diary, musicUrl);
     }
 
     /**
@@ -145,12 +154,19 @@ public class DiaryService {
      * @param userId 사용자 ID
      * @return 일기 목록
      */
-    public List<Diary> getAllDiariesByUserId(Long userId) {
+    @Transactional
+    public List<DiaryReadResponseDto> getAllDiariesByUserId(Long userId) {
         List<Diary> diaries = diaryRepository.findByUserId(userId);
         if (diaries.isEmpty()) {
             throw new DiaryException("User ID가 " + userId + "인 Diary 데이터를 찾을 수 없습니다.");
         }
-        return diaries;
+        return diaries.stream()
+                .map(diary -> {
+                    List<Music> musics = musicRepository.findByDiaryId(diary.getId());
+                    String musicUrl = musics.isEmpty() ? null : musics.get(0).getFileUrl();
+                    return DiaryReadResponseDto.of(diary, musicUrl);
+                })
+                .collect(Collectors.toList());
     }
 
     /**

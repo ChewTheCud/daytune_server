@@ -5,11 +5,18 @@ import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.PromptCategory;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
+import com.eumakase.eumakase.dto.music.MusicReadResponseDto;
+import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
+import com.eumakase.eumakase.dto.music.MusicUpdateInfo;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIResponseDto;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.util.FileUtil;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.Bucket;
+import com.google.firebase.cloud.StorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -20,24 +27,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class MusicService {
-    private final FileService fileService;
     private final SunoAIConfig sunoAIConfig;
     private final SunoAIConfig.SunoAIProperties sunoAIProperties;
-    private final ChatGPTService chatGPTService;
     private final MusicRepository musicRepository;
     private final DiaryRepository diaryRepository;
 
-    public MusicService(FileService fileService, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, ChatGPTService chatGPTService, MusicRepository musicRepository, DiaryRepository diaryRepository) {
-        this.fileService = fileService;
+    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository) {
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
-        this.chatGPTService = chatGPTService;
         this.musicRepository = musicRepository;
         this.diaryRepository = diaryRepository;
     }
@@ -110,6 +116,7 @@ public class MusicService {
         try {
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, buildHttpEntity().getHeaders());
 
+            System.out.println("SunoAIRequestDto: "+ requestEntity);
             // SunoAI API 호출
             ResponseEntity<List<SunoAIResponseDto>> response = sunoAIConfig.restTemplate().exchange(
                     sunoAIProperties.getUrl() + "/generate",
@@ -179,48 +186,75 @@ public class MusicService {
     }
 
     /**
-     * Music 엔티티의 fileUrl 필드 업데이트
+     * 특정 일기의 음악 정보 조회
+     * @param diaryId 일기의 ID
+     * @return 일기에 속한 음악들의 정보 리스트
+     */
+    public List<MusicReadResponseDto> getMusicByDiaryId(Long diaryId) {
+        List<Music> musics = musicRepository.findByDiaryId(diaryId);
+        if (!diaryRepository.existsById(diaryId)) {
+            throw new MusicException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다.");
+        }
+        return musics.stream()
+                .map(music -> new MusicReadResponseDto(music.getId(), music.getFileUrl()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Music 테이블의 fileUrl이 비어있는 레코드들을 업데이트합니다.
+     * @return MusicUpdateFileUrlsResultDto - 업데이트된 음악 파일 정보와 업데이트되지 않은 음악 파일 정보를 포함합니다.
      */
     @Transactional
-    public void updateMusicFileUrls() {
-        // fileUrl이 비어있는 Music 데이터를 조회
-        List<Music> musicList = musicRepository.findByFileUrlIsNull();
+    public MusicUpdateFileUrlsResultDto updateMusicFileUrls() {
+        // fileUrl이 비어있는 Music 데이터를 조회.
+        List<Music> musicList = musicRepository.findBySunoAiMusicIdIsNotNullAndFileUrlIsNull();
 
-        // suno_ai_music_id 목록 추출
+        // 조회된 Music 데이터에서 suno_ai_music_id 목록을 추출.
         List<String> sunoAiMusicIds = musicList.stream()
                 .map(Music::getSunoAiMusicId)
                 .collect(Collectors.toList());
 
+        // 업데이트된 음악 파일과 업데이트되지 않은 음악 파일 정보를 저장할 리스트를 초기화.
+        List<MusicUpdateInfo> updatedMusicFiles = new ArrayList<>();
+        List<MusicUpdateInfo> notUpdatedMusicFiles = new ArrayList<>();
+
+        // 업데이트할 음악 데이터가 없는 경우
         if (sunoAiMusicIds.isEmpty()) {
             log.info("업데이트할 음악 데이터가 없습니다.");
-            return;
+            return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
         }
 
-        // SunoAI 음악 세부 정보 조회
-        try {
-            List<Map<String, String>> musicDetails = getSunoAIMusicDetails(String.join(",", sunoAiMusicIds));
+        // SunoAI API를 통해 음악 세부 정보를 조회하여 5개씩 처리.
+        for (int i = 0; i < sunoAiMusicIds.size(); i += 5) {
+            // 조회가 필요한 Suno AI id 목록을 추출합니다.
+            List<String> sunoMusicIds = sunoAiMusicIds.subList(i, Math.min(i + 5, sunoAiMusicIds.size()));
+            try {
+                // SunoAI API를 호출하여 음악 세부 정보를 조회.
+                List<Map<String, String>> musicDetails = getSunoAIMusicDetails(String.join(",", sunoMusicIds));
 
-            // suno_ai_music_id로 그룹화된 map 생성
-            Map<String, String> idToUrlMap = musicDetails.stream()
-                    .collect(Collectors.toMap(
-                            music -> music.get("id"),
-                            music -> music.get("audio_url")
-                    ));
+                // 조회된 음악 세부 정보를 id와 audio_url로 매핑.
+                Map<String, String> idToUrlMap = musicDetails.stream()
+                        .collect(Collectors.toMap(
+                                music -> music.get("id"),
+                                music -> music.get("audio_url")
+                        ));
 
-            // 각 Music 엔티티에 fileUrl 설정
-            for (Music music : musicList) {
-                String audioUrl = idToUrlMap.get(music.getSunoAiMusicId());
-                if (audioUrl != null) {
-                    music.setFileUrl(audioUrl);
+                // 각 Music 엔티티에 대해 파일 URL을 설정하고 업데이트된 정보 리스트에 추가
+                for (Music music : musicList) {
+                    String audioUrl = idToUrlMap.get(music.getSunoAiMusicId());
+                    if (audioUrl != null) {
+                        music.setFileUrl(audioUrl);
+                        updatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
+                    } else {
+                        notUpdatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), null));
+                    }
                 }
+                musicRepository.saveAll(musicList);
+            } catch (Exception e) {
+                log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
             }
-
-            // 업데이트된 Music 엔티티를 저장
-            musicRepository.saveAll(musicList);
-            log.info("총 {}개의 음악 파일 URL이 업데이트되었습니다.", musicList.size());
-        } catch (Exception e) {
-            log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
         }
+        return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
     }
 
     /**
@@ -240,6 +274,69 @@ public class MusicService {
         if (deletedMusic.isPresent()) {
             // 삭제 실패 시 예외 발생
             throw new MusicException("Music 삭제에 실패했습니다.");
+        }
+    }
+
+    /**
+     * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제합니다.
+     * 선택된 음악을 Firebase Storage에 저장하고, 해당 음악의 URL을 업데이트합니다.
+     *
+     * @param diaryId 선택된 음악이 속한 일기의 ID
+     * @param musicId 선택된 음악의 ID
+     * @throws MusicException 이미 선택된 음악일 경우 예외 발생
+     */
+    @Transactional
+    public void selectMusic(Long diaryId, Long musicId) {
+        // 일기 엔티티를 조회합니다. 존재하지 않을 경우 예외를 발생시킵니다.
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new IllegalArgumentException("Diary not found with id: " + diaryId));
+
+        // 선택된 음악 엔티티를 조회합니다. 존재하지 않을 경우 예외를 발생시킵니다.
+        Music selectedMusic = musicRepository.findById(musicId)
+                .orElseThrow(() -> new IllegalArgumentException("Music not found with id: " + musicId));
+
+        // 이미 선택된 음악인지 확인합니다. 선택된 음악일 경우 예외를 발생시킵니다.
+        if (selectedMusic.getFileUrl() != null && selectedMusic.getFileUrl().startsWith("https://storage.googleapis.com/")) {
+            throw new MusicException("이미 선택된 음악입니다.");
+        }
+
+        // 선택된 음악을 제외한 나머지 음악 목록을 조회합니다.
+        List<Music> otherMusics = musicRepository.findByDiaryIdAndIdNot(diaryId, musicId);
+
+        // 나머지 음악들을 삭제합니다.
+        musicRepository.deleteAll(otherMusics);
+
+        // 선택된 음악을 Firebase Storage에 저장합니다.
+        String firebaseUrl = uploadFileToFirebaseStorage(selectedMusic);
+
+        // 선택된 음악의 URL을 업데이트합니다.
+        selectedMusic.setFileUrl(firebaseUrl);
+        musicRepository.save(selectedMusic);
+    }
+
+    /**
+     * 선택된 음악 파일을 Firebase Storage에 업로드.
+     * @param music 선택된 음악 엔티티
+     * @return 업로드된 파일의 Firebase Storage URL
+     */
+    private String uploadFileToFirebaseStorage(Music music) {
+        try {
+            // 원격 파일을 다운로드
+            File tempFile = FileUtil.downloadFile(music.getFileUrl());
+
+            // Firebase Storage에 파일을 업로드
+            Bucket bucket = StorageClient.getInstance().bucket();
+            String blobName = "music/diaryId_" + music.getDiary().getId() + ".mp3"; //파일명
+            Blob blob = bucket.create(blobName, new FileInputStream(tempFile), "audio/mpeg");
+
+            // 임시 파일 삭제
+            tempFile.delete();
+
+            // Firebase Storage URL을 반환
+            return blob.getMediaLink();
+        } catch (IOException e) {
+            log.error("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.", e);
+            throw new RuntimeException("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.");
         }
     }
 }

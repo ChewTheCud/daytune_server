@@ -22,10 +22,13 @@ public class SunoAIRequestDto implements Serializable {
 
     @JsonProperty("make_instrumental")
     @Builder.Default
-    private String makeInstrumental = SunoAIConfig.MAKE_INSTRUMENTAL;
+    private boolean makeInstrumental = SunoAIConfig.MAKE_INSTRUMENTAL;
+
+    @JsonProperty("wait_audio")
+    @Builder.Default
+    private boolean waitAudio = SunoAIConfig.WAIT_AUDIO;
 
     public SunoAIRequestDto(String gptDescriptionPrompt) {
         this.prompt = gptDescriptionPrompt;
-        this.makeInstrumental = SunoAIConfig.MAKE_INSTRUMENTAL;
     }
 }
