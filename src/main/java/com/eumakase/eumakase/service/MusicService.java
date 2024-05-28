@@ -13,6 +13,7 @@ import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
 import com.eumakase.eumakase.repository.ShareUrlRepository;
 import com.eumakase.eumakase.util.FileUtil;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -40,8 +41,9 @@ public class MusicService {
     private final ShareUrlRepository shareUrlRepository;
     private final S3Service s3Service;
     private final FirebaseService firebaseService;
+    private final FCMService fcmService;
 
-    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService) {
+    public MusicService(SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService) {
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
         this.musicRepository = musicRepository;
@@ -49,6 +51,7 @@ public class MusicService {
         this.shareUrlRepository = shareUrlRepository;
         this.s3Service = s3Service;
         this.firebaseService = firebaseService;
+        this.fcmService = fcmService;
     }
 
     /**
@@ -225,6 +228,9 @@ public class MusicService {
         List<MusicUpdateInfo> updatedMusicFiles = new ArrayList<>();
         List<MusicUpdateInfo> notUpdatedMusicFiles = new ArrayList<>();
 
+        // 사용자별로 음악 업데이트 정보를 저장할 맵 초기화
+        Map<Long, List<MusicUpdateInfo>> userMap = new HashMap<>();
+
         // 업데이트할 음악 데이터가 없는 경우
         if (sunoAiMusicIds.isEmpty()) {
             log.info("업데이트할 음악 데이터가 없습니다.");
@@ -254,6 +260,11 @@ public class MusicService {
                         music.setFileUrl(audioUrl);
                         // 업데이트된 음악 파일 정보를 리스트에 추가
                         updatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
+
+                        // 사용자별로 업데이트된 음악 정보를 맵에 추가
+                        Long userId = music.getDiary().getUser().getId();
+                        userMap.computeIfAbsent(userId, k -> new ArrayList<>())
+                                .add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
                     } else {
                         // audioUrl이 없으면, 업데이트되지 않은 음악 파일 정보를 리스트에 추가
                         notUpdatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), null));
@@ -264,6 +275,32 @@ public class MusicService {
                 log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
             }
         }
+
+        // 각 사용자에 대해 한 번만 FCM 알림을 전송
+        for (Map.Entry<Long, List<MusicUpdateInfo>> entry : userMap.entrySet()) {
+            Long userId = entry.getKey();
+            String fcmToken = null;
+            String nickname = null;
+            try {
+                fcmToken = fcmService.getFcmTokenByUserId(userId);
+                nickname = fcmService.getUserNicknameByUserId(userId);
+            } catch (RuntimeException e) {
+                log.error("FCM 토큰을 찾을 수 없습니다: " + e.getMessage());
+            }
+
+            if (fcmToken != null) {
+                String title = "DJ 선곡 완료!";
+                String message = nickname + "님의 사연과 어울리는 음악이 도착했어요!";
+                try {
+                    fcmService.sendPushNotification(title, message, fcmToken);
+                } catch (FirebaseMessagingException e) {
+                    log.error("FCM 알림 전송 중 오류가 발생했습니다.", e);
+                }
+            } else {
+                log.warn("FCM 토큰을 찾을 수 없습니다: User ID: " + userId);
+            }
+        }
+
         return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
     }
 
