@@ -70,7 +70,6 @@ public class FCMService {
             throw new RuntimeException("User ID: " + userId + "에 대한 FCM 토큰을 찾을 수 없습니다.");
         }
         FCMToken token = tokenOptional.get();
-        System.out.println("token : " + token);
         return token.getFcmToken();
     }
 
