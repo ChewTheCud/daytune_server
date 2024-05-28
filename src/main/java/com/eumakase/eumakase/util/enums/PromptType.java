@@ -4,4 +4,3 @@ public enum PromptType {
     CONTENT_EMOTION_ANALYSIS,
     COUNSELOR_CONCEPT
 }
-

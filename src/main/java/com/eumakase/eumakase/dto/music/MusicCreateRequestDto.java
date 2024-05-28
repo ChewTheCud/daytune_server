@@ -18,6 +18,6 @@ public class MusicCreateRequestDto implements Serializable {
 
     @NotNull
     private Long diaryId;
-
+    private String generationPrompt;
     private Long promptCategoryId;
 }

@@ -3,7 +3,8 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
-import com.eumakase.eumakase.dto.auth.kakao.KakaoResponseDto;
+import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -57,8 +59,6 @@ public class AuthService {
     // 소셜 로그인 관련 서비스를 제공하는 SocialService 객체
     private final SocialService socialService;
 
-    private final FCMService fcmService;
-
     /**
      * 일반 로그인 처리 메서드.
      * 이메일을 사용하여 사용자를 찾고 JWT 토큰을 발급함.
@@ -74,17 +74,27 @@ public class AuthService {
      * 소셜 로그인 처리 메서드.
      * 소셜 로그인 타입에 따라 사용자 프로필 정보를 가져온 후 JWT 토큰 발급.
      */
-    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) {
+    public SocialLoginResponseDto socialLogin(SocialLoginRequestDto socialLoginRequestDto) throws IOException {
         String socialType = socialLoginRequestDto.getSocialType();
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
-        String fcmToken = socialLoginRequestDto.getFcmToken();
+        String snsId = "", email = "", profileImageUrl = "";
 
-        // if(socialType.equals("kakao")) {
-            KakaoResponseDto kakaoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE")) {
+            throw new IllegalArgumentException(socialType + "은 지원하지 않는 소셜 타입입니다.");
+        }
 
-            String snsId = kakaoResponseDto.getId();
-            String email = kakaoResponseDto.getKakaoAccount().getEmail();
-            String profileImageUrl = kakaoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        if(socialType.equals("KAKAO")) {
+            KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
+            snsId = kakaoUserInfoResponseDto.getId();
+            email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
+            profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+        }
+        if(socialType.equals("APPLE")) {
+            AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
+            snsId = appleUserInfoResponseDto.getSubject();
+            email = appleUserInfoResponseDto.getEmail();
+            profileImageUrl = null;
+        }
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
 
@@ -106,10 +116,9 @@ public class AuthService {
             user = createUserFromSocialData(snsId, email, nickname, profileImageUrl);
             // 새로운 사용자 생성 로직 처리 예시
         }
-            return createSocialLoginResponse(user, fcmToken);
-        // }
+        return createSocialLoginResponse(user);
 
-       // TODO: Apple Oauth2 로그인 로직 추가
+        // TODO: Apple Oauth2 로그인 로직 추가
     }
 
     /**
@@ -217,7 +226,7 @@ public class AuthService {
     }
 
     // 소셜 로그인 응답을 생성하는 Helper 메서드
-    private SocialLoginResponseDto createSocialLoginResponse(User user, String fcmToken) {
+    private SocialLoginResponseDto createSocialLoginResponse(User user) {
         String accessToken = jwtIssue(user);
         String refreshToken = jwtIssuer.issueRefreshToken(user.getId(), user.getSnsId());
         manageRefreshToken(user, refreshToken);
@@ -226,9 +235,6 @@ public class AuthService {
         user.setLastLoginDate(DateTimeUtil.format(LocalDateTime.now())); // 필요한 경우 DateTimeUtil.now()로 대체 가능
         userRepository.save(user); // 변경사항 저장
 
-
-        fcmService.updateFcmToken(user.getId(), fcmToken);
-        
         return SocialLoginResponseDto.of(user, accessToken, refreshToken);
     }
 
