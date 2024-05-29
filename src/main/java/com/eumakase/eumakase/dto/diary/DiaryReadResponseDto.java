@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
+    private String emotion;
     private String content;
     private String summary;
     private String musicUrl;
@@ -25,6 +26,7 @@ public class DiaryReadResponseDto implements Serializable {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
+                .emotion(diary.getPromptCategory() != null ? diary.getPromptCategory().getMainPrompt() : null)
                 .content(diary.getContent())
                 .summary(diary.getSummary())
                 .musicUrl(musicUrl)
