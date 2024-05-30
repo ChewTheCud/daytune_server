@@ -118,6 +118,12 @@ public class DiaryService {
             String updatedPrompt = emotion + ", " + (diary.getPrompt() != null ? diary.getPrompt() + ", " : "") + promptResponseDto.getContent();
             diary.setPrompt(updatedPrompt);
 
+            // GPT를 사용하여 상담사 컨셉의 일기 Summary 생성
+            PromptResponseDto counselorConceptResponseDto = chatGPTService.sendPrompt(promptRequestDto, PromptType.COUNSELOR_CONCEPT);
+
+            // GPT로 생성한 내용을 Diary의 summary 필드에 추가
+            diary.setSummary(counselorConceptResponseDto.getContent());
+
             // Diary 업데이트
             diaryRepository.save(diary);
         } catch (Exception e) {
