@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 
 @Service
 public class S3Service {
@@ -22,6 +19,12 @@ public class S3Service {
 
     @Value("${cloud.aws.cloudfront.domain}")
     private String cloudFrontDomain;
+
+    @Value("${cloud.aws.cloudfront.key-pair-id}")
+    private String cloudFrontKeyPairId;
+
+    @Value("${cloud.aws.cloudfront.private-key-file}")
+    private String cloudFrontPrivateKeyFile;
 
     /**
      * File 객체를 S3에 업로드
@@ -69,4 +72,37 @@ public class S3Service {
         // 업로드된 파일의 CloudFront URL 반환
         return "https://" + cloudFrontDomain + "/" + fileName;
     }
+
+//    /**
+//     * CloudFront 서명된 URL 생성
+//     * @param fileName 서명할 파일의 이름
+//     * @param expirationMinutes URL의 유효시간(분)
+//     * @return 서명된 URL
+//     */
+//    public String generateSignedUrl(String fileName, int expirationMinutes) {
+//        try {
+//            // 유효기간 설정
+//            Date expiration = Date.from(Instant.now().plus(expirationMinutes, ChronoUnit.MINUTES));
+//
+//            // CloudFront private key 파일 로드
+//            ClassPathResource resource = new ClassPathResource(cloudFrontPrivateKeyFile);
+//            File privateKeyFile = resource.getFile();
+//            System.out.println("Using private key file: " + privateKeyFile.getAbsolutePath());
+//
+//            // 서명된 URL 생성
+//            String signedUrl = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
+//                    SignerUtils.Protocol.https,
+//                    cloudFrontDomain,
+//                    privateKeyFile,
+//                    "/" + fileName,
+//                    cloudFrontKeyPairId,
+//                    expiration);
+//
+//            System.out.println(signedUrl);
+//            return signedUrl;
+//        } catch (Exception e) {
+//            e.printStackTrace();  // 예외 스택 트레이스를 출력합니다.
+//            throw new RuntimeException("서명된 URL 생성 중 오류 발생", e);
+//        }
+//    }
 }

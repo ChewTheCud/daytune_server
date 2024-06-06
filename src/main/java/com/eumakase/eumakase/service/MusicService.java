@@ -26,6 +26,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -356,9 +357,8 @@ public class MusicService {
             // 원격 파일을 다운로드
             File tempFile = FileUtil.downloadFile(selectedMusic.getFileUrl());
 
-            // 선택된 음악을 Firebase Storage와 AWS S3에 저장
+            // 선택된 음악을 Firebase Storage에 저장
             String firebaseUrl = firebaseService.uploadFileToFirebaseStorage(tempFile, diary.getId().toString());
-            String s3Url = s3Service.uploadFile("music/diaryId_" + diary.getId() + ".mp3", tempFile);
 
             // 임시 파일 삭제
             tempFile.delete();
@@ -367,14 +367,16 @@ public class MusicService {
             selectedMusic.setFileUrl(firebaseUrl);
             musicRepository.save(selectedMusic);
 
+            // HTML 페이지 URL 생성
             String thumbnailUrl = "https://via.placeholder.com/300";  // 예시 썸네일 URL
-            String htmlUrl = generateMusicSharePage(s3Url, thumbnailUrl);
+            String htmlUrl = generateMusicSharePage(firebaseUrl, thumbnailUrl);
 
             // 공유 URL 생성 및 저장
             ShareUrl shareUrl = new ShareUrl();
             shareUrl.setMusic(selectedMusic);
-            shareUrl.setUrl(s3Url);
-            shareUrl.setExpirationDate(LocalDateTime.now().plusDays(3)); // 유효 기간 3일 설정
+            shareUrl.setUrl(htmlUrl);
+            LocalDateTime expirationDate = LocalDateTime.now().plusDays(3); // 3일 유효 기간 설정
+            shareUrl.setExpirationDate(expirationDate);
             shareUrlRepository.save(shareUrl);
 
             return MusicSelectionResponseDto.builder().shareUrl(htmlUrl).build();
@@ -385,10 +387,10 @@ public class MusicService {
 
     /**
      * 음악 파일의 Presigned URL을 사용하여 HTML 페이지를 생성하고, S3에 업로드
-     * @param presignedUrl 음악 파일의 Presigned URL
+     * @param musicUrl 음악 파일의 Url
      * @return HTML 페이지의 Presigned URL
      */
-    private String generateMusicSharePage(String presignedUrl, String thumbnailUrl) {
+    private String generateMusicSharePage(String musicUrl, String thumbnailUrl) {
         String htmlContent = "<!DOCTYPE html>\n"
                 + "<html lang=\"en\">\n"
                 + "<head>\n"
@@ -436,7 +438,7 @@ public class MusicService {
                 + "        </a>\n"
                 + "    </header>\n"
                 + "    <audio controls autoplay>\n"
-                + "        <source src=\"" + presignedUrl + "\" type=\"audio/mpeg\">\n"
+                + "        <source src=\"" + musicUrl + "\" type=\"audio/mpeg\">\n"
                 + "        Your browser does not support the audio element.\n"
                 + "    </audio>\n"
                 + "</body>\n"
