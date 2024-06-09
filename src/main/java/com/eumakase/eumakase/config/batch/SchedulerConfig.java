@@ -28,8 +28,9 @@ public class SchedulerConfig {
 
     /**
      * updateMusicFileUrlsJob 스케줄링
-     * 매일 오후 10시 00분에 실행되도록 설정
+     * 매일 오전/오후 10시 00분에 실행되도록 설정
      */
+    @Scheduled(cron = "0 0 10 * * *")
     @Scheduled(cron = "0 0 22 * * *")
     public void perform() {
         try {
