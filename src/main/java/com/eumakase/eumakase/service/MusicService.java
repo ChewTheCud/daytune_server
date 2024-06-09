@@ -79,34 +79,34 @@ public class MusicService {
         sunoAIRequestDto.setPrompt(musicCreateRequestDto.getGenerationPrompt());
 
         // SunoAI 음악 ID 목록 생성
-        List<String> sunoAIMusicIds;
+        List<String> sunoAIMusicIds = new ArrayList<>();
         try {
             sunoAIMusicIds = generateSunoAIMusic(sunoAIRequestDto);
         } catch (Exception e) {
             log.error("SunoAI 음악 생성 중 오류가 발생했습니다: {}", e.getMessage(), e);
-            throw new MusicException("SunoAI 음악 생성 중 오류가 발생했습니다." + e.getMessage());
         }
 
         // Music 엔티티 두 개 생성 및 저장
-        if (sunoAIMusicIds.size() >= 2) {
-            Music music1 = Music.builder()
-                    .diary(diary)
-                    .promptCategory(null)
-                    .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
-                    .sunoAiMusicId(sunoAIMusicIds.get(0))
-                    .build();
+        Music music1 = Music.builder()
+                .diary(diary)
+                .promptCategory(null)
+                .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
+                .sunoAiMusicId(!sunoAIMusicIds.isEmpty() ? sunoAIMusicIds.get(0) : null)
+                .build();
 
-            Music music2 = Music.builder()
-                    .diary(diary)
-                    .promptCategory(null)
-                    .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
-                    .sunoAiMusicId(sunoAIMusicIds.get(1))
-                    .build();
+        Music music2 = Music.builder()
+                .diary(diary)
+                .promptCategory(null)
+                .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
+                .sunoAiMusicId(sunoAIMusicIds.size() > 1 ? sunoAIMusicIds.get(1) : null)
+                .build();
 
-            musicRepository.save(music1);
-            musicRepository.save(music2);
-        } else {
-            throw new MusicException("SunoAI에서 생성된 음악 ID의 수가 부족합니다.");
+        musicRepository.save(music1);
+        musicRepository.save(music2);
+
+        // SunoAI에서 생성된 음악 ID의 수가 부족할 경우 로그를 남김
+        if (sunoAIMusicIds.size() < 2) {
+            log.warn("SunoAI에서 생성된 음악 ID의 수가 부족합니다.");
         }
     }
 
