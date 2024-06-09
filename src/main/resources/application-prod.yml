@@ -21,7 +21,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-#       show_sql: true
+        #       show_sql: true
         format_sql: true
   logging.level:
   org.hibernate.SQL: debug
@@ -56,3 +56,19 @@ apple:
 
 firebase:
   bucket-name: daytune-3722b.appspot.com
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIA6GBMES42FVAAMYOK
+      secretKey: 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
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: daytune-share-url-s3
+    cloudfront:
+      domain: cdn.chewthecud.site
+      key-pair-id: dbc72f9c-1660-47b1-9948-70b6a9b397fd
+      private-key-file: pk-APKA6GBMES42C3BHDSO7.pem

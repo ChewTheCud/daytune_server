@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.service;
 
 import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.PromptCategory;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
@@ -13,6 +14,7 @@ import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.repository.PromptCategoryRepository;
 import com.eumakase.eumakase.repository.UserRepository;
 import com.eumakase.eumakase.util.enums.PromptType;
 import lombok.extern.slf4j.Slf4j;
@@ -31,13 +33,15 @@ public class DiaryService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final MusicRepository musicRepository;
+    private final PromptCategoryRepository promptCategoryRepository;
     private final ChatGPTService chatGPTService;
     private final MusicService musicService;
 
-    public DiaryService(UserRepository userRepository, DiaryRepository diaryRepository, MusicRepository musicRepository, ChatGPTService chatGPTService, MusicService musicService) {
+    public DiaryService(UserRepository userRepository, DiaryRepository diaryRepository, MusicRepository musicRepository, PromptCategoryRepository promptCategoryRepository, ChatGPTService chatGPTService, MusicService musicService) {
         this.userRepository = userRepository;
         this.diaryRepository = diaryRepository;
         this.musicRepository = musicRepository;
+        this.promptCategoryRepository = promptCategoryRepository;
         this.chatGPTService = chatGPTService;
         this.musicService = musicService;
     }
@@ -55,8 +59,10 @@ public class DiaryService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
 
+            PromptCategory promptCategory = promptCategoryRepository.findByMainPrompt(diaryCreateRequestDto.getEmotion());
+
             // 일기 엔티티 생성
-            Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user);
+            Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user, promptCategory);
 
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
@@ -100,9 +106,23 @@ public class DiaryService {
             PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
             PromptResponseDto promptResponseDto = chatGPTService.sendPrompt(promptRequestDto, PromptType.CONTENT_EMOTION_ANALYSIS);
 
+            // promptCategoryId로 PromptCategory 조회
+            Long promptCategoryId = diary.getPromptCategory().getId();
+            PromptCategory promptCategory = promptCategoryRepository.findById(promptCategoryId)
+                    .orElseThrow(() -> new RuntimeException("PromptCategory not found with id: " + promptCategoryId));
+
+            // 일기 감정 값을 가져옴
+            String emotion = promptCategory.getMainPrompt();
+
             // GPT로 생성한 내용을 Diary의 prompt 필드에 추가
-            String updatedPrompt = diary.getPrompt() + " , " + promptResponseDto.getContent();
+            String updatedPrompt = emotion + ", " + (diary.getPrompt() != null ? diary.getPrompt() + ", " : "") + promptResponseDto.getContent();
             diary.setPrompt(updatedPrompt);
+
+            // GPT를 사용하여 상담사 컨셉의 일기 Summary 생성
+            PromptResponseDto counselorConceptResponseDto = chatGPTService.sendPrompt(promptRequestDto, PromptType.COUNSELOR_CONCEPT);
+
+            // GPT로 생성한 내용을 Diary의 summary 필드에 추가
+            diary.setSummary(counselorConceptResponseDto.getContent());
 
             // Diary 업데이트
             diaryRepository.save(diary);

@@ -2,6 +2,7 @@ package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
 import com.eumakase.eumakase.dto.music.MusicSelectionRequestDto;
+import com.eumakase.eumakase.dto.music.MusicSelectionResponseDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
@@ -28,7 +29,7 @@ public class MusicController {
 
     /**
      * 음악 생성
-     * @param sunoAIRequestDto 음악 생성을 위한 설명
+     * @param sunoAIRequestDto 음악 생성을 위한 입력값
      * @return 생성된 음악 ID
      */
     @PostMapping("/generate")
@@ -39,7 +40,7 @@ public class MusicController {
             return ResponseEntity.ok(ApiResponse.success("음악 생성 완료", result));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("음악 생성 실패: " + e.getMessage()));
+                    .body(ApiResponse.error("음악 생성 실패: " + e. getMessage()));
         }
     }
 
@@ -51,6 +52,7 @@ public class MusicController {
     @GetMapping("/sunoai/{sunoAiMusicId}")
     public ResponseEntity<List<Map<String, String>>> getMusicDetails(@PathVariable String sunoAiMusicId) {
         try {
+            // 음악 생성 서비스 호출
             List<Map<String, String>> audioUrl = musicService.getSunoAIMusicDetails(sunoAiMusicId);
             return ResponseEntity.ok(ApiResponse.success("음악 상세 정보 조회 성공", audioUrl).getData());
         } catch (Exception e) {
@@ -60,12 +62,13 @@ public class MusicController {
     }
 
     /**
-     * 음악 파일 URL 업데이트
+     * 음악 파일 URL을 업데이트
+     * @return 업데이트 결과를 포함한 응답
      */
-    //
     @GetMapping("/urls")
     public ResponseEntity<ApiResponse<MusicUpdateFileUrlsResultDto>> updateMusicUrls() {
         try {
+            // 음악 파일 URL 업데이트 서비스 호출
             MusicUpdateFileUrlsResultDto result = musicService.updateMusicFileUrls();
             String message = String.format("총 %d개의 음악 데이터 중, %d개 데이터가 성공적으로 파일 URL이 업데이트되었습니다.",
                     result.getUpdatedMusicFiles().size() + result.getNotUpdatedMusicFiles().size(), result.getUpdatedMusicFiles().size());
@@ -78,23 +81,23 @@ public class MusicController {
     }
 
     /**
-     * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제.
+     * 특정 일기의 음악 중 하나를 선택하고 나머지 음악을 삭제
      * @param requestDto 선택할 음악과 일기의 정보를 담은 DTO
      * @return 성공 또는 실패 응답
      */
     @PostMapping("/select")
-    public ResponseEntity<ApiResponse<Void>> selectMusic(@RequestBody MusicSelectionRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<MusicSelectionResponseDto>> selectMusic(@RequestBody MusicSelectionRequestDto requestDto) {
         try {
-            // 음악을 선택하고 나머지 음악을 삭제
-            musicService.selectMusic(requestDto.getDiaryId(), requestDto.getMusicId());
-            return ResponseEntity.ok(ApiResponse.success("음악 선택에 성공했습니다.", null));
+            // 음악 선택 서비스 호출
+            MusicSelectionResponseDto responseDto = musicService.selectMusic(requestDto.getDiaryId(), requestDto.getMusicId());
+            return ResponseEntity.ok(ApiResponse.success("음악 선택에 성공했습니다.", responseDto));
         } catch (MusicException e) {
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponse.error(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("음악 선택에 실패했습니다."));
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 }

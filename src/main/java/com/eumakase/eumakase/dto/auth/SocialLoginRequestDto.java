@@ -21,4 +21,6 @@ public class SocialLoginRequestDto implements Serializable {
     private String oauthAccessToken;
 
     private String nickname;
+
+    private String fcmToken;
 }

@@ -5,24 +5,25 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.cloud.StorageClient;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.net.URLEncoder;
 
-@Slf4j
 @Service
-public class FileService {
+public class FirebaseService {
     @Value("${firebase.bucket-name}")
     private String bucketName;
 
-    private static final Logger log = LoggerFactory.getLogger(FileService.class);
+    private static final Logger log = LoggerFactory.getLogger(FirebaseService.class);
 
     public String uploadFile(MultipartFile file) throws Exception {
         String fileName = "music/" + System.currentTimeMillis() + "_" + file.getOriginalFilename(); // 저장될 파일 이름 (경로 포함)
@@ -61,5 +62,23 @@ public class FileService {
 
         log.info("Download API Test");
         return downloadUrls;
+    }
+
+    /**
+     * 선택된 음악 파일을 Firebase Storage에 업로드
+     * @return 업로드된 파일의 Firebase Storage URL
+     */
+    public String uploadFileToFirebaseStorage(File file, String diaryId) {
+        try {
+            // Firebase Storage에 파일을 업로드
+            Bucket bucket = StorageClient.getInstance().bucket();
+            String blobName = "music/diaryId_" + diaryId + ".mp3"; // 파일명
+            Blob blob = bucket.create(blobName, new FileInputStream(file), "audio/mpeg");
+
+            // Firebase Storage URL을 반환
+            return blob.getMediaLink();
+        } catch (IOException e) {
+            throw new RuntimeException("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.", e);
+        }
     }
 }
