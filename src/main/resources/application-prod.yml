@@ -12,7 +12,7 @@ spring:
     time-zone: Asia/Seoul
 
   datasource:
-    url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+    url: jdbc:mysql://daytune-db-prod.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
     username: root
     password: cbejzjem2023!
     driver-class-name: com.mysql.cj.jdbc.Driver
