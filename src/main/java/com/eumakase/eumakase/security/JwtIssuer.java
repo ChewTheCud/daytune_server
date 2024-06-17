@@ -30,7 +30,7 @@ public class JwtIssuer {
     public String issue(long userId, String email, List<String> roles) {
         return JWT.create()
                 .withSubject(String.valueOf(userId)) // JWT 'sub' (subject) 클레임을 설정 (사용자 ID).
-                .withExpiresAt(Instant.now().plus(Duration.of(1, ChronoUnit.DAYS))) // JWT 만료 시간을 현재로부터 1일 후로 설정.
+                .withExpiresAt(Instant.now().plus(Duration.of(7, ChronoUnit.DAYS))) // JWT 만료 시간을 현재로부터 1일 후로 설정.
                 .withClaim("e", email) // 사용자 이메일을 커스텀 클레임으로 추가.
                 .withClaim("a", roles) // 사용자 역할을 커스텀 클레임으로 추가.
                 .sign(Algorithm.HMAC256(properties.getSecretKey())); // HMAC256 알고리즘과 properties 객체의 비밀 키를 사용하여 JWT 서명.
