@@ -12,9 +12,9 @@ spring:
     time-zone: Asia/Seoul
 
   datasource:
-    url: jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
-    username: root
-    password: cbejzjem2023!
+    url: ENC(TKGZXpudVb3FwcZqLcfyEtTlswl5P10aNB3xsly1fjbDvxcFvAVWMpOzDPnI5yCyusoLyDJ1h7iCWXWWe962DgMC5q9uDPq+KgCLdtw5IpfcdCX9d10sdUVp8PlhOxDZ)
+    username: ENC(D6JUma7QtjPy+lHtuSduCA==)
+    password: ENC(drzypccSCkhUOUOSVKnd0w4RQmgbgDgP)
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -30,16 +30,16 @@ spring:
 
 security:
   jwt:
-    secret-key: common-secret-key # 길게 바꿔서 넣기
-    password-suffix: daytune
+    secret-key: ENC(cp8bU+SpbqCdUlouP1Lz/6mjmP+MLCPZ6Lr6yVOtZK0=) # 길게 바꿔서 넣기
+    password-suffix: ENC(J6v3Kqog2zLTL0lvTVzLmA==)
 
 chatgpt:
   model: gpt-4-1106-preview
-  secret-key: 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
+  secret-key: ENC(OxS1jI1w5YIEYa7qyP0JRYI60NLs5KlLbo3r13ddR8TFAiEqXthYVr7q1y8P7tfsAc+SSCyd6fP7IOnX/S+yYFgACyyyrjCy)
   url: https://api.openai.com/v1/chat/completions
 
 sunoai:
-  url: http://3.35.117.11:3000/api
+  url: ENC(1ISU6jhStXzYpnYjhVijWAv62XJ2pAtozQ6HECCBOwOw/PC+Iatrsw==)
 
 kakao:
   url: https://kapi.kakao.com/v2/user/me
@@ -48,27 +48,27 @@ apple:
   auth:
     url: https://appleid.apple.com
   grant-type: authorization_code
-  client-id: com.chewthecud.daytune
-  key-id: KP2729287P
-  team-id: 5WAUHBZJ8Z
+  client-id: ENC(m3P4br63HKTiTxhy2nUx4gt5u9pOs33VGhogz/7KPR4=)
+  key-id: ENC(CFTZK07ND1a+/5hLiwBg/y+WJypH/xsV)
+  team-id: ENC(68d/73suwhVi1hTYjiv2pzKwC0741IBL)
   audience: https://appleid.apple.com
-  private-key: MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgzRRDtyK0dKbQybMyMV8jw863ODUpyt+j6tRtdQ091PqgCgYIKoZIzj0DAQehRANCAAS4L3ht+UpWcjJNHkozue494jufo265Wrg5K6L1ZxLrsE70cPWiPKBxvadT68Kvfvj4d/vTG7B3btc2YHpUuK/Z
+  private-key: ENC(Zl3fXPFpInV8mw/blG70dKQmhmd530ec+eUxKiu8annFmbjMgVqod0pZSyyeLZtrRbB3/RQIcpazvrIQ2OvRt8vvx4Ruv2kjmG46xHhBeDpksKnClvoWGqslsnwwYFi/btBLbbr55Yzq90yWAjn25XggJ24gcvndqdadKqAeEMKpmoE9JPj47R8xI/D69pg5oDolhlvyDX1cKn1cCkx/3e3WA8HXb/pM09L6UpboAYVHzP0CJp1rFyqcng7tTkI1YzmBfCzxDLsEYv8tINLCxy3BLb9+hJcE)
 
 firebase:
-  bucket-name: daytune-3722b.appspot.com
+  bucket-name: ENC(hTBtA6V7PdGXLWKpzveJebAsdgbB7WQgfwog2dP4kdIQiEhVkpgqeA==)
 
 cloud:
   aws:
     credentials:
-      accessKey: AKIA6GBMES42FVAAMYOK
-      secretKey: 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
+      accessKey: ENC(2Isv6ut7fEpy0pi0K4rC+nSdG0eSAepknXHkF5NK7aE=)
+      secretKey: ENC(ItFge19ymmE0wR77YBS4+omrMfKM2PFSTV9fiSwYdQ3NPV2BC9fLnkOadKyiKigDrjpRgzQ+WUQ=)
     region:
       static: ap-northeast-2
     stack:
       auto: false
     s3:
-      bucket: daytune-share-url-s3
+      bucket: ENC(oadvsbNwYzycADFmJH36kmVdMSs/1+sT90N0FQ63NGY=)
     cloudfront:
       domain: cdn.chewthecud.site
-      key-pair-id: dbc72f9c-1660-47b1-9948-70b6a9b397fd
-      private-key-file: pk-APKA6GBMES42C3BHDSO7.pem
+      key-pair-id: ENC(VnG9qeHZS28J1CWh0MNHo01IDuSPFRM6dHSa8dqF3pYKO8AEpKLf3qkZ/Lm6gFrr)
+      private-key-file: ENC(kPGYKIzKFMfJosFQ5P1mWOr3jxHQKRFDFH/GyaoTREbzoY1iMiIrEA==)
