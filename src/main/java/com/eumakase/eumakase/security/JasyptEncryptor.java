@@ -10,6 +10,6 @@ public class JasyptEncryptor {
         pbeEnc.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
         pbeEnc.setPassword(key);
         pbeEnc.setIvGenerator(new RandomIvGenerator());
-        System.out.println("Encrypted Text: " + pbeEnc.encrypt("cbejzjem2023!"));
+        System.out.println("Encrypted Text: " + pbeEnc.encrypt(""));
     }
 }

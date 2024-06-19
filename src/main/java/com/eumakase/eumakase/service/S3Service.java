@@ -87,7 +87,6 @@ public class S3Service {
 //            // CloudFront private key 파일 로드
 //            ClassPathResource resource = new ClassPathResource(cloudFrontPrivateKeyFile);
 //            File privateKeyFile = resource.getFile();
-//            System.out.println("Using private key file: " + privateKeyFile.getAbsolutePath());
 //
 //            // 서명된 URL 생성
 //            String signedUrl = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(
@@ -98,7 +97,6 @@ public class S3Service {
 //                    cloudFrontKeyPairId,
 //                    expiration);
 //
-//            System.out.println(signedUrl);
 //            return signedUrl;
 //        } catch (Exception e) {
 //            e.printStackTrace();  // 예외 스택 트레이스를 출력합니다.

@@ -53,13 +53,11 @@ public class ChatGPTService {
      * ChatGPT API에 요청 -> 응답을 ChatGPTResponseDto로 반환
      */
     public ChatGPTResponseDto getResponse(HttpEntity<ChatGPTRequestDto> requestEntity) {
-        System.out.println("requestEntity: "+requestEntity);
         ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(
                 url,
                 HttpMethod.POST,
                 requestEntity,
                 ChatGPTResponseDto.class);
-        System.out.println("responseEntity: "+responseEntity);
         return responseEntity.getBody();
     }
 
