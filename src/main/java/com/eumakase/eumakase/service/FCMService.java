@@ -62,7 +62,6 @@ public class FCMService {
         // 사용자 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException(userId + " userId를 가진 사용자를 찾을 수 없습니다."));
-        System.out.println("user : " + user);
 
         // FCM 토큰 조회
         Optional<FCMToken> tokenOptional = fcmTokenRepository.findByUser(user);

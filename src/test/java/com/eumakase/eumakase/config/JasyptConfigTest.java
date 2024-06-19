@@ -11,7 +11,7 @@ class JasyptConfigTest {
         standardPBEStringEncryptor.setAlgorithm(JasyptConfig.ALGORITHM);
         standardPBEStringEncryptor.setPassword(JasyptConfig.KEY);
 
-        String enc = standardPBEStringEncryptor.encrypt("sk-proj-QgXNcgwfobADO0jWhXzFT3BlbkFJ2hUQrQrBvNsAiR4qPtQY");
+        String enc = standardPBEStringEncryptor.encrypt("");
         System.out.printf("enc = ENC(%s)\\n", enc);
         System.out.printf("dec = %s\\n", standardPBEStringEncryptor.decrypt(enc));
     }
