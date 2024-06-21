@@ -68,11 +68,6 @@ public class MusicService {
         PromptCategory promptCategory = null;
 
         // TODO: promptCategoryRepository 구현 필요
-        // promptCategory가 존재하는 경우 조회하여 설정
-//        if (requestDto.getPromptCategoryId() != null) {
-//            promptCategory = promptCategoryRepository.findById(requestDto.getPromptCategoryId())
-//                    .orElseThrow(() -> new IllegalArgumentException("PromptCategory not found with id: " + requestDto.getPromptCategoryId()));
-//        }
 
         // SunoAI 음악 생성 요청 DTO 설정
         SunoAIRequestDto sunoAIRequestDto = new SunoAIRequestDto();
