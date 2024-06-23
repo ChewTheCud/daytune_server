@@ -72,3 +72,12 @@ cloud:
       domain: cdn.chewthecud.site
       key-pair-id: ENC(VnG9qeHZS28J1CWh0MNHo01IDuSPFRM6dHSa8dqF3pYKO8AEpKLf3qkZ/Lm6gFrr)
       private-key-file: ENC(kPGYKIzKFMfJosFQ5P1mWOr3jxHQKRFDFH/GyaoTREbzoY1iMiIrEA==)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
