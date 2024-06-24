@@ -165,7 +165,8 @@ public class DiaryService {
 
         // 해당 일기에 연결된 음악 URL을 가져옴 (첫 번째 음악 URL 사용)
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
-        String musicUrl = musics.isEmpty() ? null : musics.get(0).getFileUrl();
+        // 음악이 생성되지 않았거나 음악을 아직 최종 선택하지 않았을 경우 Null 처리
+        String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com") ? null : musics.get(0).getFileUrl();
         return DiaryReadResponseDto.of(diary, musicUrl);
     }
 
