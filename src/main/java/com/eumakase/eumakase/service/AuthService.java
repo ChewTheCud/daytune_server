@@ -135,10 +135,6 @@ public class AuthService {
     @Transactional
     public SignUpResponseDto signUp(SignUpRequestDto signUpRequestDto) {
         try {
-            // TODO: 24.01.20 이메일 중복 여부 판별
-
-            // TODO: 24.01.20 닉네임 중복 여부 판별
-
             User user = signUpRequestDto.toEntity(signUpRequestDto, passwordEncoder, passwordSuffix);
             userRepository.save(user);
 

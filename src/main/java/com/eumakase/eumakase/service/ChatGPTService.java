@@ -75,7 +75,6 @@ public class ChatGPTService {
 
         // 메시지 리스트를 생성
         List<Message> messages = Arrays.asList(
-                //new Message("system", "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives"),
                 new Message("system", systemMessage),
                 new Message("user", promptRequestDto.getPrompt())
         );
