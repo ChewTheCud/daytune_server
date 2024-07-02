@@ -3,10 +3,12 @@ package com.eumakase.eumakase.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.eumakase.eumakase.config.AppleProperties;
+import com.eumakase.eumakase.config.GoogleProperties;
 import com.eumakase.eumakase.config.KakaoProperties;
 import com.eumakase.eumakase.config.SocialConfig;
 import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.apple.AppleSocialTokenInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.google.GoogleUserInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -38,11 +40,13 @@ public class SocialService {
     private final SocialConfig socialConfig;
     private final AppleProperties appleProperties;
     private final KakaoProperties kakaoProperties;
+    private final GoogleProperties googleProperties;
 
-    public SocialService(SocialConfig socialConfig, AppleProperties appleProperties, KakaoProperties kakaoProperties) {
+    public SocialService(SocialConfig socialConfig, AppleProperties appleProperties, KakaoProperties kakaoProperties, GoogleProperties googleProperties) {
         this.socialConfig = socialConfig;
         this.appleProperties = appleProperties;
         this.kakaoProperties = kakaoProperties;
+        this.googleProperties = googleProperties;
     }
 
     /**
@@ -147,5 +151,21 @@ public class SocialService {
         } catch (Exception e) {
             throw new RuntimeException("Error converting private key from String", e);
         }
+    }
+
+    /**
+     * Google 유저 정보 조회 API 호출 -> 응답을 GoogleUserInfoResponseDto로 반환
+     * @param oauthAccessToken 사용자의 OAuth 액세스 토큰
+     * @return 사용자 정보를 담고 있는 GoogleUserInfoResponseDto 객체
+     */
+    public GoogleUserInfoResponseDto getGoogleUserProfile(String oauthAccessToken) {
+        HttpEntity<String> requestEntity = buildHttpEntity(oauthAccessToken);
+        ResponseEntity<GoogleUserInfoResponseDto> responseEntity = socialConfig.restTemplate().exchange(
+                googleProperties.getUrl(),
+                HttpMethod.GET,
+                requestEntity,
+                GoogleUserInfoResponseDto.class);
+
+        return responseEntity.getBody();
     }
 }

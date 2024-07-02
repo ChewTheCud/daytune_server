@@ -4,6 +4,7 @@ import com.eumakase.eumakase.domain.RefreshToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
 import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.google.GoogleUserInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
@@ -81,7 +82,7 @@ public class AuthService {
         String oauthAccessToken = socialLoginRequestDto.getOauthAccessToken();
         String snsId = "", email = "", profileImageUrl = "";
 
-        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE")) {
+        if (!socialType.equalsIgnoreCase("KAKAO") && !socialType.equalsIgnoreCase("APPLE") && !socialType.equalsIgnoreCase("GOOGLE")) {
             throw new IllegalArgumentException(socialType + "은 지원하지 않는 소셜 타입입니다.");
         }
 
@@ -96,6 +97,12 @@ public class AuthService {
             snsId = appleUserInfoResponseDto.getSubject();
             email = appleUserInfoResponseDto.getEmail();
             profileImageUrl = null;
+        }
+        if (socialType.equals("GOOGLE")) {
+            GoogleUserInfoResponseDto googleUserInfoResponseDto = socialService.getGoogleUserProfile(oauthAccessToken);
+            snsId = googleUserInfoResponseDto.getId();
+            email = googleUserInfoResponseDto.getEmail();
+            profileImageUrl = googleUserInfoResponseDto.getPicture();
         }
 
         Optional<User> existingUser = userRepository.findBySnsId(snsId);
