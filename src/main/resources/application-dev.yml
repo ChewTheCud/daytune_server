@@ -54,6 +54,9 @@ apple:
   audience: https://appleid.apple.com
   private-key: ENC(Zl3fXPFpInV8mw/blG70dKQmhmd530ec+eUxKiu8annFmbjMgVqod0pZSyyeLZtrRbB3/RQIcpazvrIQ2OvRt8vvx4Ruv2kjmG46xHhBeDpksKnClvoWGqslsnwwYFi/btBLbbr55Yzq90yWAjn25XggJ24gcvndqdadKqAeEMKpmoE9JPj47R8xI/D69pg5oDolhlvyDX1cKn1cCkx/3e3WA8HXb/pM09L6UpboAYVHzP0CJp1rFyqcng7tTkI1YzmBfCzxDLsEYv8tINLCxy3BLb9+hJcE)
 
+google:
+  url: ENC(LitNjbqTFOwpg179buuc5vm1FBZAABksa8GsM0Nlv/uiXmJmQWwlaavbcosE02UhcMa6ctfk9omefnTxrAmJ2A==)
+
 firebase:
   bucket-name: ENC(hTBtA6V7PdGXLWKpzveJebAsdgbB7WQgfwog2dP4kdIQiEhVkpgqeA==)
 
