@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Configuration
 public class SunoAIConfig {
-    public static final boolean MAKE_INSTRUMENTAL = true; //no lyrics
+    public static final boolean MAKE_INSTRUMENTAL = false; //lyrics on
     public static final boolean WAIT_AUDIO = false; //no wait response
     @Bean
     public RestTemplate restTemplate() {
