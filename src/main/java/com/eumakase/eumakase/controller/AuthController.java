@@ -68,7 +68,7 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("소셜로그인 처리 중 문제가 발생했습니다."));
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
