@@ -5,7 +5,9 @@ import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.dto.auth.*;
 import com.eumakase.eumakase.dto.auth.apple.AppleUserInfoResponseDto;
 import com.eumakase.eumakase.dto.auth.google.GoogleUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.KakaoAccount;
 import com.eumakase.eumakase.dto.auth.kakao.KakaoUserInfoResponseDto;
+import com.eumakase.eumakase.dto.auth.kakao.Profile;
 import com.eumakase.eumakase.exception.AuthException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.RefreshTokenRepository;
@@ -90,7 +92,14 @@ public class AuthService {
             KakaoUserInfoResponseDto kakaoUserInfoResponseDto = socialService.getKakaoUserProfile(oauthAccessToken);
             snsId = kakaoUserInfoResponseDto.getId();
             email = kakaoUserInfoResponseDto.getKakaoAccount().getEmail();
-            profileImageUrl = kakaoUserInfoResponseDto.getKakaoAccount().getProfile().getProfileImageUrl();
+            KakaoAccount kakaoAccount = kakaoUserInfoResponseDto.getKakaoAccount();
+            Profile profile = kakaoAccount != null ? kakaoAccount.getProfile() : null;
+
+            if (profile != null) {
+                profileImageUrl = profile.getProfileImageUrl();
+            } else {
+                profileImageUrl = null;
+            }
         }
         if(socialType.equals("APPLE")) {
             AppleUserInfoResponseDto appleUserInfoResponseDto = socialService.getAppleUserProfile(oauthAccessToken);
