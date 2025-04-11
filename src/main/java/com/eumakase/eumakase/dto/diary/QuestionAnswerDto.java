@@ -1,5 +1,7 @@
 package com.eumakase.eumakase.dto.diary;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -12,6 +14,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class QuestionAnswerDto {
+
+    @Min(1)
+    @Max(2)
+    private int order;
 
     @NotBlank
     private String question;

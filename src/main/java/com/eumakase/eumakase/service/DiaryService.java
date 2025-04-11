@@ -6,6 +6,7 @@ import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
+import com.eumakase.eumakase.dto.diary.QuestionAnswerDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.UserException;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,13 +58,16 @@ public class DiaryService {
             Diary savedDiary = diaryRepository.save(diary);
 
             // 질문-답변 최대 2개 저장
-            List<DiaryQuestionAnswer> answers = diaryCreateRequestDto.getQuestionAnswers().stream()
-                    .limit(2) // 최대 2개 제한
-                    .map(qa -> DiaryQuestionAnswer.builder()
-                            .diary(savedDiary)
-                            .question(qa.getQuestion())
-                            .answer(qa.getAnswer())
-                            .build())
+            List<DiaryQuestionAnswer> answers = IntStream.range(0, Math.min(2, diaryCreateRequestDto.getQuestionAnswers().size()))
+                    .mapToObj(i -> {
+                        QuestionAnswerDto qa = diaryCreateRequestDto.getQuestionAnswers().get(i);
+                        return DiaryQuestionAnswer.builder()
+                                .questionOrder(i + 1) // 순서: 1부터 시작
+                                .diary(savedDiary)
+                                .question(qa.getQuestion())
+                                .answer(qa.getAnswer())
+                                .build();
+                    })
                     .collect(Collectors.toList());
 
             diaryQuestionAnswerRepository.saveAll(answers);
