@@ -12,6 +12,7 @@ import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.repository.*;
 import com.eumakase.eumakase.util.enums.PromptType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class DiaryService {

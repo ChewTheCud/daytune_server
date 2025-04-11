@@ -42,4 +42,8 @@ public class DiaryReadResponseDto implements Serializable {
                 .createdDate(diary.getCreatedDate())
                 .build();
     }
+
+    public static DiaryReadResponseDto of(Diary diary, String musicUrl) {
+        return DiaryReadResponseDto.of(diary, musicUrl, List.of());
+    }
 }
