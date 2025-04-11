@@ -34,7 +34,11 @@ public class DiaryReadResponseDto implements Serializable {
                 .content(diary.getContent())
                 .questionAnswers(
                         questionAnswers.stream()
-                                .map(qa -> new QuestionAnswerDto(qa.getQuestion(), qa.getAnswer()))
+                                .map(qa -> new QuestionAnswerDto(
+                                        qa.getQuestionOrder(),
+                                        qa.getQuestion(),
+                                        qa.getAnswer()
+                                ))
                                 .collect(Collectors.toList())
                 )
                 .summary(diary.getSummary())

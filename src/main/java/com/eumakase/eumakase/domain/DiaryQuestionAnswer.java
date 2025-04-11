@@ -16,7 +16,7 @@ public class DiaryQuestionAnswer extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "question_order", nullable = false)
+    @Column(name = "question_order", nullable = false, columnDefinition = "TINYINT")
     private int questionOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -8,11 +8,10 @@ import lombok.*;
 /**
  * 일기 작성 시 질문-답변 DTO (최대 2개까지 입력)
  */
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class QuestionAnswerDto {
 
     @Min(1)
