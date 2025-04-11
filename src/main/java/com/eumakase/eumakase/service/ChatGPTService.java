@@ -66,6 +66,9 @@ public class ChatGPTService {
      */
     public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto, PromptType promptType) {
         String systemMessage = "";
+        if (promptType == PromptType.COUNSELOR_QUESTION) {
+            systemMessage= PromptMessages.COUNSELOR_QUESTION;
+        }
         if (promptType == PromptType.CONTENT_EMOTION_ANALYSIS) {
             systemMessage= PromptMessages.CONTENT_EMOTION_ANALYSIS;
         }
@@ -111,7 +114,7 @@ public class ChatGPTService {
         // summary가 비어있는 경우에만 요약 작업 수행
         if (diary.getSummary() == null || diary.getSummary().isEmpty()) {
             PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
-            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto, PromptType.COUNSELOR_CONCEPT);
+            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto, PromptType.COUNSELOR_QUESTION);
 
             diary.setSummary(promptResponseDto.getContent());
             diaryRepository.save(diary);

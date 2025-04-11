@@ -1,6 +1,10 @@
 package com.eumakase.eumakase.common.constant;
 
 public class PromptMessages {
+
+    // 사용자 답변 기반 후속 질문 생성
+    public static final String COUNSELOR_QUESTION = "당신은 따뜻한 말투의 감성 상담사입니다. 사용자의 이전 답변을 참고하여, 사용자의 감정을 더 깊이 탐색할 수 있도록 후속 질문을 한 문장으로 한국어로 작성해주세요.";
+
     //일기 내용 속 감정 분석
     public static final String CONTENT_EMOTION_ANALYSIS
     // = "Analyze the contents of the diary and guess the emotions, and answer in Korean only with various words including non-overlapping adjectives";
