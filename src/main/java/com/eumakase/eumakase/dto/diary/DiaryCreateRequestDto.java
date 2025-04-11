@@ -5,9 +5,11 @@ import com.eumakase.eumakase.domain.PromptCategory;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.repository.PromptCategoryRepository;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Diary 생성 요청 DTO
@@ -28,12 +30,15 @@ public class DiaryCreateRequestDto implements Serializable {
     @NotBlank
     private String prompt;
 
-    public Diary toEntity(final DiaryCreateRequestDto diaryCreateRequestDto, User user, PromptCategory promptCategory) {
+    @NotEmpty
+    private List<QuestionAnswerDto> questionAnswers;  // 질문-답변 2쌍
+
+    public Diary toEntity(User user, PromptCategory promptCategory) {
         return Diary.builder()
                 .user(user)
-                .content(diaryCreateRequestDto.getContent())
+                .content(this.getContent())
                 .promptCategory(promptCategory)
-                .prompt(diaryCreateRequestDto.getPrompt()) // Modify this line
+                .prompt(this.getPrompt())
                 .build();
     }
 }

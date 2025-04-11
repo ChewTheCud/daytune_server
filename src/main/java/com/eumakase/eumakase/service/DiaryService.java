@@ -1,9 +1,6 @@
 package com.eumakase.eumakase.service;
 
-import com.eumakase.eumakase.domain.Diary;
-import com.eumakase.eumakase.domain.PromptCategory;
-import com.eumakase.eumakase.domain.User;
-import com.eumakase.eumakase.domain.Music;
+import com.eumakase.eumakase.domain.*;
 import com.eumakase.eumakase.dto.chatGPT.PromptRequestDto;
 import com.eumakase.eumakase.dto.chatGPT.PromptResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
@@ -12,12 +9,9 @@ import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.exception.UserException;
-import com.eumakase.eumakase.repository.DiaryRepository;
-import com.eumakase.eumakase.repository.MusicRepository;
-import com.eumakase.eumakase.repository.PromptCategoryRepository;
-import com.eumakase.eumakase.repository.UserRepository;
+import com.eumakase.eumakase.repository.*;
 import com.eumakase.eumakase.util.enums.PromptType;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,25 +20,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
 public class DiaryService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
+    private final DiaryQuestionAnswerRepository diaryQuestionAnswerRepository;
     private final MusicRepository musicRepository;
     private final PromptCategoryRepository promptCategoryRepository;
     private final ChatGPTService chatGPTService;
     private final MusicService musicService;
-
-    public DiaryService(UserRepository userRepository, DiaryRepository diaryRepository, MusicRepository musicRepository, PromptCategoryRepository promptCategoryRepository, ChatGPTService chatGPTService, MusicService musicService) {
-        this.userRepository = userRepository;
-        this.diaryRepository = diaryRepository;
-        this.musicRepository = musicRepository;
-        this.promptCategoryRepository = promptCategoryRepository;
-        this.chatGPTService = chatGPTService;
-        this.musicService = musicService;
-    }
 
     /**
      * 일기 생성
@@ -62,13 +48,25 @@ public class DiaryService {
             PromptCategory promptCategory = promptCategoryRepository.findByMainPrompt(diaryCreateRequestDto.getEmotion());
 
             // 일기 엔티티 생성
-            Diary diary = diaryCreateRequestDto.toEntity(diaryCreateRequestDto, user, promptCategory);
+            Diary diary = diaryCreateRequestDto.toEntity(user, promptCategory);
 
             // Diary 저장
             Diary savedDiary = diaryRepository.save(diary);
 
+            // 질문-답변 최대 2개 저장
+            List<DiaryQuestionAnswer> answers = diaryCreateRequestDto.getQuestionAnswers().stream()
+                    .limit(2) // 최대 2개 제한
+                    .map(qa -> DiaryQuestionAnswer.builder()
+                            .diary(savedDiary)
+                            .question(qa.getQuestion())
+                            .answer(qa.getAnswer())
+                            .build())
+                    .collect(Collectors.toList());
+
+            diaryQuestionAnswerRepository.saveAll(answers);
+
             // 생성된 일기 응답 DTO 반환
-            return DiaryCreateResponseDto.of(savedDiary);
+            return DiaryCreateResponseDto.of(savedDiary, answers);
         } catch (Exception e) {
             throw new DiaryException("Diary 생성 중 오류가 발생했습니다. " + e.getMessage());
         }
@@ -163,11 +161,14 @@ public class DiaryService {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
+        List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
+
         // 해당 일기에 연결된 음악 URL을 가져옴 (첫 번째 음악 URL 사용)
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
         // 음악이 생성되지 않았거나 음악을 아직 최종 선택하지 않았을 경우 Null 처리
         String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com") ? null : musics.get(0).getFileUrl();
-        return DiaryReadResponseDto.of(diary, musicUrl);
+
+        return DiaryReadResponseDto.of(diary, musicUrl, answers);
     }
 
     /**
