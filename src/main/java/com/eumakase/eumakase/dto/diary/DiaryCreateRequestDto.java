@@ -33,6 +33,9 @@ public class DiaryCreateRequestDto implements Serializable {
     @NotEmpty
     private List<QuestionAnswerDto> questionAnswers;  // 질문-답변 2쌍
 
+    @NotEmpty
+    private List<EmotionInsightDto> emotions;  // 감정/분석내용 (2~3개)
+
     public Diary toEntity(User user, PromptCategory promptCategory) {
         return Diary.builder()
                 .user(user)

@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.dto.diary;
 
 import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.DiaryEmotionInsight;
 import com.eumakase.eumakase.domain.DiaryQuestionAnswer;
 import lombok.*;
 
@@ -20,8 +21,9 @@ public class DiaryCreateResponseDto implements Serializable {
     private String emotion;
     private String content;
     private List<QuestionAnswerDto> questionAnswers;
+    private List<EmotionInsightDto> emotions;
 
-    public static DiaryCreateResponseDto of(Diary diary,  List<DiaryQuestionAnswer> questionAnswers) {
+    public static DiaryCreateResponseDto of(Diary diary,  List<DiaryQuestionAnswer> questionAnswers, List<DiaryEmotionInsight> emotions) {
         return DiaryCreateResponseDto.builder()
                 .id(diary.getId())
                 .emotion(diary.getPromptCategory().getMainPrompt())
@@ -32,6 +34,14 @@ public class DiaryCreateResponseDto implements Serializable {
                                         qa.getQuestionOrder(),
                                         qa.getQuestion(),
                                         qa.getAnswer()
+                                ))
+                                .collect(Collectors.toList())
+                )
+                .emotions(
+                        emotions.stream()
+                                .map(emotion -> new EmotionInsightDto(
+                                        emotion.getEmotion(),
+                                        emotion.getReason()
                                 ))
                                 .collect(Collectors.toList())
                 )

@@ -57,8 +57,16 @@ public class DiaryService {
                     })
                     .collect(Collectors.toList());
 
+            List<DiaryEmotionInsight> emotions = requestDto.getEmotions().stream().limit(3).map(emotionInsightDto -> DiaryEmotionInsight.builder()
+                    .diary(savedDiary)
+                    .emotion(emotionInsightDto.getEmotion())
+                    .reason(emotionInsightDto.getReason())
+                    .build())
+                    .collect(Collectors.toList());
+
             diaryQuestionAnswerRepository.saveAll(answers);
-            return DiaryCreateResponseDto.of(savedDiary, answers);
+            diaryEmotionInsightRepository.saveAll(emotions);
+            return DiaryCreateResponseDto.of(savedDiary, answers, emotions);
 
         } catch (Exception e) {
             throw new DiaryException("Diary 생성 중 오류가 발생했습니다. " + e.getMessage());
