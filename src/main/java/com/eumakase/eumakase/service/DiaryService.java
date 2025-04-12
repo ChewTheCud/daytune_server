@@ -25,6 +25,7 @@ public class DiaryService {
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryQuestionAnswerRepository diaryQuestionAnswerRepository;
+    private final DiaryEmotionInsightRepository diaryEmotionInsightRepository;
     private final MusicRepository musicRepository;
     private final PromptCategoryRepository promptCategoryRepository;
     private final ChatGPTService chatGPTService;
@@ -104,11 +105,12 @@ public class DiaryService {
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
         List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
+        List<DiaryEmotionInsight> emotions = diaryEmotionInsightRepository.findByDiaryId(diaryId);
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
         String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
                 ? null : musics.get(0).getFileUrl();
 
-        return DiaryReadResponseDto.of(diary, musicUrl, answers);
+        return DiaryReadResponseDto.of(diary, musicUrl, answers, emotions);
     }
 
     /**
