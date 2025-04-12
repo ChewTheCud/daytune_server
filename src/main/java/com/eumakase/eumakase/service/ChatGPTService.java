@@ -4,119 +4,123 @@ import com.eumakase.eumakase.common.constant.PromptMessages;
 import com.eumakase.eumakase.config.ChatGPTConfig;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.chatGPT.*;
+import com.eumakase.eumakase.dto.diary.EmotionInsightRequestDto;
+import com.eumakase.eumakase.dto.diary.EmotionInsightResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
-import com.eumakase.eumakase.util.enums.PromptType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * ChatGPT와 연동하여 후속 질문 생성 및 감정 분석 기능을 수행하는 서비스
+ */
 @Slf4j
 @Service
 public class ChatGPTService {
-    PromptMessages promptMessages;
+
     private final String model;
     private final String url;
     private final ChatGPTConfig chatGPTConfig;
+    private final ObjectMapper objectMapper;
+    private final DiaryRepository diaryRepository;
 
     @Value("${chatgpt.secret-key}")
     private String SECRET_KEY;
 
-    @Autowired
-    private DiaryRepository diaryRepository;
-
-    public ChatGPTService(ChatGPTConfig chatGPTConfig, @Value("${chatgpt.model}") String model, @Value("${chatgpt.url}") String url) {
+    public ChatGPTService(ChatGPTConfig chatGPTConfig,
+                          ObjectMapper objectMapper,
+                          DiaryRepository diaryRepository,
+                          @Value("${chatgpt.model}") String model,
+                          @Value("${chatgpt.url}") String url) {
         this.chatGPTConfig = chatGPTConfig;
+        this.objectMapper = objectMapper;
+        this.diaryRepository = diaryRepository;
         this.model = model;
         this.url = url;
     }
 
     /**
-     * HTTP 요청 엔티티 생성
+     * GPT 호출용 공통 HTTP 요청 구성
      */
-    public HttpEntity<ChatGPTRequestDto> buildHttpEntity(ChatGPTRequestDto chatGPTRequestDto) {
+    private HttpEntity<ChatGPTRequestDto> buildHttpEntity(ChatGPTRequestDto chatGPTRequestDto) {
         HttpHeaders headers = chatGPTConfig.httpHeaders();
         headers.setBearerAuth(SECRET_KEY);
         return new HttpEntity<>(chatGPTRequestDto, headers);
     }
 
     /**
-     * ChatGPT API에 요청 -> 응답을 ChatGPTResponseDto로 반환
+     * 시스템 메시지 + 사용자 입력을 기반으로 GPT 응답 반환
      */
-    public ChatGPTResponseDto getResponse(HttpEntity<ChatGPTRequestDto> requestEntity) {
-        ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                ChatGPTResponseDto.class);
-        return responseEntity.getBody();
-    }
-
-    /**
-     * ChatGPT 프롬프트 답변 생성
-     */
-    public PromptResponseDto sendPrompt(PromptRequestDto promptRequestDto, PromptType promptType) {
-        String systemMessage = "";
-        if (promptType == PromptType.COUNSELOR_QUESTION) {
-            systemMessage= PromptMessages.COUNSELOR_QUESTION;
-        }
-        if (promptType == PromptType.CONTENT_EMOTION_ANALYSIS) {
-            systemMessage= PromptMessages.CONTENT_EMOTION_ANALYSIS;
-        }
-        if (promptType == PromptType.COUNSELOR_CONCEPT) {
-            systemMessage= PromptMessages.COUNSELOR_CONCEPT;
-        }
-
-        // 메시지 리스트를 생성
+    private ChatGPTResponseDto callGPT(String systemMessage, String userPrompt) {
         List<Message> messages = Arrays.asList(
                 new Message("system", systemMessage),
-                new Message("user", promptRequestDto.getPrompt())
+                new Message("user", userPrompt)
         );
 
-        log.debug("[+] 프롬프트를 수행합니다.");
-
-        // [STEP1] ChatGPTRequestDto 객체 생성
-        ChatGPTRequestDto chatGPTRequestDto = new ChatGPTRequestDto(
-                model,
-                messages,
+        ChatGPTRequestDto request = new ChatGPTRequestDto(
+                model, messages,
                 ChatGPTConfig.TEMPERATURE,
                 ChatGPTConfig.MAX_TOKEN,
                 ChatGPTConfig.TOP_P,
                 ChatGPTConfig.CHOICE_NUMBER
         );
 
-        // [STEP2] API 응답을 받음
-        ChatGPTResponseDto chatGPTResponseDto =  this.getResponse(this.buildHttpEntity(chatGPTRequestDto));
-        // [STEP3] 첫 번째 선택지의 메시지 내용을 반환
-        Choice firstChoice = chatGPTResponseDto.getChoices().get(0);
-        return new PromptResponseDto(firstChoice.getMessage().getContent());
+        ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(
+                url,
+                HttpMethod.POST,
+                buildHttpEntity(request),
+                ChatGPTResponseDto.class
+        );
+
+        return responseEntity.getBody();
     }
 
     /**
-     * Diary 내 summary 업데이트 (GPT 연동)
+     * 사용자 답변 기반 후속 질문 생성
      */
-    // diaryService내 updateDiarySummary 구현시 순환참조 문제로 chatGPTService에 구현
+    public PromptResponseDto generateFollowUpQuestion(String promptRequestDto) {
+        ChatGPTResponseDto response = callGPT(PromptMessages.COUNSELOR_QUESTION, String.valueOf(promptRequestDto));
+        return new PromptResponseDto(response.getChoices().get(0).getMessage().getContent());
+    }
+
+    /**
+     * 질문-답변 목록 기반 감정 분석 및 공감 이유 추출
+     */
+    public EmotionInsightResponseDto analyzeEmotionFromQna(EmotionInsightRequestDto dto) {
+        StringBuilder userPrompt = new StringBuilder();
+        dto.getQuestionAnswers().forEach(qa -> {
+            userPrompt.append("질문: ").append(qa.getQuestion()).append("\n");
+            userPrompt.append("답변: ").append(qa.getAnswer()).append("\n\n");
+        });
+
+        ChatGPTResponseDto response = callGPT(PromptMessages.COUNSELOR_EMOTION_ANALYSIS, userPrompt.toString());
+        String rawContent = response.getChoices().get(0).getMessage().getContent();
+        //log.warn("GPT 응답 본문:\n{}", rawContent);
+        try {
+            return objectMapper.readValue(rawContent, EmotionInsightResponseDto.class);
+        } catch (Exception e) {
+            throw new DiaryException("감정 분석 응답 파싱에 실패했습니다: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 일기 요약이 비어있을 경우 GPT를 통해 요약 생성
+     */
     @Transactional
     public void updateDiarySummary(Long diaryId) {
-        // Diary를 찾고 없으면 예외 발생
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
-        // summary가 비어있는 경우에만 요약 작업 수행
         if (diary.getSummary() == null || diary.getSummary().isEmpty()) {
-            PromptRequestDto promptRequestDto = new PromptRequestDto(diary.getContent());
-            PromptResponseDto promptResponseDto = sendPrompt(promptRequestDto, PromptType.COUNSELOR_QUESTION);
-
-            diary.setSummary(promptResponseDto.getContent());
+            PromptResponseDto response = generateFollowUpQuestion(diary.getContent());
+            diary.setSummary(response.getContent());
             diaryRepository.save(diary);
         }
     }

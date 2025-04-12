@@ -4,27 +4,25 @@ import com.eumakase.eumakase.common.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
-public class DiaryQuestionAnswer extends BaseEntity {
+public class DiaryEmotionInsight extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "question_order", nullable = false, columnDefinition = "TINYINT")
-    private int questionOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id")
     private Diary diary;
 
     @Column(nullable = false)
-    private String question;
+    private String emotion;
 
     @Column(nullable = false)
-    private String answer;
+    private String reason;
 }
