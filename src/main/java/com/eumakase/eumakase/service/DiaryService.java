@@ -112,13 +112,7 @@ public class DiaryService {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException("Diary ID가 " + diaryId + "인 데이터를 찾을 수 없습니다."));
 
-        List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
-        List<DiaryEmotionInsight> emotions = diaryEmotionInsightRepository.findByDiaryId(diaryId);
-        List<Music> musics = musicRepository.findByDiaryId(diaryId);
-        String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
-                ? null : musics.get(0).getFileUrl();
-
-        return DiaryReadResponseDto.of(diary, musicUrl, answers, emotions);
+        return getDiaryReadResponseDto(diary, diaryId);
     }
 
     /**
@@ -132,12 +126,19 @@ public class DiaryService {
         }
         return diaries.stream()
                 .map(diary -> {
-                    List<Music> musics = musicRepository.findByDiaryId(diary.getId());
-                    String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
-                            ? null : musics.get(0).getFileUrl();
-                    return DiaryReadResponseDto.of(diary, musicUrl);
+                    Long diaryId = diary.getId();
+                    return getDiaryReadResponseDto(diary, diaryId);
                 })
                 .collect(Collectors.toList());
+    }
+
+    private DiaryReadResponseDto getDiaryReadResponseDto(Diary diary, Long diaryId) {
+        List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
+        List<DiaryEmotionInsight> emotions = diaryEmotionInsightRepository.findByDiaryId(diaryId);
+        List<Music> musics = musicRepository.findByDiaryId(diaryId);
+        String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
+                ? null : musics.get(0).getFileUrl();
+        return DiaryReadResponseDto.of(diary, musicUrl, answers, emotions);
     }
 
     /**
