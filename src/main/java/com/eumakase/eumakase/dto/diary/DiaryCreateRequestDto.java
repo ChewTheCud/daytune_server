@@ -22,13 +22,7 @@ public class DiaryCreateRequestDto implements Serializable {
     private PromptCategoryRepository promptCategoryRepository;
 
     @NotBlank
-    private String emotion;
-
-    @NotBlank
-    private String content;
-
-    @NotBlank
-    private String prompt;
+    private String mainEmotion;
 
     @NotEmpty
     private List<QuestionAnswerDto> questionAnswers;  // 질문-답변 2쌍
@@ -39,9 +33,7 @@ public class DiaryCreateRequestDto implements Serializable {
     public Diary toEntity(User user, PromptCategory promptCategory) {
         return Diary.builder()
                 .user(user)
-                .content(this.getContent())
                 .promptCategory(promptCategory)
-                .prompt(this.getPrompt())
                 .build();
     }
 }

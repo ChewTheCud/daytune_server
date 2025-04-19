@@ -40,7 +40,7 @@ public class DiaryService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new UserException("해당하는 사용자를 찾을 수 없습니다."));
 
-            PromptCategory promptCategory = promptCategoryRepository.findByMainPrompt(requestDto.getEmotion());
+            PromptCategory promptCategory = promptCategoryRepository.findByMainPrompt(requestDto.getMainEmotion());
 
             Diary diary = requestDto.toEntity(user, promptCategory);
             Diary savedDiary = diaryRepository.save(diary);

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class DiaryCreateResponseDto implements Serializable {
     private Long id;
     private String emotion;
-    private String content;
     private List<QuestionAnswerDto> questionAnswers;
     private List<EmotionInsightDto> emotions;
 
@@ -27,7 +26,6 @@ public class DiaryCreateResponseDto implements Serializable {
         return DiaryCreateResponseDto.builder()
                 .id(diary.getId())
                 .emotion(diary.getPromptCategory().getMainPrompt())
-                .content(diary.getContent())
                 .questionAnswers(
                         questionAnswers.stream()
                                 .map(qa -> new QuestionAnswerDto(
