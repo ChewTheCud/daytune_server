@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
+    private String mainEmotion;
     private List<QuestionAnswerDto> questionAnswers;
     private List<EmotionInsightDto> emotions;
-    private String summary;
     private String musicUrl;
     private LocalDateTime createdDate;
 
@@ -30,6 +30,7 @@ public class DiaryReadResponseDto implements Serializable {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
+                .mainEmotion(diary.getPromptCategory() != null ? diary.getPromptCategory().getMainPrompt() : null)
                 .questionAnswers(
                         questionAnswers.stream()
                                 .map(qa -> new QuestionAnswerDto(
@@ -47,7 +48,6 @@ public class DiaryReadResponseDto implements Serializable {
                                 ))
                                 .collect(Collectors.toList())
                 )
-                .summary(diary.getSummary())
                 .musicUrl(musicUrl)
                 .createdDate(diary.getCreatedDate())
                 .build();
