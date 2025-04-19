@@ -8,6 +8,7 @@ import com.eumakase.eumakase.dto.diary.EmotionInsightRequestDto;
 import com.eumakase.eumakase.dto.diary.EmotionInsightResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.PromptCategoryDetailRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,8 @@ public class ChatGPTService {
     private final ObjectMapper objectMapper;
     private final DiaryRepository diaryRepository;
 
+    private final PromptCategoryDetailRepository promptCategoryDetailRepository;
+
     @Value("${chatgpt.secret-key}")
     private String SECRET_KEY;
 
@@ -38,10 +41,11 @@ public class ChatGPTService {
                           ObjectMapper objectMapper,
                           DiaryRepository diaryRepository,
                           @Value("${chatgpt.model}") String model,
-                          @Value("${chatgpt.url}") String url) {
+                          @Value("${chatgpt.url}") String url, PromptCategoryDetailRepository promptCategoryDetailRepository) {
         this.chatGPTConfig = chatGPTConfig;
         this.objectMapper = objectMapper;
         this.diaryRepository = diaryRepository;
+        this.promptCategoryDetailRepository = promptCategoryDetailRepository;
         this.model = model;
         this.url = url;
     }
@@ -100,9 +104,17 @@ public class ChatGPTService {
             userPrompt.append("답변: ").append(qa.getAnswer()).append("\n\n");
         });
 
-        ChatGPTResponseDto response = callGPT(PromptMessages.COUNSELOR_EMOTION_ANALYSIS, userPrompt.toString());
+        // 감정 키워드 목록 조회
+        List<String> keywords = promptCategoryDetailRepository.findPromptsByMainPrompt(String.valueOf(dto.getMainEmotion()));
+        if (keywords.isEmpty()) {
+            throw new DiaryException("해당 감정 카테고리에 키워드가 없습니다.");
+        }
+
+        String keywordList = String.join(", ", keywords);
+        String counselorEmotionAnalysisSystemMessage = PromptMessages.generateEmotionMessage(keywordList);
+
+        ChatGPTResponseDto response = callGPT(counselorEmotionAnalysisSystemMessage, userPrompt.toString());
         String rawContent = response.getChoices().get(0).getMessage().getContent();
-        //log.warn("GPT 응답 본문:\n{}", rawContent);
         try {
             return objectMapper.readValue(rawContent, EmotionInsightResponseDto.class);
         } catch (Exception e) {

@@ -13,9 +13,6 @@ import lombok.*;
 @Builder
 @Data
 public class QuestionAnswerDto {
-
-    @Min(1)
-    @Max(2)
     private int order;
 
     @NotBlank
