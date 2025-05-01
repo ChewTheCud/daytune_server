@@ -123,7 +123,7 @@ public class SocialService {
      * @return 생성된 JWT ClientSecret
      */
     private String generateClientSecret() {
-        LocalDateTime expiration = LocalDateTime.now().plusMinutes(5);
+        LocalDateTime expiration = LocalDateTime.now().plusMinutes(30);
 
         return Jwts.builder()
                 .setHeaderParam(JwsHeader.KEY_ID, appleProperties.getKeyId())
