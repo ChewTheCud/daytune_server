@@ -1,10 +1,14 @@
 package com.eumakase.eumakase.dto.diary;
 
 import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.DiaryEmotionInsight;
+import com.eumakase.eumakase.domain.DiaryQuestionAnswer;
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Diary 생성 응답 DTO
@@ -16,21 +20,40 @@ import java.time.LocalDateTime;
 public class DiaryReadResponseDto implements Serializable {
     private Long id;
     private Long userId;
-    private String emotion;
-    private String content;
-    private String summary;
+    private String mainEmotion;
+    private List<QuestionAnswerDto> questionAnswers;
+    private List<EmotionInsightDto> emotions;
     private String musicUrl;
     private LocalDateTime createdDate;
 
-    public static DiaryReadResponseDto of(Diary diary, String musicUrl) {
+    public static DiaryReadResponseDto of(Diary diary, String musicUrl, List<DiaryQuestionAnswer> questionAnswers, List<DiaryEmotionInsight> emotions) {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
-                .emotion(diary.getPromptCategory() != null ? diary.getPromptCategory().getMainPrompt() : null)
-                .content(diary.getContent())
-                .summary(diary.getSummary())
+                .mainEmotion(diary.getPromptCategory() != null ? diary.getPromptCategory().getMainPrompt() : null)
+                .questionAnswers(
+                        questionAnswers.stream()
+                                .map(qa -> new QuestionAnswerDto(
+                                        qa.getQuestionOrder(),
+                                        qa.getQuestion(),
+                                        qa.getAnswer()
+                                ))
+                                .collect(Collectors.toList())
+                )
+                .emotions(
+                        emotions.stream()
+                                .map(emotion -> new EmotionInsightDto(
+                                        emotion.getEmotion(),
+                                        emotion.getReason()
+                                ))
+                                .collect(Collectors.toList())
+                )
                 .musicUrl(musicUrl)
                 .createdDate(diary.getCreatedDate())
                 .build();
+    }
+
+    public static DiaryReadResponseDto of(Diary diary, String musicUrl) {
+        return DiaryReadResponseDto.of(diary, musicUrl, List.of(), List.of());
     }
 }
