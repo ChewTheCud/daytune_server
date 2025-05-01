@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 <!-- 운영  -->
-<!--    <property name="LOG_PATH" value="/home/ubuntu/app/logs" />-->
+    <property name="LOG_PATH" value="/home/ubuntu/app/logs" />
 <!-- 로컬  -->
-    <property name="LOG_PATH" value="logs" />
+<!--    <property name="LOG_PATH" value="logs" />-->
 
     <!-- 콘솔 출력 설정 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
