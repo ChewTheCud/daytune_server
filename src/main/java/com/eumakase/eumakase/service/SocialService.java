@@ -83,39 +83,61 @@ public class SocialService {
      * @return 디코딩된 사용자 정보를 담고 있는 AppleUserInfoResponseDto 객체
      */
     public AppleUserInfoResponseDto getAppleUserProfile(String authorizationCode) throws IOException {
+        System.out.println("▶ Apple 인증 코드 수신: " + authorizationCode);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE));
-        HttpEntity<String> request = new HttpEntity<>("client_id=" + appleProperties.getClientId() +
+        System.out.println("▶ 요청 헤더 설정 완료");
+
+        String requestBody = "client_id=" + appleProperties.getClientId() +
                 "&client_secret=" + generateClientSecret() +
                 "&grant_type=" + appleProperties.getGrantType() +
-                "&code=" + authorizationCode, headers);
+                "&code=" + authorizationCode;
+        System.out.println("▶ 요청 바디: " + requestBody);
+
+        HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
         try {
+            String url = appleProperties.getAudience() + "/auth/token";
+            System.out.println("▶ 요청 URL: " + url);
+
             ResponseEntity<AppleSocialTokenInfoResponseDto> response = socialConfig.restTemplate().exchange(
-                    appleProperties.getAudience() + "/auth/token", HttpMethod.POST, request, AppleSocialTokenInfoResponseDto.class);
+                    url, HttpMethod.POST, request, AppleSocialTokenInfoResponseDto.class);
+
+            System.out.println("▶ 응답 상태 코드: " + response.getStatusCode());
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new HttpClientErrorException(response.getStatusCode(), "Failed to retrieve Apple user profile");
             }
 
-            DecodedJWT decodedJWT = JWT.decode(Objects.requireNonNull(response.getBody()).getIdToken());
+            AppleSocialTokenInfoResponseDto tokenInfo = response.getBody();
+            System.out.println("▶ 토큰 응답: " + tokenInfo);
+
+            DecodedJWT decodedJWT = JWT.decode(Objects.requireNonNull(tokenInfo).getIdToken());
+            System.out.println("▶ 디코딩된 JWT: " + decodedJWT);
+
+            String sub = decodedJWT.getClaim("sub").asString();
+            String email = decodedJWT.getClaim("email").asString();
+            System.out.println("▶ Apple 사용자 sub: " + sub);
+            System.out.println("▶ Apple 사용자 email: " + email);
 
             AppleUserInfoResponseDto appleUserInfoResponseDto = new AppleUserInfoResponseDto();
-            appleUserInfoResponseDto.setSubject(decodedJWT.getClaim("sub").asString());
-            appleUserInfoResponseDto.setEmail(decodedJWT.getClaim("email").asString());
+            appleUserInfoResponseDto.setSubject(sub);
+            appleUserInfoResponseDto.setEmail(email);
 
             return appleUserInfoResponseDto;
 
         } catch (HttpClientErrorException e) {
+            System.err.println("▶ HTTP 예외 발생: " + e.getStatusCode() + " / " + e.getLocalizedMessage());
+
             if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
                 throw new AuthException("유효하지 않거나 만료된 oauthAccessToken입니다.");
             } else {
-                // General HTTP client error handling
-                System.err.println("HTTP client error occurred: " + e.getStatusCode() + " " + e.getLocalizedMessage());
                 throw e;
             }
         }
     }
+
 
     /**
      * Apple의 인증 서버와의 통신에 사용될 JWT을 생성하기 위해 사용되는 ClientSecret
