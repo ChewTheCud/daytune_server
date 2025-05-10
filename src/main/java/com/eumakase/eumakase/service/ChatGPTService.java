@@ -3,12 +3,15 @@ package com.eumakase.eumakase.service;
 import com.eumakase.eumakase.common.constant.PromptMessages;
 import com.eumakase.eumakase.config.ChatGPTConfig;
 import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.PromptCategory;
+import com.eumakase.eumakase.domain.PromptCategoryDetail;
 import com.eumakase.eumakase.dto.chatGPT.*;
 import com.eumakase.eumakase.dto.diary.EmotionInsightRequestDto;
 import com.eumakase.eumakase.dto.diary.EmotionInsightResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.PromptCategoryDetailRepository;
+import com.eumakase.eumakase.repository.PromptCategoryRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ChatGPT와 연동하여 후속 질문 생성 및 감정 분석 기능을 수행하는 서비스
@@ -31,7 +35,7 @@ public class ChatGPTService {
     private final ChatGPTConfig chatGPTConfig;
     private final ObjectMapper objectMapper;
     private final DiaryRepository diaryRepository;
-
+    private final PromptCategoryRepository promptCategoryRepository;
     private final PromptCategoryDetailRepository promptCategoryDetailRepository;
 
     @Value("${chatgpt.secret-key}")
@@ -41,10 +45,11 @@ public class ChatGPTService {
                           ObjectMapper objectMapper,
                           DiaryRepository diaryRepository,
                           @Value("${chatgpt.model}") String model,
-                          @Value("${chatgpt.url}") String url, PromptCategoryDetailRepository promptCategoryDetailRepository) {
+                          @Value("${chatgpt.url}") String url, PromptCategoryRepository promptCategoryRepository, PromptCategoryDetailRepository promptCategoryDetailRepository) {
         this.chatGPTConfig = chatGPTConfig;
         this.objectMapper = objectMapper;
         this.diaryRepository = diaryRepository;
+        this.promptCategoryRepository = promptCategoryRepository;
         this.promptCategoryDetailRepository = promptCategoryDetailRepository;
         this.model = model;
         this.url = url;
@@ -105,11 +110,19 @@ public class ChatGPTService {
         });
 
         // 감정 키워드 목록 조회
-        List<String> keywords = promptCategoryDetailRepository.findPromptsByMainPrompt(String.valueOf(dto.getMainEmotion()));
-        if (keywords.isEmpty()) {
-            throw new DiaryException("해당 감정 카테고리에 키워드가 없습니다.");
+        String mainPrompt = String.valueOf(dto.getMainEmotion());
+        PromptCategory category = promptCategoryRepository.findByMainPrompt(mainPrompt);
+        if (category == null) {
+            throw new DiaryException("해당 mainPrompt(" + mainPrompt + ")에 해당하는 카테고리가 없습니다.");
+        }
+        List<PromptCategoryDetail> details = promptCategoryDetailRepository.findByPromptCategoryId(category.getId());
+        if (details.isEmpty()) {
+            throw new DiaryException("해당 감정 카테고리에 상세 키워드가 없습니다.");
         }
 
+        List<String> keywords = details.stream()
+                .map(PromptCategoryDetail::getPrompt)
+                .collect(Collectors.toList());
         String keywordList = String.join(", ", keywords);
         String counselorEmotionAnalysisSystemMessage = PromptMessages.generateEmotionMessage(keywordList);
 
