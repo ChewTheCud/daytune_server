@@ -78,7 +78,8 @@ public class ChatGPTService {
                 ChatGPTConfig.TEMPERATURE,
                 ChatGPTConfig.MAX_TOKEN,
                 ChatGPTConfig.TOP_P,
-                ChatGPTConfig.CHOICE_NUMBER
+                ChatGPTConfig.CHOICE_NUMBER,
+                ChatGPTConfig.PRESENCE_PENALTY
         );
 
         ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(

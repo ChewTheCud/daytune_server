@@ -23,13 +23,16 @@ public class ChatGPTRequestDto implements Serializable {
     private Double topP;
     @JsonProperty("n")
     private Integer choiceNumber;
+    @JsonProperty("presence_penalty")
+    private Double presencePenalty;
 
-    public ChatGPTRequestDto(String model, List<Message> messages, Double temperature, Integer maxTokens, Double topP, Integer choiceNumber) {
+    public ChatGPTRequestDto(String model, List<Message> messages, Double temperature, Integer maxTokens, Double topP, Integer choiceNumber, Double presencePenalty) {
         this.model = model;
         this.messages = messages;
         this.temperature = temperature;
         this.maxTokens = maxTokens;
         this.topP = topP;
         this.choiceNumber = choiceNumber;
+        this.presencePenalty = presencePenalty;
     }
 }
