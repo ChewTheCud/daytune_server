@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class SunoAIConfig {
     public static final boolean DEFAULT_CUSTOM_MODE = true;
-    public static final boolean DEFAULT_INSTRUMENTAL = true;
+    public static final boolean DEFAULT_INSTRUMENTAL = false;
     public static final String DEFAULT_MODEL = "V4_5";
     public static final String DEFAULT_CALLBACK_URL = "https://api.example.com/callback";
 

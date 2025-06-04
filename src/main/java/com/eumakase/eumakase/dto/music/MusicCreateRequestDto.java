@@ -1,4 +1,3 @@
-// 수정된 MusicCreateRequestDto.java
 package com.eumakase.eumakase.dto.music;
 
 import com.eumakase.eumakase.domain.Diary;
@@ -21,7 +20,7 @@ public class MusicCreateRequestDto implements Serializable {
     private Long diaryId;
 
     @NotNull
-    private String generationPrompt;
+    private String prompt;
 
     @NotNull
     private String style;

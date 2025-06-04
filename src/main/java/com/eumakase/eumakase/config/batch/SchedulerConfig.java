@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
  * 배치 작업 스케줄링
  */
 @Configuration
-@EnableScheduling //스케줄링 활성화
+@EnableScheduling // 스케줄링 활성화
 public class SchedulerConfig {
 
     private final JobLauncher jobLauncher;
@@ -28,15 +28,17 @@ public class SchedulerConfig {
 
     /**
      * updateMusicFileUrlsJob 스케줄링
-     * 매일 오전/오후 10시 00분에 실행되도록 설정
+     * 매 3시간마다 정각에 실행되도록 설정 (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)
      */
-    @Scheduled(cron = "0 0 10 * * *")
-    @Scheduled(cron = "0 0 22 * * *")
+    @Scheduled(cron = "0 0 */3 * * *")
     public void perform() {
         try {
-            jobLauncher.run(updateMusicFileUrlsJob, new JobParametersBuilder()
-                    .addLong("time", System.currentTimeMillis()) // Job 파라미터에 현재 시간을 추가
-                    .toJobParameters());
+            jobLauncher.run(
+                    updateMusicFileUrlsJob,
+                    new JobParametersBuilder()
+                            .addLong("time", System.currentTimeMillis()) // Job 파라미터에 현재 시간을 추가
+                            .toJobParameters()
+            );
         } catch (Exception e) {
             System.err.println("Job execution failed: " + e.getMessage());
         }

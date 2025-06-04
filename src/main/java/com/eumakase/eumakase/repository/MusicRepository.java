@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface MusicRepository extends JpaRepository<Music, Long> {
     List<Music> findBySunoAiMusicIdIsNotNullAndFileUrlIsNull();
+    List<Music> findBySunoAiMusicIdIsNotNullAndFileUrlIsNullOrFileUrl(String emptyString);
     List<Music> findByDiaryIdAndIdNot(Long diaryId, Long musicId);
     List<Music> findByDiaryId(Long diaryId);
 }

@@ -5,6 +5,7 @@ import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.ShareUrl;
 import com.eumakase.eumakase.dto.music.*;
+import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationDetailResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIResponseDto;
@@ -13,6 +14,7 @@ import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
 import com.eumakase.eumakase.repository.ShareUrlRepository;
 import com.eumakase.eumakase.util.FileUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -63,13 +65,19 @@ public class MusicService {
      */
     @Transactional
     public void createMusic(MusicCreateRequestDto musicCreateRequestDto) {
+        log.info("[createMusic 호출] diaryId={} / generationPrompt='{}' / style='{}' / title='{}'",
+                musicCreateRequestDto.getDiaryId(),
+                musicCreateRequestDto.getPrompt(),
+                musicCreateRequestDto.getStyle(),
+                musicCreateRequestDto.getTitle()
+        );
         // 1. Diary 엔티티 조회
         Diary diary = diaryRepository.findById(musicCreateRequestDto.getDiaryId())
                 .orElseThrow(() -> new IllegalArgumentException("Diary not found with id: " + musicCreateRequestDto.getDiaryId()));
 
         // 2. SunoAI 음악 생성 요청 DTO 설정
         SunoAIRequestDto sunoAIRequestDto = SunoAIRequestDto.builder()
-                .prompt(musicCreateRequestDto.getGenerationPrompt())
+                .prompt(musicCreateRequestDto.getPrompt())
                 .style(musicCreateRequestDto.getStyle())
                 .title(musicCreateRequestDto.getTitle())
                 .negativeTags(musicCreateRequestDto.getNegativeTags()) // 필요 시 null 가능
@@ -87,13 +95,13 @@ public class MusicService {
         // 4. Music 엔티티 두 개 생성 및 저장
         Music music1 = Music.builder()
                 .diary(diary)
-                .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
+                .generationPrompt(musicCreateRequestDto.getPrompt())
                 .sunoAiMusicId(taskId)
                 .build();
 
         Music music2 = Music.builder()
                 .diary(diary)
-                .generationPrompt(musicCreateRequestDto.getGenerationPrompt())
+                .generationPrompt(musicCreateRequestDto.getPrompt())
                 .sunoAiMusicId(taskId)
                 .build();
 
@@ -117,6 +125,10 @@ public class MusicService {
         String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
 
         try {
+            // ★ 요청 바디(JSON) 직렬화하여 로그로 출력 ★
+            ObjectMapper mapper = new ObjectMapper();
+            String requestJson = mapper.writeValueAsString(sunoAIRequestDto);
+            log.info("[SunoAI 요청 바디] {}", requestJson);
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
@@ -153,38 +165,61 @@ public class MusicService {
         }
     }
 
-
     /**
-     * SunoAI 음악 세부 정보 조회
-     * @param songIds 쉼표로 구분된 음악 ID 문자열
-     * @return 음악 세부 정보 목록
-     * @throws Exception 예외 발생 시
+     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v1/generate/record-info)
+     * @param taskId Suno AI에서 생성된 taskId
+     * @return 상태가 "SUCCESS" 또는 "complete"인 트랙들의 ID와 audio_url을 담은 리스트
+     * @throws Exception 조회 중 예외 발생 시
      */
-    public List<Map<String, String>> getSunoAIMusicDetails(String songIds) throws Exception {
+    /**
+     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v1/generate/record-info)
+     * @param taskId Suno AI에서 생성된 taskId
+     * @return 생성된 트랙들의 ID와 audioUrl 정보를 담은 리스트
+     * @throws Exception 조회 중 예외 발생 시
+     */
+    public List<Map<String, String>> getSunoAIMusicDetails(String taskId) throws Exception {
+        // 엔드포인트: /api/v1/generate/record-info?taskId={taskId}
+        String uri = sunoAIProperties.getUrl() + "/api/v1/generate/record-info?taskId=" + taskId;
+
         try {
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-            String url = sunoAIProperties.getUrl() + "/get?ids=" + songIds; // Query parameter로 songId 전달
-            ResponseEntity<List<SunoAIResponseDto>> response = sunoAIConfig.restTemplate().exchange(
-                    url,
+            ResponseEntity<SunoAIGenerationDetailResultDto> response = restTemplate.exchange(
+                    uri,
                     HttpMethod.GET,
                     requestEntity,
-                    new ParameterizedTypeReference<List<SunoAIResponseDto>>() {});
+                    SunoAIGenerationDetailResultDto.class
+            );
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-                throw new Exception("Suno AI 조회 API 호출 실패: " + response.getStatusCode());
-            }
-            List<SunoAIResponseDto> allMusicData = response.getBody();
-            if (allMusicData == null || allMusicData.isEmpty()) {
-                throw new Exception("No music data found in response.");
+                throw new Exception("Suno AI 조회 API 호출 실패: HTTP 상태 " + response.getStatusCode());
             }
 
-            // 필터링: "complete" 상태만
-            List<Map<String, String>> completedMusicData = allMusicData.stream()
-                    .filter(music -> "complete".equals(music.getStatus()) && music.getAudioUrl() != null)
-                    .map(music -> Map.of("id", music.getId(), "audio_url", music.getAudioUrl()))
-                    .collect(Collectors.toList());
+            SunoAIGenerationDetailResultDto detailResultDto = response.getBody();
+            if (detailResultDto.getCode() != 200 || detailResultDto.getData() == null) {
+                throw new Exception("Suno AI 조회 API 응답 오류 발생: code="
+                        + detailResultDto.getCode() + ", msg=" + detailResultDto.getMsg());
+            }
+
+            SunoAIGenerationDetailResultDto.ResponseNode responseNode = detailResultDto.getData().getResponse();
+            if (responseNode == null || responseNode.getSunoData() == null) {
+                throw new Exception("응답에서 sunoData 정보가 없습니다.");
+            }
+
+            // sunoData 리스트 순회하며 id와 streamAudioUrl을 Map으로 변환
+            List<Map<String, String>> completedMusicData = new ArrayList<>();
+            for (SunoAIGenerationDetailResultDto.TrackInfo track : responseNode.getSunoData()) {
+                String id = track.getId();
+                String streamUrl = track.getStreamAudioUrl();
+                if (id != null && streamUrl != null && !streamUrl.isEmpty()) {
+                    completedMusicData.add(Map.of(
+                            "id", id,
+                            "audio_url", streamUrl
+                    ));
+                }
+            }
+
             return completedMusicData;
         } catch (HttpClientErrorException ex) {
             log.error("Suno AI 조회 API 호출 실패: {}", ex.getResponseBodyAsString(), ex);
@@ -194,6 +229,9 @@ public class MusicService {
             throw new Exception("Suno AI 조회 API 호출 실패: " + ex.getMessage(), ex);
         }
     }
+
+
+
 
     /**
      * 특정 일기의 음악 정보 조회
@@ -216,67 +254,102 @@ public class MusicService {
      */
     @Transactional
     public MusicUpdateFileUrlsResultDto updateMusicFileUrls() {
-        // fileUrl이 비어있는 Music 데이터를 조회
-        List<Music> musicList = musicRepository.findBySunoAiMusicIdIsNotNullAndFileUrlIsNull();
+        // fileUrl이 NULL이거나 빈 문자열("")인 레코드를 모두 조회
+        List<Music> musicList = musicRepository
+                .findBySunoAiMusicIdIsNotNullAndFileUrlIsNullOrFileUrl("");
 
-        // 조회된 Music 데이터에서 suno_ai_music_id 목록을 추출
-        List<String> sunoAiMusicIds = musicList.stream()
-                .map(Music::getSunoAiMusicId)
-                .collect(Collectors.toList());
+        // taskId 별로 그룹화
+        Map<String, List<Music>> musicByTaskId = musicList.stream()
+                .collect(Collectors.groupingBy(Music::getSunoAiMusicId));
 
-        // 업데이트된 음악 파일과 업데이트되지 않은 음악 파일 정보를 저장할 리스트를 초기화
         List<MusicUpdateInfo> updatedMusicFiles = new ArrayList<>();
         List<MusicUpdateInfo> notUpdatedMusicFiles = new ArrayList<>();
-
-        // 사용자별로 음악 업데이트 정보를 저장할 맵 초기화
         Map<Long, List<MusicUpdateInfo>> userMap = new HashMap<>();
 
-        // 업데이트할 음악 데이터가 없는 경우
-        if (sunoAiMusicIds.isEmpty()) {
-            log.info("업데이트할 음악 데이터가 없습니다.");
-            return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
-        }
+        for (Map.Entry<String, List<Music>> entry : musicByTaskId.entrySet()) {
+            String taskId = entry.getKey();
+            List<Music> musicsForTask = entry.getValue();
 
-        // SunoAI API를 통해 음악 세부 정보를 조회하여 5개씩 처리
-        for (int i = 0; i < sunoAiMusicIds.size(); i += 5) {
-            // 조회가 필요한 Suno AI id 목록을 추출
-            List<String> sunoMusicIds = sunoAiMusicIds.subList(i, Math.min(i + 5, sunoAiMusicIds.size()));
             try {
-                // SunoAI API를 호출하여 음악 세부 정보를 조회
-                List<Map<String, String>> musicDetails = getSunoAIMusicDetails(String.join(",", sunoMusicIds));
+                // 상세 조회 후, List<Map<String,String>>에서 streamAudioUrl(= "audio_url") 추출
+                List<Map<String, String>> musicDetails = getSunoAIMusicDetails(taskId);
 
-                // 조회된 음악 세부 정보를 id와 audio_url로 매핑
-                Map<String, String> idToUrlMap = musicDetails.stream()
-                        .collect(Collectors.toMap(
-                                music -> music.get("id"),
-                                music -> music.get("audio_url")
+                for (int i = 0; i < musicsForTask.size(); i++) {
+                    Music music = musicsForTask.get(i);
+                    String audioUrl = null;
+                    if (i < musicDetails.size()) {
+                        audioUrl = musicDetails.get(i).get("audio_url");
+                    }
+
+                    if (audioUrl != null && !audioUrl.isEmpty()) {
+                        music.setFileUrl(audioUrl);
+                        updatedMusicFiles.add(new MusicUpdateInfo(
+                                music.getDiary().getId(),
+                                music.getId(),
+                                audioUrl
                         ));
 
-                // 각 Music 엔티티에 대해 파일 URL을 설정하고 업데이트된 정보 리스트에 추가
-                for (Music music : musicList) {
-                    String audioUrl = idToUrlMap.get(music.getSunoAiMusicId());
-                    if (audioUrl != null) {
-                        // audioUrl이 존재하면, Music 엔티티의 fileUrl을 설정
-                        music.setFileUrl(audioUrl);
-                        // 업데이트된 음악 파일 정보를 리스트에 추가
-                        updatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
-
-                        // 사용자별로 업데이트된 음악 정보를 맵에 추가
                         Long userId = music.getDiary().getUser().getId();
                         userMap.computeIfAbsent(userId, k -> new ArrayList<>())
-                                .add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), audioUrl));
+                                .add(new MusicUpdateInfo(
+                                        music.getDiary().getId(),
+                                        music.getId(),
+                                        audioUrl
+                                ));
                     } else {
-                        // audioUrl이 없으면, 업데이트되지 않은 음악 파일 정보를 리스트에 추가
-                        notUpdatedMusicFiles.add(new MusicUpdateInfo(music.getDiary().getId(), music.getId(), null));
+                        notUpdatedMusicFiles.add(new MusicUpdateInfo(
+                                music.getDiary().getId(),
+                                music.getId(),
+                                null
+                        ));
                     }
                 }
-                musicRepository.saveAll(musicList);
             } catch (Exception e) {
-                log.error("음악 파일 URL 업데이트 중 오류가 발생했습니다.", e);
+                log.error("음악 파일 URL 업데이트 중 오류 발생: taskId={}, error={}", taskId, e.getMessage(), e);
+                // 조회 실패 시 해당 taskId에 속한 모든 Music에 notUpdated 추가
+                for (Music music : musicsForTask) {
+                    notUpdatedMusicFiles.add(new MusicUpdateInfo(
+                            music.getDiary().getId(),
+                            music.getId(),
+                            null
+                    ));
+                }
             }
         }
 
-        // 각 사용자에 대해 한 번만 FCM 알림을 전송
+        // 1. Music 엔티티 모두 저장
+        List<Music> allSavedMusic = musicByTaskId.values().stream()
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+        musicRepository.saveAll(allSavedMusic);
+
+        // 2. diary별로 musicStatus 갱신
+        //    musicByTaskId 내부의 모든 Diary ID를 순회하며, 해당 Diary에 속한 모든 Music 파일이
+        //    fileUrl을 정상적으로 가지고 있는지 확인 후 true로 변경
+        Set<Long> diaryIdsToCheck = allSavedMusic.stream()
+                .map(music -> music.getDiary().getId())
+                .collect(Collectors.toSet());
+
+        for (Long diaryId : diaryIdsToCheck) {
+            // 해당 다이어리에 속한 모든 Music 조회
+            List<Music> musics = musicRepository.findByDiaryId(diaryId);
+
+            // **두 개 모두** fileUrl이 비어 있지 않은 경우 (null 아니고, 빈 문자열 아니면) → musicStatus = true
+            boolean allHaveFileUrl = musics.stream()
+                    .allMatch(m -> m.getFileUrl() != null && !m.getFileUrl().isEmpty());
+
+            if (allHaveFileUrl) {
+                Diary diary = diaryRepository.findById(diaryId)
+                        .orElseThrow(() -> new IllegalStateException("Diary not found with id: " + diaryId));
+                // 이미 true라면 굳이 save 하지 않음
+                if (!diary.isMusicStatus()) {
+                    diary.setMusicStatus(true);
+                    diaryRepository.save(diary);
+                }
+            }
+        }
+
+        // 3. FCM 알림 전송 로직
         for (Map.Entry<Long, List<MusicUpdateInfo>> entry : userMap.entrySet()) {
             Long userId = entry.getKey();
             String fcmToken = null;
@@ -285,7 +358,7 @@ public class MusicService {
                 fcmToken = fcmService.getFcmTokenByUserId(userId);
                 nickname = fcmService.getUserNicknameByUserId(userId);
             } catch (RuntimeException e) {
-                log.error("FCM 토큰을 찾을 수 없습니다: " + e.getMessage());
+                log.error("FCM 토큰을 찾을 수 없습니다: {}", e.getMessage());
             }
 
             if (fcmToken != null) {
@@ -294,15 +367,19 @@ public class MusicService {
                 try {
                     fcmService.sendPushNotification(title, message, fcmToken);
                 } catch (FirebaseMessagingException e) {
-                    log.error("FCM 알림 전송 중 오류가 발생했습니다.", e);
+                    log.error("FCM 알림 전송 중 오류 발생:", e);
                 }
             } else {
-                log.warn("FCM 토큰을 찾을 수 없습니다: User ID: " + userId);
+                log.warn("FCM 토큰을 찾을 수 없습니다: User ID={}", userId);
             }
         }
-
         return new MusicUpdateFileUrlsResultDto(updatedMusicFiles, notUpdatedMusicFiles);
     }
+
+
+
+
+
 
     /**
      * Music 삭제
