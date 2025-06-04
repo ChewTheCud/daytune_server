@@ -38,10 +38,10 @@ public class MusicController {
             @RequestBody MusicCreateRequestDto musicCreateRequestDto) {
         try {
             musicService.createMusic(musicCreateRequestDto);
-            return ResponseEntity.ok(ApiResponse.success("음악 생성 완료"));
+            return ResponseEntity.ok(ApiResponse.success("음악 생성 요청 완료했습니다."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("음악 생성 실패: " + e.getMessage()));
+                    .body(ApiResponse.error("음악 생성 요청 실패했습니다: " + e.getMessage()));
         }
     }
 
