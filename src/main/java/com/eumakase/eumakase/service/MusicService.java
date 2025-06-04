@@ -124,16 +124,18 @@ public class MusicService {
     public String generateSunoAIMusic(SunoAIRequestDto sunoAIRequestDto) throws Exception {
         String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
 
+        HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
+
+
         try {
             // ★ 요청 바디(JSON) 직렬화하여 로그로 출력 ★
             ObjectMapper mapper = new ObjectMapper();
             String requestJson = mapper.writeValueAsString(sunoAIRequestDto);
-            log.info("[SunoAI 요청 바디] {}", requestJson);
-            HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
-            HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
-
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-            System.out.println("[SunoAI 요청 Authorization 헤더 = " + authHeader);
+            log.info("[SunoAI 요청 Authorization 헤더] {}", authHeader);
+            log.info("[SunoAI 요청 바디] {}", requestJson);
+//            HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
+            HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
             // SunoAIGenerationResultDto로 응답 매핑
             ResponseEntity<SunoAIGenerationResultDto> response = restTemplate.exchange(
