@@ -42,7 +42,8 @@ chatgpt:
 
 sunoai:
   url: https://apibox.erweima.ai
-  secret-key: ENC(P6iepJ++d6Ua6UCoJwn67GH01Ma5WZY2Dqc35dE8Tmfg1hBEo6HsdW/ZqUFJVZaC)
+  secret-key: 8f13c3e885bb6675a157e9ef14eb58cc
+#  secret-key: ENC(P6iepJ++d6Ua6UCoJwn67GH01Ma5WZY2Dqc35dE8Tmfg1hBEo6HsdW/ZqUFJVZaC)
 
 kakao:
   url: https://kapi.kakao.com/v2/user/me
