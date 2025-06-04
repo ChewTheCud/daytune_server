@@ -211,11 +211,11 @@ public class MusicService {
             List<Map<String, String>> completedMusicData = new ArrayList<>();
             for (SunoAIGenerationDetailResultDto.TrackInfo track : responseNode.getSunoData()) {
                 String id = track.getId();
-                String streamUrl = track.getStreamAudioUrl();
-                if (id != null && streamUrl != null && !streamUrl.isEmpty()) {
+                String sourceAudioUrl = track.getSourceAudioUrl();
+                if (id != null && sourceAudioUrl != null && !sourceAudioUrl.isEmpty()) {
                     completedMusicData.add(Map.of(
                             "id", id,
-                            "audio_url", streamUrl
+                            "audio_url", sourceAudioUrl
                     ));
                 }
             }
