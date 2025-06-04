@@ -44,8 +44,6 @@ public class DiaryController {
         Long authenticatedUserId = currentUser.getId();
         try {
             DiaryCreateResponseDto diaryCreateResponseDto = diaryService.createDiary(authenticatedUserId, diaryCreateRequestDto);
-            // 비동기 작업 호출
-            diaryService.handleDiaryCreationAsync(diaryCreateResponseDto.getId());
 
             return ResponseEntity.ok(ApiResponse.success("Diary 생성에 성공했습니다.", diaryCreateResponseDto));
         } catch (UserException e) {
