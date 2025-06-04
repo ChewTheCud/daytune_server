@@ -18,17 +18,30 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 public class SunoAIRequestDto implements Serializable {
+    @NotNull
     private String prompt;
 
-    @JsonProperty("make_instrumental")
-    @Builder.Default
-    private boolean makeInstrumental = SunoAIConfig.MAKE_INSTRUMENTAL;
+    @NotNull
+    private String style;
 
-    @JsonProperty("wait_audio")
-    @Builder.Default
-    private boolean waitAudio = SunoAIConfig.WAIT_AUDIO;
+    @NotNull
+    private String title;
 
-    public SunoAIRequestDto(String gptDescriptionPrompt) {
-        this.prompt = gptDescriptionPrompt;
-    }
+    @JsonProperty("customMode")
+    @Builder.Default
+    private boolean customMode = SunoAIConfig.DEFAULT_CUSTOM_MODE;
+
+    @JsonProperty("instrumental")
+    @Builder.Default
+    private boolean instrumental = SunoAIConfig.DEFAULT_INSTRUMENTAL;
+
+    @Builder.Default
+    private String model = SunoAIConfig.DEFAULT_MODEL;
+
+    @JsonProperty("negativeTags")
+    private String negativeTags;
+
+    @JsonProperty("callBackUrl")
+    @Builder.Default
+    private String callBackUrl = SunoAIConfig.DEFAULT_CALLBACK_URL;
 }

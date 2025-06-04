@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
+import com.eumakase.eumakase.dto.music.MusicCreateRequestDto;
 import com.eumakase.eumakase.dto.music.MusicSelectionRequestDto;
 import com.eumakase.eumakase.dto.music.MusicSelectionResponseDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
@@ -19,7 +20,7 @@ import java.util.Map;
  * Music API
  */
 @RestController
-@RequestMapping(value = "/api/v1/music")
+@RequestMapping(value = "/api/v2/music")
 public class MusicController {
     private final MusicService musicService;
 
@@ -29,18 +30,18 @@ public class MusicController {
 
     /**
      * 음악 생성
-     * @param sunoAIRequestDto 음악 생성을 위한 입력값
+     * @param musicCreateRequestDto 음악 생성을 위한 입력값
      * @return 생성된 음악 ID
      */
     @PostMapping("/generate")
-    public ResponseEntity<ApiResponse<SunoAIGenerationResultDto>> generateMusic(@RequestBody SunoAIRequestDto sunoAIRequestDto) {
+    public ResponseEntity<ApiResponse<SunoAIGenerationResultDto>> generateMusic(
+            @RequestBody MusicCreateRequestDto musicCreateRequestDto) {
         try {
-            List<String> songIds = musicService.generateSunoAIMusic(sunoAIRequestDto);
-            SunoAIGenerationResultDto result = new SunoAIGenerationResultDto(songIds);
-            return ResponseEntity.ok(ApiResponse.success("음악 생성 완료", result));
+            musicService.createMusic(musicCreateRequestDto);
+            return ResponseEntity.ok(ApiResponse.success("음악 생성 완료"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.error("음악 생성 실패: " + e. getMessage()));
+                    .body(ApiResponse.error("음악 생성 실패: " + e.getMessage()));
         }
     }
 
