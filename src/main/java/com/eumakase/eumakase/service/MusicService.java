@@ -133,6 +133,7 @@ public class MusicService {
             String requestJson = mapper.writeValueAsString(sunoAIRequestDto);
             String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
             log.info("[SunoAI 요청 Authorization 헤더] {}", authHeader);
+            log.info("[generateSunoAIMusic] 호출 URL = {}", uri);
             log.info("[SunoAI 요청 바디] {}", requestJson);
 //            HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);

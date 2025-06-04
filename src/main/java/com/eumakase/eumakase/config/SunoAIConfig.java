@@ -29,6 +29,8 @@ public class SunoAIConfig {
 
     @Bean
     public HttpHeaders httpHeaders(SunoAIProperties props) {
+        log.info("[SunoAIConfig] sunoai.url = {}", props.getUrl());
+        log.info("[SunoAIConfig] sunoai.secret-key = {}", props.getSecretKey());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(props.getSecretKey());
