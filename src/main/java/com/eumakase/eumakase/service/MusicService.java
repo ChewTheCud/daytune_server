@@ -4,6 +4,7 @@ import com.eumakase.eumakase.config.SunoAIConfig;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.ShareUrl;
+import com.eumakase.eumakase.dto.chatGPT.ChatGPTRequestDto;
 import com.eumakase.eumakase.dto.music.*;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationDetailResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
@@ -17,6 +18,7 @@ import com.eumakase.eumakase.util.FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -46,6 +48,9 @@ public class MusicService {
     private final S3Service s3Service;
     private final FirebaseService firebaseService;
     private final FCMService fcmService;
+
+    @Value("${sunoai.secret-key}")
+    private String SECRET_KEY;
 
     public MusicService(RestTemplate restTemplate, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService) {
         this.restTemplate = restTemplate;
@@ -125,7 +130,7 @@ public class MusicService {
         String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
 
         HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
-
+        headers.setBearerAuth(SECRET_KEY);
 
         try {
             // ★ 요청 바디(JSON) 직렬화하여 로그로 출력 ★

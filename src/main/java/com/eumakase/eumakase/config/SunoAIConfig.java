@@ -33,7 +33,6 @@ public class SunoAIConfig {
         log.info("[SunoAIConfig] sunoai.secret-key = {}", props.getSecretKey());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(props.getSecretKey());
         return headers;
     }
 
