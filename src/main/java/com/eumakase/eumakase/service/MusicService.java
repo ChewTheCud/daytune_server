@@ -132,6 +132,9 @@ public class MusicService {
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
+            String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+            System.out.println("[SunoAI 요청 Authorization 헤더 = " + authHeader);
+
             // SunoAIGenerationResultDto로 응답 매핑
             ResponseEntity<SunoAIGenerationResultDto> response = restTemplate.exchange(
                     uri,
