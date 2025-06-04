@@ -194,7 +194,9 @@ public class MusicService {
 
         try {
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
+            headers.setBearerAuth(SECRET_KEY);
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
 
             ResponseEntity<SunoAIGenerationDetailResultDto> response = restTemplate.exchange(
                     uri,

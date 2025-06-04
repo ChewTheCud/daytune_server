@@ -28,9 +28,9 @@ public class SchedulerConfig {
 
     /**
      * updateMusicFileUrlsJob 스케줄링
-     * 매 3시간마다 정각에 실행되도록 설정 (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)
+     * 테스트용: 매 1분마다 실행
      */
-    @Scheduled(cron = "0 0 */3 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void perform() {
         try {
             jobLauncher.run(
