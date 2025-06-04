@@ -32,4 +32,7 @@ public class Diary extends BaseEntity {
 
     @Column
     private String prompt;
+
+    @Column(nullable = false)
+    private boolean musicStatus = false;
 }

@@ -23,10 +23,12 @@ public class DiaryReadResponseDto implements Serializable {
     private String mainEmotion;
     private List<QuestionAnswerDto> questionAnswers;
     private List<EmotionInsightDto> emotions;
+    @Builder.Default
+    private boolean musicStatus = false; // diary에 음악이 모두 생성/업데이트되어 있으면 true
     private String musicUrl;
     private LocalDateTime createdDate;
 
-    public static DiaryReadResponseDto of(Diary diary, String musicUrl, List<DiaryQuestionAnswer> questionAnswers, List<DiaryEmotionInsight> emotions) {
+    public static DiaryReadResponseDto of(Diary diary, boolean musicStatus, String musicUrl, List<DiaryQuestionAnswer> questionAnswers, List<DiaryEmotionInsight> emotions) {
         return DiaryReadResponseDto.builder()
                 .id(diary.getId())
                 .userId(diary.getUser() != null ? diary.getUser().getId() : null)
@@ -48,12 +50,13 @@ public class DiaryReadResponseDto implements Serializable {
                                 ))
                                 .collect(Collectors.toList())
                 )
+                .musicStatus(musicStatus)
                 .musicUrl(musicUrl)
                 .createdDate(diary.getCreatedDate())
                 .build();
     }
 
     public static DiaryReadResponseDto of(Diary diary, String musicUrl) {
-        return DiaryReadResponseDto.of(diary, musicUrl, List.of(), List.of());
+        return DiaryReadResponseDto.of(diary, false, musicUrl, List.of(), List.of());
     }
 }

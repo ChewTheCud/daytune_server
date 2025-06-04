@@ -74,38 +74,6 @@ public class DiaryService {
     }
 
     /**
-     * 비동기 일기 생성 후처리
-     */
-    @Async
-    public void handleDiaryCreationAsync(Long diaryId) {
-        try {
-            chatGPTService.updateDiarySummary(diaryId);
-            generateMusicAsync(diaryId);
-        } catch (Exception e) {
-            log.error("Diary 추가 작업 중 오류가 발생했습니다. " + e.getMessage());
-        }
-    }
-
-    /**
-     * 비동기 음악 생성
-     */
-    @Async
-    public void generateMusicAsync(Long diaryId) {
-        try {
-            Diary diary = diaryRepository.findById(diaryId)
-                    .orElseThrow(() -> new DiaryException("Diary not found with id: " + diaryId));
-
-            MusicCreateRequestDto musicCreateRequestDto = new MusicCreateRequestDto();
-            musicCreateRequestDto.setDiaryId(diary.getId());
-            musicCreateRequestDto.setGenerationPrompt(diary.getPrompt());
-
-            musicService.createMusic(musicCreateRequestDto);
-        } catch (Exception e) {
-            log.error("음악 생성 중 오류가 발생했습니다. " + e.getMessage());
-        }
-    }
-
-    /**
      * 일기 조회 (단일)
      */
     public DiaryReadResponseDto getDiary(Long diaryId) {
@@ -138,7 +106,9 @@ public class DiaryService {
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
         String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
                 ? null : musics.get(0).getFileUrl();
-        return DiaryReadResponseDto.of(diary, musicUrl, answers, emotions);
+        boolean musicStatus = diary.isMusicStatus();
+
+        return DiaryReadResponseDto.of(diary, musicStatus, musicUrl, answers, emotions);
     }
 
     /**
