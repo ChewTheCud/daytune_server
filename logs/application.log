@@ -309,3 +309,532 @@ select * from `daytune`.`music` where 1=0;
 2025-04-12 00:11:43 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
 2025-04-12 00:11:43 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
 2025-04-12 00:11:43 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 5.911 seconds (process running for 6.486)
+2025-06-29 13:04:13 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-06-29 13:04:13 INFO  c.e.eumakase.EumakaseApplication - Starting EumakaseApplication using Java 17.0.9 with PID 88178 (/Users/jyoung/Documents/GitHub/eumakase_server/build/classes/java/main started by jyoung in /Users/jyoung/Documents/GitHub/eumakase_server)
+2025-06-29 13:04:13 INFO  c.e.eumakase.EumakaseApplication - The following 1 profile is active: "prod"
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 12 ms.
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRepository already defined in the application context, skipping the registration of a jobRepository
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobExplorer already defined in the application context, skipping the registration of a jobExplorer
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobLauncher already defined in the application context, skipping the registration of a jobLauncher
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistry already defined in the application context, skipping the registration of a jobRegistry
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistryBeanPostProcessor already defined in the application context, skipping the registration of a jobRegistryBeanPostProcessor
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobOperator already defined in the application context, skipping the registration of a jobOperator
+2025-06-29 13:04:14 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 0 ms.
+2025-06-29 13:04:14 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-29 13:04:14 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 106 ms. Found 11 JPA repository interfaces.
+2025-06-29 13:04:15 INFO  c.u.j.c.EnableEncryptablePropertiesBeanFactoryPostProcessor - Post-processing PropertySource instances
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:04:15 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:04:15 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-06-29 13:04:15 INFO  c.u.j.f.DefaultLazyPropertyFilter - Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2025-06-29 13:04:15 INFO  c.u.j.r.DefaultLazyPropertyResolver - Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2025-06-29 13:04:15 INFO  c.u.j.d.DefaultLazyPropertyDetector - Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2025-06-29 13:04:15 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-29 13:04:15 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:04:15 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-29 13:04:15 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-06-29 13:04:15 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-29 13:04:15 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2029 ms
+2025-06-29 13:04:15 INFO  c.u.j.encryptor.DefaultLazyEncryptor - Found Custom Encryptor Bean org.jasypt.encryption.pbe.PooledPBEStringEncryptor@87f501f with name: jasyptStringEncryptor
+2025-06-29 13:04:16 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-29 13:04:16 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-29 13:04:16 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-29 13:04:16 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-29 13:04:16 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-29 13:04:16 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@36ecf9f6
+2025-06-29 13:04:16 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-29 13:04:18 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-29 13:04:18 INFO  p6spy - #1751169858283 | took 10ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858312 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858348 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858379 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858410 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858440 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858471 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858489 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858520 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858552 | took 6ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:04:18 INFO  p6spy - #1751169858581 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:04:18 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:04:19 INFO  o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: MYSQL
+2025-06-29 13:04:19 INFO  o.s.b.c.l.support.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-06-29 13:04:19 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:04:19 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:04:19 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-29 13:04:20 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.url = https://apibox.erweima.ai
+2025-06-29 13:04:20 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.secret-key = 8f13c3e885bb6675a157e9ef14eb58cc
+2025-06-29 13:04:20 INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-29 13:04:20 INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@522fc67, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@479f1d09, org.springframework.security.web.context.SecurityContextHolderFilter@251ed676, org.springframework.security.web.header.HeaderWriterFilter@2c7fb24c, org.springframework.security.web.authentication.logout.LogoutFilter@20326436, com.eumakase.eumakase.security.JwtAuthenticationFilter@3f68a7f8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5ee4aad3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@51ce8293, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5caf9ea4, org.springframework.security.web.session.SessionManagementFilter@7306f65f, org.springframework.security.web.access.ExceptionTranslationFilter@71c45428, org.springframework.security.web.access.intercept.AuthorizationFilter@2f0dae44]
+2025-06-29 13:04:20 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:04:20 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-06-29 13:04:20 INFO  c.u.j.c.RefreshScopeRefreshedEventListener - Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2025-06-29 13:04:20 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemProperties refreshed
+2025-06-29 13:04:20 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemEnvironment refreshed
+2025-06-29 13:04:20 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source random refreshed
+2025-06-29 13:04:20 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:04:20 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:04:20 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:04:20 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:04:20 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2025-06-29 13:04:20 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 7.735 seconds (process running for 8.441)
+2025-06-29 13:04:33 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-29 13:04:33 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-29 13:04:33 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-06-29 13:06:46 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:06:46 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-29 13:06:46 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-06-29 13:06:52 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-06-29 13:06:52 INFO  c.e.eumakase.EumakaseApplication - Starting EumakaseApplication using Java 17.0.9 with PID 88225 (/Users/jyoung/Documents/GitHub/eumakase_server/build/classes/java/main started by jyoung in /Users/jyoung/Documents/GitHub/eumakase_server)
+2025-06-29 13:06:52 INFO  c.e.eumakase.EumakaseApplication - The following 1 profile is active: "prod"
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 12 ms.
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRepository already defined in the application context, skipping the registration of a jobRepository
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobExplorer already defined in the application context, skipping the registration of a jobExplorer
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobLauncher already defined in the application context, skipping the registration of a jobLauncher
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistry already defined in the application context, skipping the registration of a jobRegistry
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistryBeanPostProcessor already defined in the application context, skipping the registration of a jobRegistryBeanPostProcessor
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobOperator already defined in the application context, skipping the registration of a jobOperator
+2025-06-29 13:06:53 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 0 ms.
+2025-06-29 13:06:53 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-29 13:06:53 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 101 ms. Found 11 JPA repository interfaces.
+2025-06-29 13:06:53 INFO  c.u.j.c.EnableEncryptablePropertiesBeanFactoryPostProcessor - Post-processing PropertySource instances
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:06:53 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:06:53 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-06-29 13:06:54 INFO  c.u.j.f.DefaultLazyPropertyFilter - Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2025-06-29 13:06:54 INFO  c.u.j.r.DefaultLazyPropertyResolver - Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2025-06-29 13:06:54 INFO  c.u.j.d.DefaultLazyPropertyDetector - Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2025-06-29 13:06:54 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-29 13:06:54 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:06:54 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-29 13:06:54 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-06-29 13:06:54 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-29 13:06:54 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2057 ms
+2025-06-29 13:06:54 INFO  c.u.j.encryptor.DefaultLazyEncryptor - Found Custom Encryptor Bean org.jasypt.encryption.pbe.PooledPBEStringEncryptor@87f501f with name: jasyptStringEncryptor
+2025-06-29 13:06:54 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-29 13:06:54 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-29 13:06:54 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-29 13:06:54 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-29 13:06:54 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-29 13:06:55 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@104bc677
+2025-06-29 13:06:55 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-29 13:06:56 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-29 13:06:56 INFO  p6spy - #1751170016773 | took 15ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016799 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016832 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016863 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016894 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016924 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016955 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:06:56 INFO  p6spy - #1751170016972 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:06:57 INFO  p6spy - #1751170017003 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:06:57 INFO  p6spy - #1751170017036 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:06:57 INFO  p6spy - #1751170017068 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:06:57 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:06:58 INFO  o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: MYSQL
+2025-06-29 13:06:58 INFO  o.s.b.c.l.support.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-06-29 13:06:58 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:06:58 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:06:58 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-29 13:06:58 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.url = https://apibox.erweima.ai
+2025-06-29 13:06:58 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.secret-key = 8f13c3e885bb6675a157e9ef14eb58cc
+2025-06-29 13:06:58 INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-29 13:06:58 INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@684c2c57, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@522fc67, org.springframework.security.web.context.SecurityContextHolderFilter@191d69a, org.springframework.security.web.header.HeaderWriterFilter@28516b2d, org.springframework.security.web.authentication.logout.LogoutFilter@77cf9b08, com.eumakase.eumakase.security.JwtAuthenticationFilter@3f68a7f8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@616e7884, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5ee4aad3, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@479f1d09, org.springframework.security.web.session.SessionManagementFilter@20309365, org.springframework.security.web.access.ExceptionTranslationFilter@43b9ef41, org.springframework.security.web.access.intercept.AuthorizationFilter@6eb06667]
+2025-06-29 13:06:58 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:06:59 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-06-29 13:06:59 INFO  c.u.j.c.RefreshScopeRefreshedEventListener - Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2025-06-29 13:06:59 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemProperties refreshed
+2025-06-29 13:06:59 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemEnvironment refreshed
+2025-06-29 13:06:59 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source random refreshed
+2025-06-29 13:06:59 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:06:59 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:06:59 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:06:59 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:06:59 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2025-06-29 13:06:59 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 7.47 seconds (process running for 8.182)
+2025-06-29 13:07:00 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-29 13:07:00 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-29 13:07:00 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-06-29 13:07:22 INFO  p6spy - #1751170042498 | took 19ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select u1_0.id,u1_0.birth_date,u1_0.created_date,u1_0.deleted_date,u1_0.email,u1_0.last_login_date,u1_0.nickname,u1_0.password,u1_0.phone_number,u1_0.profile_image_url,u1_0.role,u1_0.sns_id,u1_0.updated_date from user u1_0 where u1_0.sns_id=?
+select u1_0.id,u1_0.birth_date,u1_0.created_date,u1_0.deleted_date,u1_0.email,u1_0.last_login_date,u1_0.nickname,u1_0.password,u1_0.phone_number,u1_0.profile_image_url,u1_0.role,u1_0.sns_id,u1_0.updated_date from user u1_0 where u1_0.sns_id='3518852897';
+2025-06-29 13:07:22 INFO  p6spy - #1751170042569 | took 12ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select f1_0.id,f1_0.created_date,f1_0.device_id,f1_0.fcm_token,f1_0.updated_date,f1_0.user_id from fcm_token f1_0 where f1_0.user_id=?
+select f1_0.id,f1_0.created_date,f1_0.device_id,f1_0.fcm_token,f1_0.updated_date,f1_0.user_id from fcm_token f1_0 where f1_0.user_id=64;
+2025-06-29 13:07:22 INFO  p6spy - #1751170042697 | took 7ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select u1_0.id,u1_0.birth_date,u1_0.created_date,u1_0.deleted_date,u1_0.email,u1_0.last_login_date,u1_0.nickname,u1_0.password,u1_0.phone_number,u1_0.profile_image_url,u1_0.role,u1_0.sns_id,u1_0.updated_date from user u1_0 where u1_0.sns_id=?
+select u1_0.id,u1_0.birth_date,u1_0.created_date,u1_0.deleted_date,u1_0.email,u1_0.last_login_date,u1_0.nickname,u1_0.password,u1_0.phone_number,u1_0.profile_image_url,u1_0.role,u1_0.sns_id,u1_0.updated_date from user u1_0 where u1_0.sns_id='3518852897';
+2025-06-29 13:07:22 INFO  p6spy - #1751170042831 | took 8ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select rt1_0.id,rt1_0.created_date,rt1_0.refresh_token,rt1_0.updated_date,rt1_0.user_id from refresh_token rt1_0 where rt1_0.user_id=?
+select rt1_0.id,rt1_0.created_date,rt1_0.refresh_token,rt1_0.updated_date,rt1_0.user_id from refresh_token rt1_0 where rt1_0.user_id=64;
+2025-06-29 13:07:22 INFO  p6spy - #1751170042899 | took 11ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+update user set birth_date=?,created_date=?,deleted_date=?,email=?,last_login_date=?,nickname=?,password=?,phone_number=?,profile_image_url=?,role=?,sns_id=?,updated_date=? where id=?
+update user set birth_date=NULL,created_date='2024-06-09T16:37:19.000+0900',deleted_date=NULL,email='periwana126@naver.com',last_login_date='2025-06-29T13:07:22.000+0900',nickname='안녕하세요옹',password='$2a$10$8oora1BSu80m8RyZKN/TiOSptogP7hHdL0ZgPWsPmnaVpoktUMGQm',phone_number=NULL,profile_image_url='http://k.kakaocdn.net/dn/bwRdX7/btsGdqkgmaV/4TXAYc3t7gjV92gC1EEjnk/img_640x640.jpg',role='ROLE_USER',sns_id='3518852897',updated_date='2025-06-29T13:07:22.849+0900' where id=64;
+2025-06-29 13:07:22 INFO  p6spy - #1751170042909 | took 7ms | statement | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+update refresh_token set created_date=?,refresh_token=?,updated_date=?,user_id=? where id=?
+update refresh_token set created_date='2024-06-09T16:37:19.000+0900',refresh_token='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NCIsImV4cCI6MTc1MTc3NDg0MiwiZSI6IjM1MTg4NTI4OTcifQ.22ZL9O0hheRUpB5UchMLDXhMO_FFBXqibvg1Q0MQHf8',updated_date='2025-06-29T13:07:22.874+0900',user_id=64 where id=64;
+2025-06-29 13:07:22 INFO  p6spy - #1751170042921 | took 10ms | commit | connection 3| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+
+;
+2025-06-29 13:07:51 WARN  c.e.e.e.GlobalExceptionHandler - ValidationException(MethodArgumentNotValidException) - Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.eumakase.eumakase.common.dto.ApiResponse<com.eumakase.eumakase.dto.lyrics.LyricsCreateResponseDto>> com.eumakase.eumakase.controller.LyricsController.generateLyrics(com.eumakase.eumakase.dto.lyrics.LyricsCreateRequestDto): [Field error in object 'lyricsCreateRequestDto' on field 'musicId': rejected value [null]; codes [NotNull.lyricsCreateRequestDto.musicId,NotNull.musicId,NotNull.java.lang.Long,NotNull]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [lyricsCreateRequestDto.musicId,musicId]; arguments []; default message [musicId]]; default message [널이어서는 안됩니다]] 
+2025-06-29 13:08:59 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:08:59 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-29 13:08:59 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-06-29 13:09:05 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-06-29 13:09:05 INFO  c.e.eumakase.EumakaseApplication - Starting EumakaseApplication using Java 17.0.9 with PID 88275 (/Users/jyoung/Documents/GitHub/eumakase_server/build/classes/java/main started by jyoung in /Users/jyoung/Documents/GitHub/eumakase_server)
+2025-06-29 13:09:05 INFO  c.e.eumakase.EumakaseApplication - The following 1 profile is active: "prod"
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 12 ms.
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRepository already defined in the application context, skipping the registration of a jobRepository
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobExplorer already defined in the application context, skipping the registration of a jobExplorer
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobLauncher already defined in the application context, skipping the registration of a jobLauncher
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistry already defined in the application context, skipping the registration of a jobRegistry
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistryBeanPostProcessor already defined in the application context, skipping the registration of a jobRegistryBeanPostProcessor
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobOperator already defined in the application context, skipping the registration of a jobOperator
+2025-06-29 13:09:06 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 0 ms.
+2025-06-29 13:09:06 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-29 13:09:06 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 105 ms. Found 11 JPA repository interfaces.
+2025-06-29 13:09:07 INFO  c.u.j.c.EnableEncryptablePropertiesBeanFactoryPostProcessor - Post-processing PropertySource instances
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:09:07 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:09:07 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-06-29 13:09:07 INFO  c.u.j.f.DefaultLazyPropertyFilter - Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2025-06-29 13:09:07 INFO  c.u.j.r.DefaultLazyPropertyResolver - Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2025-06-29 13:09:07 INFO  c.u.j.d.DefaultLazyPropertyDetector - Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2025-06-29 13:09:07 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-29 13:09:07 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:09:07 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-29 13:09:07 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-06-29 13:09:07 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-29 13:09:07 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2029 ms
+2025-06-29 13:09:07 INFO  c.u.j.encryptor.DefaultLazyEncryptor - Found Custom Encryptor Bean org.jasypt.encryption.pbe.PooledPBEStringEncryptor@6f3bd37f with name: jasyptStringEncryptor
+2025-06-29 13:09:07 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-29 13:09:08 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-29 13:09:08 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-29 13:09:08 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-29 13:09:08 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-29 13:09:08 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5e62ca19
+2025-06-29 13:09:08 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-29 13:09:09 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-29 13:09:10 INFO  p6spy - #1751170150061 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150080 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150113 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150144 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150174 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150206 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150238 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150260 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150296 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150330 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:09:10 INFO  p6spy - #1751170150366 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:09:10 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:09:11 INFO  o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: MYSQL
+2025-06-29 13:09:11 INFO  o.s.b.c.l.support.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-06-29 13:09:11 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:09:11 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:09:11 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-29 13:09:12 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.url = https://apibox.erweima.ai
+2025-06-29 13:09:12 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.secret-key = 8f13c3e885bb6675a157e9ef14eb58cc
+2025-06-29 13:09:12 INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-29 13:09:12 INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3c9e169f, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2cfc4475, org.springframework.security.web.context.SecurityContextHolderFilter@400cb9ef, org.springframework.security.web.header.HeaderWriterFilter@6b4133d0, org.springframework.security.web.authentication.logout.LogoutFilter@684c2c57, com.eumakase.eumakase.security.JwtAuthenticationFilter@2a99ca99, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@30e29c0c, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@1dc9aba0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5319f536, org.springframework.security.web.session.SessionManagementFilter@4e1349cf, org.springframework.security.web.access.ExceptionTranslationFilter@23043ba, org.springframework.security.web.access.intercept.AuthorizationFilter@5248474e]
+2025-06-29 13:09:12 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:09:12 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-06-29 13:09:12 INFO  c.u.j.c.RefreshScopeRefreshedEventListener - Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2025-06-29 13:09:12 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemProperties refreshed
+2025-06-29 13:09:12 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemEnvironment refreshed
+2025-06-29 13:09:12 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source random refreshed
+2025-06-29 13:09:12 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:09:12 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:09:12 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:09:12 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:09:12 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2025-06-29 13:09:12 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 7.762 seconds (process running for 8.453)
+2025-06-29 13:09:17 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-29 13:09:17 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-29 13:09:17 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-06-29 13:14:47 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:14:47 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-29 13:14:47 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-06-29 13:14:54 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-06-29 13:14:54 INFO  c.e.eumakase.EumakaseApplication - Starting EumakaseApplication using Java 17.0.9 with PID 88455 (/Users/jyoung/Documents/GitHub/eumakase_server/build/classes/java/main started by jyoung in /Users/jyoung/Documents/GitHub/eumakase_server)
+2025-06-29 13:14:54 INFO  c.e.eumakase.EumakaseApplication - The following 1 profile is active: "prod"
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 13 ms.
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRepository already defined in the application context, skipping the registration of a jobRepository
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobExplorer already defined in the application context, skipping the registration of a jobExplorer
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobLauncher already defined in the application context, skipping the registration of a jobLauncher
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistry already defined in the application context, skipping the registration of a jobRegistry
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistryBeanPostProcessor already defined in the application context, skipping the registration of a jobRegistryBeanPostProcessor
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobOperator already defined in the application context, skipping the registration of a jobOperator
+2025-06-29 13:14:55 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 0 ms.
+2025-06-29 13:14:55 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-29 13:14:55 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 102 ms. Found 11 JPA repository interfaces.
+2025-06-29 13:14:55 INFO  c.u.j.c.EnableEncryptablePropertiesBeanFactoryPostProcessor - Post-processing PropertySource instances
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:14:55 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:14:55 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-06-29 13:14:56 INFO  c.u.j.f.DefaultLazyPropertyFilter - Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2025-06-29 13:14:56 INFO  c.u.j.r.DefaultLazyPropertyResolver - Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2025-06-29 13:14:56 INFO  c.u.j.d.DefaultLazyPropertyDetector - Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2025-06-29 13:14:56 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-29 13:14:56 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:14:56 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-29 13:14:56 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-06-29 13:14:56 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-29 13:14:56 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1998 ms
+2025-06-29 13:14:56 INFO  c.u.j.encryptor.DefaultLazyEncryptor - Found Custom Encryptor Bean org.jasypt.encryption.pbe.PooledPBEStringEncryptor@447521e with name: jasyptStringEncryptor
+2025-06-29 13:14:56 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-29 13:14:56 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-29 13:14:56 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-29 13:14:56 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-29 13:14:56 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-29 13:14:57 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6528d339
+2025-06-29 13:14:57 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-29 13:14:58 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-29 13:14:59 INFO  p6spy - #1751170499140 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499157 | took 6ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499188 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499224 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499253 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499284 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499317 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499340 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499370 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499402 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:14:59 INFO  p6spy - #1751170499433 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:14:59 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:15:00 INFO  o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: MYSQL
+2025-06-29 13:15:00 INFO  o.s.b.c.l.support.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-06-29 13:15:00 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:15:00 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:15:00 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-29 13:15:01 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.url = https://apibox.erweima.ai
+2025-06-29 13:15:01 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.secret-key = 8f13c3e885bb6675a157e9ef14eb58cc
+2025-06-29 13:15:01 INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-29 13:15:01 INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1c586bb6, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@503eac4c, org.springframework.security.web.context.SecurityContextHolderFilter@1dc9aba0, org.springframework.security.web.header.HeaderWriterFilter@1b47e09c, org.springframework.security.web.authentication.logout.LogoutFilter@5caf9ea4, com.eumakase.eumakase.security.JwtAuthenticationFilter@781654f8, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2f81d7f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@265ef3d0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1eaf95d2, org.springframework.security.web.session.SessionManagementFilter@400cb9ef, org.springframework.security.web.access.ExceptionTranslationFilter@4ebefe31, org.springframework.security.web.access.intercept.AuthorizationFilter@3c9e169f]
+2025-06-29 13:15:01 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:15:01 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-06-29 13:15:01 INFO  c.u.j.c.RefreshScopeRefreshedEventListener - Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2025-06-29 13:15:01 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemProperties refreshed
+2025-06-29 13:15:01 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemEnvironment refreshed
+2025-06-29 13:15:01 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source random refreshed
+2025-06-29 13:15:01 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:15:01 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:15:01 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:15:01 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:15:01 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2025-06-29 13:15:01 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 7.899 seconds (process running for 8.595)
+2025-06-29 13:15:10 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-29 13:15:10 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-29 13:15:10 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2025-06-29 13:17:18 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:17:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-06-29 13:17:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-06-29 13:17:23 INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2025-06-29 13:17:23 INFO  c.e.eumakase.EumakaseApplication - Starting EumakaseApplication using Java 17.0.9 with PID 88501 (/Users/jyoung/Documents/GitHub/eumakase_server/build/classes/java/main started by jyoung in /Users/jyoung/Documents/GitHub/eumakase_server)
+2025-06-29 13:17:23 INFO  c.e.eumakase.EumakaseApplication - The following 1 profile is active: "prod"
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 11 ms.
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRepository already defined in the application context, skipping the registration of a jobRepository
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobExplorer already defined in the application context, skipping the registration of a jobExplorer
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobLauncher already defined in the application context, skipping the registration of a jobLauncher
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistry already defined in the application context, skipping the registration of a jobRegistry
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobRegistryBeanPostProcessor already defined in the application context, skipping the registration of a jobRegistryBeanPostProcessor
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Bean jobOperator already defined in the application context, skipping the registration of a jobOperator
+2025-06-29 13:17:24 INFO  o.s.b.c.c.annotation.BatchRegistrar - Finished Spring Batch infrastructure beans configuration in 0 ms.
+2025-06-29 13:17:24 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-06-29 13:17:24 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 96 ms. Found 11 JPA repository interfaces.
+2025-06-29 13:17:25 INFO  c.u.j.c.EnableEncryptablePropertiesBeanFactoryPostProcessor - Post-processing PropertySource instances
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletContextInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemProperties [org.springframework.core.env.PropertiesPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource systemEnvironment [org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor$OriginAwareSystemEnvironmentPropertySource] to EncryptableSystemEnvironmentPropertySourceWrapper
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource random [org.springframework.boot.env.RandomValuePropertySource] to EncryptablePropertySourceWrapper
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:17:25 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' [org.springframework.boot.env.OriginTrackedMapPropertySource] to EncryptableMapPropertySourceWrapper
+2025-06-29 13:17:25 WARN  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'jobRegistry' of type [org.springframework.batch.core.configuration.support.MapJobRegistry] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected into a currently created BeanPostProcessor [jobRegistryBeanPostProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies.
+2025-06-29 13:17:25 INFO  c.u.j.f.DefaultLazyPropertyFilter - Property Filter custom Bean not found with name 'encryptablePropertyFilter'. Initializing Default Property Filter
+2025-06-29 13:17:25 INFO  c.u.j.r.DefaultLazyPropertyResolver - Property Resolver custom Bean not found with name 'encryptablePropertyResolver'. Initializing Default Property Resolver
+2025-06-29 13:17:25 INFO  c.u.j.d.DefaultLazyPropertyDetector - Property Detector custom Bean not found with name 'encryptablePropertyDetector'. Initializing Default Property Detector
+2025-06-29 13:17:25 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-06-29 13:17:25 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:17:25 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-06-29 13:17:25 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2025-06-29 13:17:25 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-06-29 13:17:25 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2008 ms
+2025-06-29 13:17:25 INFO  c.u.j.encryptor.DefaultLazyEncryptor - Found Custom Encryptor Bean org.jasypt.encryption.pbe.PooledPBEStringEncryptor@458031da with name: jasyptStringEncryptor
+2025-06-29 13:17:26 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-06-29 13:17:26 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2025-06-29 13:17:26 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-06-29 13:17:26 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-06-29 13:17:26 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-06-29 13:17:26 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@28cf179c
+2025-06-29 13:17:26 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-06-29 13:17:27 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-06-29 13:17:28 INFO  p6spy - #1751170648181 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648202 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648238 | took 9ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648279 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648310 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648340 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648375 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`diary` where 1=0
+select * from `daytune`.`diary` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648393 | took 8ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648423 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`prompt_category` where 1=0
+select * from `daytune`.`prompt_category` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648455 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`user` where 1=0
+select * from `daytune`.`user` where 1=0;
+2025-06-29 13:17:28 INFO  p6spy - #1751170648486 | took 7ms | statement | connection 1| url jdbc:mysql://daytune-db-dev.cn6y6ga82851.ap-northeast-2.rds.amazonaws.com:3306/daytune
+select * from `daytune`.`music` where 1=0
+select * from `daytune`.`music` where 1=0;
+2025-06-29 13:17:28 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-06-29 13:17:29 INFO  o.s.b.c.r.s.JobRepositoryFactoryBean - No database type set, using meta data indicating: MYSQL
+2025-06-29 13:17:29 INFO  o.s.b.c.l.support.SimpleJobLauncher - No TaskExecutor has been set, defaulting to synchronous executor.
+2025-06-29 13:17:29 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:17:29 INFO  o.s.b.c.c.a.BatchObservabilityBeanPostProcessor - No Micrometer observation registry found, defaulting to ObservationRegistry.NOOP
+2025-06-29 13:17:29 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-06-29 13:17:29 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.url = https://apibox.erweima.ai
+2025-06-29 13:17:29 INFO  c.e.eumakase.config.SunoAIConfig - [SunoAIConfig] sunoai.secret-key = 8f13c3e885bb6675a157e9ef14eb58cc
+2025-06-29 13:17:30 INFO  o.s.b.a.w.s.WelcomePageHandlerMapping - Adding welcome page: class path resource [static/index.html]
+2025-06-29 13:17:30 INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2836374, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5d59ad49, org.springframework.security.web.context.SecurityContextHolderFilter@265ef3d0, org.springframework.security.web.header.HeaderWriterFilter@1405dd10, org.springframework.security.web.authentication.logout.LogoutFilter@78131a47, com.eumakase.eumakase.security.JwtAuthenticationFilter@71c0b742, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@33212ae6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7170da18, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@78a03662, org.springframework.security.web.session.SessionManagementFilter@1dc9aba0, org.springframework.security.web.access.ExceptionTranslationFilter@79fa9f97, org.springframework.security.web.access.intercept.AuthorizationFilter@1c586bb6]
+2025-06-29 13:17:30 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-06-29 13:17:30 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2025-06-29 13:17:30 INFO  c.u.j.c.RefreshScopeRefreshedEventListener - Refreshing cached encryptable property sources on ServletWebServerInitializedEvent
+2025-06-29 13:17:30 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemProperties refreshed
+2025-06-29 13:17:30 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source systemEnvironment refreshed
+2025-06-29 13:17:30 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source random refreshed
+2025-06-29 13:17:30 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application-prod.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:17:30 INFO  c.u.j.c.CachingDelegateEncryptablePropertySource - Property Source Config resource 'class path resource [application.yml]' via location 'optional:classpath:/' refreshed
+2025-06-29 13:17:30 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource configurationProperties [class org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertySource
+2025-06-29 13:17:30 INFO  c.u.j.EncryptablePropertySourceConverter - Skipping PropertySource servletConfigInitParams [class org.springframework.core.env.PropertySource$StubPropertySource
+2025-06-29 13:17:30 INFO  c.u.j.EncryptablePropertySourceConverter - Converting PropertySource servletContextInitParams [org.springframework.web.context.support.ServletContextPropertySource] to EncryptableEnumerablePropertySourceWrapper
+2025-06-29 13:17:30 INFO  c.e.eumakase.EumakaseApplication - Started EumakaseApplication in 7.383 seconds (process running for 8.079)
+2025-06-29 13:17:32 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-06-29 13:17:32 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-06-29 13:17:32 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms

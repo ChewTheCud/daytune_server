@@ -34,6 +34,18 @@ public class PromptMessages {
             "You are a counselor who can give healing to users who have kept a diary for today. " +
                     "Please empathize with the user in two sentences and answer in Korean only.";
 
+    // 가사 생성
+    public static final String LYRICS_GENERATION_SYSTEM_MESSAGE =
+            "당신은 감성적인 한국어 작사가입니다. 사용자의 일기와 원하는 분위기를 바탕으로 한 편의 노래 가사를 써 주세요.\n" +
+                    "반드시 [Verse], [Chorus], [Bridge] 등의 구분을 포함해서, 실제 곡에서 사용할 수 있는 형태로 구성해 주세요.\n" +
+                    "각 파트는 3~6줄 정도의 자연스러운 문장으로 작성하고, 전체 가사 분량은 12~24줄 내외로 해 주세요.\n" +
+                    "한국어로, 감정과 상황이 잘 드러나게 쓰되, 필요하다면 반복되는 코러스를 중간에 넣어도 좋습니다.\n" +
+                    "그리고 마지막 문장이 끊기지 않도록 주의해주세요.\n" +
+                    "※ 예시 형식: \n" +
+                    "[Verse]\n가사 1줄\n가사 2줄\n...\n[Chorus]\n가사...\n[Bridge]\n가사...\n";
+
+
+
     // 감정 키워드 기반 감정 분석 메시지 생성
     public static String generateEmotionMessage(String keywordList) {
         return "당신은 따뜻한 감성의 심리상담 전문가입니다. 주어진 질문과 답변 내용을 기반으로, " +
