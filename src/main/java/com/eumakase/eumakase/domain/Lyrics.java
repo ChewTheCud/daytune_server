@@ -10,14 +10,13 @@ import lombok.*;
 @Data
 @Entity
 public class Lyrics extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "music_id", nullable = false)
-    private Music music;
+    @JoinColumn(name = "diary_id", nullable = false)
+    private Diary diary;
 
     @Column(columnDefinition = "TEXT")
     private String content;

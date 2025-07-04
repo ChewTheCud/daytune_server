@@ -6,7 +6,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class LyricsReadResponseDto {
-    private Long lyricsId;
+public class LyricsPromptResponseDto {
     private String content;
 }
