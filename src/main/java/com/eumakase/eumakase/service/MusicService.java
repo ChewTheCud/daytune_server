@@ -4,12 +4,10 @@ import com.eumakase.eumakase.config.SunoAIConfig;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
 import com.eumakase.eumakase.domain.ShareUrl;
-import com.eumakase.eumakase.dto.chatGPT.ChatGPTRequestDto;
 import com.eumakase.eumakase.dto.music.*;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationDetailResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
-import com.eumakase.eumakase.dto.sunoAI.SunoAIResponseDto;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
@@ -19,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -73,8 +70,7 @@ public class MusicService {
         log.info("[createMusic 호출] diaryId={} / generationPrompt='{}' / style='{}' / title='{}'",
                 musicCreateRequestDto.getDiaryId(),
                 musicCreateRequestDto.getPrompt(),
-                musicCreateRequestDto.getStyle(),
-                musicCreateRequestDto.getTitle()
+                musicCreateRequestDto.getStyle()
         );
         // 1. Diary 엔티티 조회
         Diary diary = diaryRepository.findById(musicCreateRequestDto.getDiaryId())
@@ -84,7 +80,6 @@ public class MusicService {
         SunoAIRequestDto sunoAIRequestDto = SunoAIRequestDto.builder()
                 .prompt(musicCreateRequestDto.getPrompt())
                 .style(musicCreateRequestDto.getStyle())
-                .title(musicCreateRequestDto.getTitle())
                 .negativeTags(musicCreateRequestDto.getNegativeTags()) // 필요 시 null 가능
                 .build();
 
@@ -140,7 +135,7 @@ public class MusicService {
             log.info("[SunoAI 요청 Authorization 헤더] {}", authHeader);
             log.info("[generateSunoAIMusic] 호출 URL = {}", uri);
             log.info("[SunoAI 요청 바디] {}", requestJson);
-//            HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
+
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
             // SunoAIGenerationResultDto로 응답 매핑

@@ -25,8 +25,5 @@ public class MusicCreateRequestDto implements Serializable {
     @NotNull
     private String style;
 
-    @NotNull
-    private String title;
-
     private String negativeTags;
 }

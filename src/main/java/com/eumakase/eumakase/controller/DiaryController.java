@@ -1,17 +1,19 @@
 package com.eumakase.eumakase.controller;
 
 import com.eumakase.eumakase.common.dto.ApiResponse;
-import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.dto.diary.DiaryCreateRequestDto;
 import com.eumakase.eumakase.dto.diary.DiaryCreateResponseDto;
 import com.eumakase.eumakase.dto.diary.DiaryReadResponseDto;
 import com.eumakase.eumakase.dto.music.MusicReadResponseDto;
+import com.eumakase.eumakase.dto.lyrics.LyricsReadResponseDto;
 import com.eumakase.eumakase.exception.DiaryException;
+import com.eumakase.eumakase.exception.LyricsException;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.exception.UserException;
 import com.eumakase.eumakase.security.UserPrincipal;
 import com.eumakase.eumakase.service.DiaryService;
 import com.eumakase.eumakase.service.MusicService;
+import com.eumakase.eumakase.service.LyricsService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Diary API
@@ -29,10 +30,12 @@ import java.util.stream.Collectors;
 public class DiaryController {
     private final DiaryService diaryService;
     private final MusicService musicService;
+    private final LyricsService lyricsService;
 
-    public DiaryController(DiaryService diaryService, MusicService musicService) {
+    public DiaryController(DiaryService diaryService, MusicService musicService, LyricsService lyricsService) {
         this.diaryService = diaryService;
         this.musicService = musicService;
+        this.lyricsService = lyricsService;
     }
 
     /**
@@ -130,4 +133,24 @@ public class DiaryController {
                     .body(ApiResponse.error("음악 정보 조회에 실패했습니다."));
         }
     }
+
+    /**
+     * 특정 일기의 음악 가사 조회
+     * @param diaryId 일기의 ID
+     * @return 음악 가사
+     */
+    @GetMapping("/{diaryId}/lyrics")
+    public ResponseEntity<ApiResponse<LyricsReadResponseDto>> getLyricsByDiaryId(@PathVariable Long diaryId) {
+        try {
+            LyricsReadResponseDto lyrics = lyricsService.getLyricsByDiaryId(diaryId);
+            return ResponseEntity.ok(ApiResponse.success("가사 조회에 성공했습니다.", lyrics));
+        } catch (LyricsException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("가사 조회에 실패했습니다."));
+        }
+    }
+
 }

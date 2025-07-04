@@ -137,6 +137,21 @@ public class ChatGPTService {
     }
 
     /**
+     * 일기 내용과 분위기를 받아 가사 생성
+     */
+    public String generateLyrics(String mood, String diaryContent) {
+        String systemMessage = PromptMessages.LYRICS_GENERATION_SYSTEM_MESSAGE;
+        String userPrompt =
+                "[원하는 분위기]\n" + mood + "\n\n"
+                        + "[일기 내용]\n" + diaryContent + "\n\n"
+                        + "위 내용을 참고해 일기의 감정과 분위기를 잘 반영한 한국어 노래 가사를 만들어주세요.";
+
+        ChatGPTResponseDto response = callGPT(systemMessage, userPrompt);
+        return response.getChoices().get(0).getMessage().getContent();
+    }
+
+
+    /**
      * 일기 요약이 비어있을 경우 GPT를 통해 요약 생성
      */
     @Transactional
