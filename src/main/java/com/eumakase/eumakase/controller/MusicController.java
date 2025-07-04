@@ -6,7 +6,6 @@ import com.eumakase.eumakase.dto.music.MusicSelectionRequestDto;
 import com.eumakase.eumakase.dto.music.MusicSelectionResponseDto;
 import com.eumakase.eumakase.dto.music.MusicUpdateFileUrlsResultDto;
 import com.eumakase.eumakase.dto.sunoAI.SunoAIGenerationResultDto;
-import com.eumakase.eumakase.dto.sunoAI.SunoAIRequestDto;
 import com.eumakase.eumakase.exception.MusicException;
 import com.eumakase.eumakase.service.MusicService;
 import org.springframework.http.HttpStatus;
