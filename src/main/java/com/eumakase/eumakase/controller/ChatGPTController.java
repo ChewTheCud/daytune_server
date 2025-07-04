@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
  * ChatGPT API 컨트롤러
  */
 @RestController
-@RequestMapping("/api/v1/chatgpt")
+@RequestMapping("/api/v2/chatgpt")
 public class ChatGPTController {
 
     private final ChatGPTService chatGPTService;

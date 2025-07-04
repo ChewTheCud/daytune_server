@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * Diary API
  */
 @RestController
-@RequestMapping(value = "/api/v1/diaries")
+@RequestMapping(value = "/api/v2/diaries")
 public class DiaryController {
     private final DiaryService diaryService;
     private final MusicService musicService;

@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/file")
+@RequestMapping(value = "/api/v2/file")
 public class FileController {
     private final FirebaseService firebaseService;
 

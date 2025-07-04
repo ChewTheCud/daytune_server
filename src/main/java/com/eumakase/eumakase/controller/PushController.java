@@ -15,7 +15,7 @@ import java.io.IOException;
  * FCM Push API
  */
 @RestController
-@RequestMapping(value = "/api/v1/push")
+@RequestMapping(value = "/api/v2/push")
 public class PushController {
     private final FCMService fcmService;
 
