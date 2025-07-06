@@ -122,7 +122,7 @@ public class MusicService {
      * @throws Exception 예외 발생 시
      */
     public String generateSunoAIMusic(SunoAIRequestDto sunoAIRequestDto) throws Exception {
-        String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
+        String uri = sunoAIProperties.getUrl() + "/api/v2/generate";
 
         HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
         headers.setBearerAuth(SECRET_KEY);
@@ -172,20 +172,20 @@ public class MusicService {
     }
 
     /**
-     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v1/generate/record-info)
+     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v2/generate/record-info)
      * @param taskId Suno AI에서 생성된 taskId
      * @return 상태가 "SUCCESS" 또는 "complete"인 트랙들의 ID와 audio_url을 담은 리스트
      * @throws Exception 조회 중 예외 발생 시
      */
     /**
-     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v1/generate/record-info)
+     * Suno AI 음악 생성 세부 정보 조회 (GET /api/v2/generate/record-info)
      * @param taskId Suno AI에서 생성된 taskId
      * @return 생성된 트랙들의 ID와 audioUrl 정보를 담은 리스트
      * @throws Exception 조회 중 예외 발생 시
      */
     public List<Map<String, String>> getSunoAIMusicDetails(String taskId) throws Exception {
-        // 엔드포인트: /api/v1/generate/record-info?taskId={taskId}
-        String uri = sunoAIProperties.getUrl() + "/api/v1/generate/record-info?taskId=" + taskId;
+        // 엔드포인트: /api/v2/generate/record-info?taskId={taskId}
+        String uri = sunoAIProperties.getUrl() + "/api/v2/generate/record-info?taskId=" + taskId;
 
         try {
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
