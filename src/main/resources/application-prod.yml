@@ -12,8 +12,8 @@ spring:
     time-zone: Asia/Seoul
 
   datasource:
-    url: ENC(qnZGBAjpxVbCRLZv8cf3gtIvi5rH0MZFtfXGkkYOcP+YbcAyPY48HkdPPb5XouR3ky2xZyE7AmUHkLlsZMLmcPGFYlBL6qNBY9xe1Lure6Cygm+Fhdx5QsJKeu8U5+ye)
-#    url: ENC(02fSnDdfn79NCTOoK+S//uZdtNl8qaGV4PFvsyZNmX3TD5M3Jp00M5WeFkhW4viJqymYgE2eOOMRH+RuuwjhNYHZgl+tbEzXP7Cf6BecVDlKkx63jLWOlCTFqh9Wp3TH)
+#    url: ENC(qnZGBAjpxVbCRLZv8cf3gtIvi5rH0MZFtfXGkkYOcP+YbcAyPY48HkdPPb5XouR3ky2xZyE7AmUHkLlsZMLmcPGFYlBL6qNBY9xe1Lure6Cygm+Fhdx5QsJKeu8U5+ye)
+    url: ENC(02fSnDdfn79NCTOoK+S//uZdtNl8qaGV4PFvsyZNmX3TD5M3Jp00M5WeFkhW4viJqymYgE2eOOMRH+RuuwjhNYHZgl+tbEzXP7Cf6BecVDlKkx63jLWOlCTFqh9Wp3TH)
     username: ENC(D6JUma7QtjPy+lHtuSduCA==)
     password: ENC(drzypccSCkhUOUOSVKnd0w4RQmgbgDgP)
     driver-class-name: com.mysql.cj.jdbc.Driver
