@@ -41,7 +41,7 @@ chatgpt:
   url: https://api.openai.com/v1/chat/completions
 
 sunoai:
-  url: https://apibox.erweima.ai
+  url: https://api.sunoapi.org
   secret-key: ENC(P6iepJ++d6Ua6UCoJwn67GH01Ma5WZY2Dqc35dE8Tmfg1hBEo6HsdW/ZqUFJVZaC)
 
 kakao:
