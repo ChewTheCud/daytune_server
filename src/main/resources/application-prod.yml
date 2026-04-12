@@ -41,7 +41,7 @@ chatgpt:
   url: https://api.openai.com/v1/chat/completions
 
 sunoai:
-  url: https://apibox.erweima.ai
+  url: https://api.sunoapi.org
   secret-key: ENC(P6iepJ++d6Ua6UCoJwn67GH01Ma5WZY2Dqc35dE8Tmfg1hBEo6HsdW/ZqUFJVZaC)
 
 kakao:
@@ -52,8 +52,8 @@ apple:
     url: https://appleid.apple.com
   grant-type: authorization_code
   client-id: ENC(edu2ooDuyWCeC1y2Kas0ORHaWUSiRJ/KziJ753cLQsI=)
-  key-id: ENC(xiv69/9h6HOatxWDNgSzL1N6Vh7pnowS)
-  team-id: ENC(68d/73suwhVi1hTYjiv2pzKwC0741IBL)
+  key-id: ENC(+VnoewSk1Ps9Hvkp4EP4nyn4peZgKDYn)
+  team-id: ENC(apk+Vr9ehGtjxwg7n3kTwyZxQbj2zz42)
   audience: https://appleid.apple.com
   private-key: ENC(n5Juuqw3/BhOZ7dNBvJP/VaXLhW7XxCYofkwBhV8EsMr2Em2BMh+BfLzOMMIHTCVvtjsBI9Vnp1sm3TFOG3pgIzDyn002kQ2BkZcKp4WplK0PTpEtw0OHrukm53ZdOMLxUu6nCEekql6LSZjNn6cBQDbVsZz8QIz/t7zP+uwzmHIXJb4kgQ45d4bYlsHZ4JaMezlONKnDW55b4g1MDNdfq5wYb3gsyRuHrb0zUtZvleR0HPHuhAQNm8eeol9S9f7aAthEAsbC/xhH4FSJUw63vi2OKu+6fQ8)
 

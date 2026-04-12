@@ -104,8 +104,24 @@ public class DiaryService {
         List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
         List<DiaryEmotionInsight> emotions = diaryEmotionInsightRepository.findByDiaryId(diaryId);
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
-        String musicUrl = musics.isEmpty() || musics.get(0).getFileUrl() == null || !musics.get(0).getFileUrl().startsWith("https://storage.googleapis.com")
-                ? null : musics.get(0).getFileUrl();
+        // [DEBUG] Music 리스트 사이즈 및 첫 번째 Music 정보 출력
+        log.debug("🎵 musics.size() = {}", musics.size());
+        if (!musics.isEmpty()) {
+            log.debug("🎵 musics.get(0).getId() = {}", musics.get(0).getId());
+            log.debug("🎵 musics.get(0).getFileUrl() = '{}'", musics.get(0).getFileUrl());
+        }
+
+// 조건 분리
+        boolean isEmpty = musics.isEmpty();
+        boolean isNull = !isEmpty && musics.get(0).getFileUrl() == null;
+        boolean isInvalid = !isEmpty && musics.get(0).getFileUrl() != null &&
+                !musics.get(0).getFileUrl().startsWith("https://cdn1.suno.ai");
+
+        log.info("isEmpty={}, isNull={}, isInvalid={}", isEmpty, isNull, isInvalid);
+
+        String musicUrl = (isEmpty || isNull || isInvalid) ? null : musics.get(0).getFileUrl();
+
+        log.info("🎶 최종 musicUrl = '{}'", musicUrl);
         boolean musicStatus = diary.isMusicStatus();
 
         return DiaryReadResponseDto.of(diary, musicStatus, musicUrl, answers, emotions);

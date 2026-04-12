@@ -89,7 +89,7 @@ public class MusicService {
             taskId = generateSunoAIMusic(sunoAIRequestDto);
         } catch (Exception e) {
             log.error("SunoAI 음악 생성 중 오류가 발생했습니다: {}", e.getMessage(), e);
-            return;
+            throw new RuntimeException("SunoAI 음악 생성 실패: " + e.getMessage(), e);
         }
 
         // 4. Music 엔티티 두 개 생성 및 저장
@@ -115,14 +115,8 @@ public class MusicService {
      * @return 생성된 음악 ID 목록
      * @throws Exception 예외 발생 시
      */
-    /**
-     * SunoAI 음악 생성 (taskId 반환)
-     * @param sunoAIRequestDto SunoAI 음악 생성 요청 DTO
-     * @return 생성된 taskId 문자열
-     * @throws Exception 예외 발생 시
-     */
     public String generateSunoAIMusic(SunoAIRequestDto sunoAIRequestDto) throws Exception {
-        String uri = sunoAIProperties.getUrl() + "/api/v2/generate";
+        String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
 
         HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
         headers.setBearerAuth(SECRET_KEY);
@@ -185,7 +179,7 @@ public class MusicService {
      */
     public List<Map<String, String>> getSunoAIMusicDetails(String taskId) throws Exception {
         // 엔드포인트: /api/v2/generate/record-info?taskId={taskId}
-        String uri = sunoAIProperties.getUrl() + "/api/v2/generate/record-info?taskId=" + taskId;
+        String uri = sunoAIProperties.getUrl() + "/api/v1/generate/record-info?taskId=" + taskId;
 
         try {
             HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
