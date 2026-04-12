@@ -55,7 +55,7 @@ apple:
   key-id: ENC(+VnoewSk1Ps9Hvkp4EP4nyn4peZgKDYn)
   team-id: ENC(apk+Vr9ehGtjxwg7n3kTwyZxQbj2zz42)
   audience: https://appleid.apple.com
-  private-key: ENC(n5Juuqw3/BhOZ7dNBvJP/VaXLhW7XxCYofkwBhV8EsMr2Em2BMh+BfLzOMMIHTCVvtjsBI9Vnp1sm3TFOG3pgIzDyn002kQ2BkZcKp4WplK0PTpEtw0OHrukm53ZdOMLxUu6nCEekql6LSZjNn6cBQDbVsZz8QIz/t7zP+uwzmHIXJb4kgQ45d4bYlsHZ4JaMezlONKnDW55b4g1MDNdfq5wYb3gsyRuHrb0zUtZvleR0HPHuhAQNm8eeol9S9f7aAthEAsbC/xhH4FSJUw63vi2OKu+6fQ8)
+  private-key: ENC(+WnGEENb2DoOqkq5eSP63DHwM0SRa2KODpryhBPH//3B02XnY/C900cQoEbnKSPdVPbJ9l6B9J2O2nqY/CLIEQeDaPwdjK67OzawE8QGsVWdkA3y4hsYVNmV38bNUUinS9+hls2QDrUcqS6J47OGztF6MPxkEij1pQG1fz2kwEFU67rrpypjp5zqezPryps6NxJWfRCa9KXDv4xsBazkU6Rv2g3/PlsbhnE8kiv3dpcph4ZG01PVra+/5slsQFqLe2CgQ/+3d7Hnk/30YenIbtw+qch7DdG7)
 
 google:
   url: ENC(LitNjbqTFOwpg179buuc5vm1FBZAABksa8GsM0Nlv/uiXmJmQWwlaavbcosE02UhcMa6ctfk9omefnTxrAmJ2A==)
