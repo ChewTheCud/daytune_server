@@ -51,7 +51,7 @@ apple:
   auth:
     url: https://appleid.apple.com
   grant-type: authorization_code
-  client-id: ENC(edu2ooDuyWCeC1y2Kas0ORHaWUSiRJ/KziJ753cLQsI=)
+  client-id: ENC(Wo5/uiJcgdQ48NiRV7ugjSKoJ9sZYEkyO+564qfi9DA=)
   key-id: ENC(+VnoewSk1Ps9Hvkp4EP4nyn4peZgKDYn)
   team-id: ENC(apk+Vr9ehGtjxwg7n3kTwyZxQbj2zz42)
   audience: https://appleid.apple.com
