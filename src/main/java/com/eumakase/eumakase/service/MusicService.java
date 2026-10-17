@@ -291,15 +291,14 @@ public class MusicService {
                 throw new Exception("응답에서 sunoData 정보가 없습니다.");
             }
 
-            // sunoData 리스트 순회하며 id와 streamAudioUrl을 Map으로 변환
             List<Map<String, String>> completedMusicData = new ArrayList<>();
             for (SunoAIGenerationDetailResultDto.TrackInfo track : responseNode.getSunoData()) {
                 String id = track.getId();
-                String sourceAudioUrl = track.getSourceAudioUrl();
-                if (id != null && sourceAudioUrl != null && !sourceAudioUrl.isEmpty()) {
+                String fileUrl = track.playableAudioUrl();
+                if (id != null && fileUrl != null) {
                     completedMusicData.add(Map.of(
                             "id", id,
-                            "audio_url", sourceAudioUrl
+                            "audio_url", fileUrl
                     ));
                 }
             }
@@ -355,9 +354,23 @@ public class MusicService {
             List<Music> musicsForTask = entry.getValue();
 
             try {
-                // 상세 조회 후, List<Map<String,String>>에서 streamAudioUrl(= "audio_url") 추출
                 List<Map<String, String>> musicDetails = getSunoAIMusicDetails(taskId);
 
+                // 일부 트랙만 URL이 있으면 인덱스 짝이 어긋나 같은 URL이 중복 저장된다. 전부 준비될 때까지 비워 둔다.
+                if (musicDetails.size() < musicsForTask.size()) {
+                    log.info("음악 파일 URL이 아직 모두 준비되지 않았습니다: taskId={}, ready={}, expected={}",
+                            taskId, musicDetails.size(), musicsForTask.size());
+                    for (Music music : musicsForTask) {
+                        notUpdatedMusicFiles.add(new MusicUpdateInfo(
+                                music.getDiary().getId(),
+                                music.getId(),
+                                null
+                        ));
+                    }
+                    continue;
+                }
+
+                musicsForTask.sort(Comparator.comparing(Music::getId, Comparator.nullsLast(Long::compareTo)));
                 for (int i = 0; i < musicsForTask.size(); i++) {
                     Music music = musicsForTask.get(i);
                     String audioUrl = null;
