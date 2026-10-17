@@ -88,4 +88,5 @@ admin:
     email: chewthecud2023@gmail.com
     password-hash: "$2y$12$0f6DvgwdqBE1ESGA39b70OCC/p1kz2JGulerIS/fBRR7SFAgmf92i"
   cors:
-    allowed-origins: []
+    allowed-origins:
+      - https://daytune-admin.pages.dev
