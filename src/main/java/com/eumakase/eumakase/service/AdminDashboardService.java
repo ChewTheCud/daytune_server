@@ -5,6 +5,7 @@ import com.eumakase.eumakase.dto.admin.AdminCostsResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminSystemResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminUsageResponseDto;
 import com.eumakase.eumakase.exception.AdminException;
+import com.eumakase.eumakase.repository.DiaryEmotionInsightRepository;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.ExternalApiUsageRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
@@ -44,6 +45,7 @@ public class AdminDashboardService {
 
     static final String SOURCE_ESTIMATED = "ESTIMATED";
     static final String SOURCE_NONE = "NONE";
+    static final String CATEGORY_UNASSIGNED = "미지정";
     private static final int TOP_LIMIT = 10;
     private static final int BATCH_RUN_LIMIT = 10;
     private static final int MIN_HOURS = 1;
@@ -51,6 +53,7 @@ public class AdminDashboardService {
 
     private final UserRepository userRepository;
     private final DiaryRepository diaryRepository;
+    private final DiaryEmotionInsightRepository diaryEmotionInsightRepository;
     private final MusicRepository musicRepository;
     private final ShareUrlRepository shareUrlRepository;
     private final ExternalApiUsageRepository externalApiUsageRepository;
@@ -94,7 +97,33 @@ public class AdminDashboardService {
                 sum(shares),
                 sum(pushes));
 
-        return new AdminUsageResponseDto(userRepository.countByDeletedDateIsNull(), totals, daily);
+        AdminUsageResponseDto.Funnel funnel = new AdminUsageResponseDto.Funnel(
+                totals.getSignups(),
+                userRepository.countCohortWithDiary(start, end),
+                userRepository.countCohortWithMusic(start, end),
+                userRepository.countCohortWithShare(start, end));
+
+        List<AdminUsageResponseDto.EmotionCount> emotions = diaryEmotionInsightRepository
+                .countByEmotion(start, end, PageRequest.of(0, TOP_LIMIT)).stream()
+                .map(row -> new AdminUsageResponseDto.EmotionCount((String) row[0], toLong(row[1])))
+                .collect(Collectors.toList());
+
+        List<AdminUsageResponseDto.CategoryCount> categories = diaryRepository.countByCategory(start, end).stream()
+                .map(row -> new AdminUsageResponseDto.CategoryCount((Long) row[0], categoryName((Long) row[0], (String) row[1]), toLong(row[2])))
+                .collect(Collectors.toList());
+
+        List<AdminUsageResponseDto.HeatmapCell> heatmap = AdminStatsUtil.buildHeatmap(diaryRepository.findCreatedDates(start, end));
+
+        return new AdminUsageResponseDto(userRepository.countByDeletedDateIsNull(), totals, daily,
+                funnel, emotions, categories, heatmap);
+    }
+
+    // 카테고리가 없는 일기는 "미지정", 이름이 비어 있으면 id로 대신한다
+    static String categoryName(Long categoryId, String name) {
+        if (categoryId == null) {
+            return CATEGORY_UNASSIGNED;
+        }
+        return name == null || name.isBlank() ? "카테고리 #" + categoryId : name;
     }
 
     /**
@@ -110,17 +139,22 @@ public class AdminDashboardService {
         Map<ExternalApiProvider, Object[]> byProvider = indexBy(
                 externalApiUsageRepository.summarizeByProvider(start, end), row -> (ExternalApiProvider) row[0]);
         List<AdminCostsResponseDto.ProviderCost> providers = new ArrayList<>();
+        Set<ExternalApiProvider> providersWithCost = EnumSet.noneOf(ExternalApiProvider.class);
         for (ExternalApiProvider provider : ExternalApiProvider.values()) {
             Object[] row = byProvider.get(provider);
             boolean estimated = provider == ExternalApiProvider.OPENAI;
+            BigDecimal cost = costOf(provider, row == null ? null : (BigDecimal) row[5]);
             providers.add(new AdminCostsResponseDto.ProviderCost(
                     provider,
                     row == null ? 0 : toLong(row[1]),
                     row == null ? 0 : toLong(row[2]),
                     estimated ? orZero(row == null ? null : toNullableLong(row[3])) : null,
                     estimated ? orZero(row == null ? null : toNullableLong(row[4])) : null,
-                    costOf(provider, row == null ? null : (BigDecimal) row[5]),
-                    estimated ? SOURCE_ESTIMATED : SOURCE_NONE));
+                    cost,
+                    estimated || cost != null ? SOURCE_ESTIMATED : SOURCE_NONE));
+            if (cost != null) {
+                providersWithCost.add(provider);
+            }
         }
 
         // 일 × 제공사 (빈 칸은 0)
@@ -130,9 +164,12 @@ public class AdminDashboardService {
         for (LocalDate date : AdminStatsUtil.datesBetween(from, to)) {
             for (ExternalApiProvider provider : ExternalApiProvider.values()) {
                 Object[] row = byDayProvider.get(date + "|" + provider);
+                BigDecimal cost = costOf(provider, row == null ? null : (BigDecimal) row[3]);
+                if (cost == null && providersWithCost.contains(provider)) {
+                    cost = scaled(BigDecimal.ZERO); // 기간 내 비용이 있는 제공사는 빈 칸을 0으로 채운다
+                }
                 daily.add(new AdminCostsResponseDto.DailyCost(date, provider,
-                        row == null ? 0 : toLong(row[2]),
-                        costOf(provider, row == null ? null : (BigDecimal) row[3])));
+                        row == null ? 0 : toLong(row[2]), cost));
             }
         }
 
@@ -225,12 +262,12 @@ public class AdminDashboardService {
         }
     }
 
-    // OPENAI는 비용이 없으면 0, 나머지 제공사는 항상 null
-    private static BigDecimal costOf(ExternalApiProvider provider, BigDecimal cost) {
-        if (provider != ExternalApiProvider.OPENAI) {
-            return null;
+    // OPENAI는 비용이 없으면 0, 나머지 제공사는 비용이 기록된 경우(SUNO)만 값이고 없으면 null
+    static BigDecimal costOf(ExternalApiProvider provider, BigDecimal cost) {
+        if (provider == ExternalApiProvider.OPENAI) {
+            return scaled(cost == null ? BigDecimal.ZERO : cost);
         }
-        return scaled(cost == null ? BigDecimal.ZERO : cost);
+        return scaled(cost);
     }
 
     private static BigDecimal scaled(BigDecimal cost) {

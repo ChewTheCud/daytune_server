@@ -1,6 +1,14 @@
 package com.eumakase.eumakase.admin;
 
+import com.eumakase.eumakase.domain.Diary;
+import com.eumakase.eumakase.domain.DiaryEmotionInsight;
+import com.eumakase.eumakase.domain.Music;
+import com.eumakase.eumakase.domain.ShareUrl;
 import com.eumakase.eumakase.domain.User;
+import com.eumakase.eumakase.repository.DiaryEmotionInsightRepository;
+import com.eumakase.eumakase.repository.DiaryRepository;
+import com.eumakase.eumakase.repository.MusicRepository;
+import com.eumakase.eumakase.repository.ShareUrlRepository;
 import com.eumakase.eumakase.repository.UserRepository;
 import com.eumakase.eumakase.security.JwtIssuer;
 import com.eumakase.eumakase.service.ExternalApiUsageRecorder;
@@ -53,6 +61,14 @@ class AdminApiContextTest {
     private WebApplicationContext context;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private DiaryRepository diaryRepository;
+    @Autowired
+    private DiaryEmotionInsightRepository emotionRepository;
+    @Autowired
+    private MusicRepository musicRepository;
+    @Autowired
+    private ShareUrlRepository shareUrlRepository;
     @Autowired
     private JwtIssuer jwtIssuer;
     @Autowired
@@ -285,5 +301,43 @@ class AdminApiContextTest {
         mockMvc.perform(get("/admin/users/987654321" + range()).header(HttpHeaders.AUTHORIZATION, auth))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("유저를 찾을 수 없습니다."));
+    }
+
+    @Test
+    void 이용_현황_퍼널_분포_상세가_실제_쿼리로_집계된다() throws Exception {
+        User user = userRepository.save(User.builder().email("m4-user@example.com").password("x").nickname("m4유저").role(Role.ROLE_USER).build());
+        Diary diary = diaryRepository.save(Diary.builder().user(user).content("m4-secret-body").build());
+        emotionRepository.save(DiaryEmotionInsight.builder().diary(diary).emotion("m4emotion").reason("r").build());
+        Music music = musicRepository.save(Music.builder().diary(diary).build());
+        shareUrlRepository.save(ShareUrl.builder().music(music).url("https://example.com/s").build());
+        String auth = "Bearer " + adminToken();
+
+        String usage = mockMvc.perform(get("/admin/usage" + range()).header(HttpHeaders.AUTHORIZATION, auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.heatmap.length()").value(168))
+                .andExpect(jsonPath("$.data.funnel.signedUp").isNumber())
+                .andReturn().getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+        JsonNode data = objectMapper.readTree(usage).path("data");
+        assertThat(data.path("funnel").path("shared").asLong()).isGreaterThanOrEqualTo(1);
+        assertThat(data.path("funnel").path("generatedMusic").asLong()).isGreaterThanOrEqualTo(1);
+        assertThat(data.path("emotions").toString()).contains("m4emotion");
+        assertThat(data.path("categories").toString()).contains("미지정");
+
+        for (String metric : List.of("signups", "activeUsers", "diaries", "musics", "shares", "pushes")) {
+            String body = mockMvc.perform(get("/admin/usage/details" + range() + "&metric=" + metric + "&size=5")
+                            .header(HttpHeaders.AUTHORIZATION, auth))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.content").isArray())
+                    .andReturn().getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+            assertThat(body).doesNotContain("m4-secret-body");
+            if (!metric.equals("pushes")) {
+                assertThat(objectMapper.readTree(body).path("data").path("totalElements").asLong()).isGreaterThanOrEqualTo(1);
+            }
+        }
+        mockMvc.perform(get("/admin/usage/details" + range() + "&metric=diaries").header(HttpHeaders.AUTHORIZATION, auth))
+                .andExpect(jsonPath("$.data.content[0].detail").value(org.hamcrest.Matchers.containsString("m4emotion")));
+        mockMvc.perform(get("/admin/usage/details" + range() + "&metric=bogus").header(HttpHeaders.AUTHORIZATION, auth))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("ERROR"));
     }
 }

@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 public class ExternalApiUsageRecorder {
 
     static final String UNIT_TYPE_TOKEN = "TOKEN";
+    static final String UNIT_TYPE_CREDIT = "CREDIT";
     private static final int COLUMN_MAX_LENGTH = 60; // model·error_code 컬럼 길이
 
     private final ExternalApiUsageRepository externalApiUsageRepository;
@@ -70,11 +71,29 @@ public class ExternalApiUsageRecorder {
     public void record(ExternalApiOperation operation, long startNanos,
                        Long userId, ExternalApiRefType refType, Long refId,
                        String model, Long unitsIn, Long unitsOut, String errorCode) {
+        save(operation, startNanos, userId, refType, refId, model, unitsIn, unitsOut, errorCode, null, null);
+    }
+
+    /**
+     * 크레딧 단위 기록 (Suno). creditCost는 성공 건의 추정 비용이고, 산정할 수 없으면 null
+     */
+    public void recordCredit(ExternalApiOperation operation, long startNanos,
+                             Long userId, ExternalApiRefType refType, Long refId,
+                             String model, Long credits, BigDecimal creditCost, String errorCode) {
+        boolean success = errorCode == null;
+        save(operation, startNanos, userId, refType, refId, model, null, success ? credits : null, errorCode,
+                success && credits != null ? UNIT_TYPE_CREDIT : null, success ? creditCost : null);
+    }
+
+    private void save(ExternalApiOperation operation, long startNanos,
+                      Long userId, ExternalApiRefType refType, Long refId,
+                      String model, Long unitsIn, Long unitsOut, String errorCode,
+                      String creditUnitType, BigDecimal creditCost) {
         try {
             int latencyMs = (int) Math.min(Integer.MAX_VALUE, (System.nanoTime() - startNanos) / 1_000_000);
             boolean success = errorCode == null;
             boolean hasTokens = unitsIn != null || unitsOut != null;
-            BigDecimal cost = null;
+            BigDecimal cost = creditCost;
             if (success && operation.getProvider() == ExternalApiProvider.OPENAI) {
                 cost = OpenAiPricing.estimate(model, unitsIn, unitsOut);
                 if (cost == null) {
@@ -94,7 +113,7 @@ public class ExternalApiUsageRecorder {
                     .latencyMs(latencyMs)
                     .unitsIn(unitsIn)
                     .unitsOut(unitsOut)
-                    .unitType(hasTokens ? UNIT_TYPE_TOKEN : null)
+                    .unitType(creditUnitType != null ? creditUnitType : hasTokens ? UNIT_TYPE_TOKEN : null)
                     .estimatedCostUsd(cost)
                     .build();
 

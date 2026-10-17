@@ -1,9 +1,11 @@
 package com.eumakase.eumakase.util;
 
+import com.eumakase.eumakase.dto.admin.AdminUsageResponseDto;
 import com.eumakase.eumakase.exception.AdminException;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,5 +78,22 @@ public final class AdminStatsUtil {
             return 0;
         }
         return Math.round((double) failures / calls * 10_000) / 10_000.0;
+    }
+
+    /**
+     * 작성 시각 목록 → 요일(1=월~7=일) × 시간(0~23) 168칸. 빈 칸은 0, dayOfWeek → hour 오름차순
+     */
+    public static List<AdminUsageResponseDto.HeatmapCell> buildHeatmap(List<LocalDateTime> times) {
+        long[][] counts = new long[7][24];
+        for (LocalDateTime time : times) {
+            counts[time.getDayOfWeek().getValue() - 1][time.getHour()]++;
+        }
+        List<AdminUsageResponseDto.HeatmapCell> cells = new ArrayList<>(7 * 24);
+        for (int day = 0; day < 7; day++) {
+            for (int hour = 0; hour < 24; hour++) {
+                cells.add(new AdminUsageResponseDto.HeatmapCell(day + 1, hour, counts[day][hour]));
+            }
+        }
+        return cells;
     }
 }

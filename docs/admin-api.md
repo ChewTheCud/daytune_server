@@ -94,12 +94,62 @@
 | daily[].musics | number | N | |
 | daily[].shares | number | N | |
 | daily[].pushes | number | N | |
+| funnel.signedUp | number | N | 기간 내 가입 유저(탈퇴 포함) = 코호트 |
+| funnel.wroteDiary | number | N | 코호트 중 일기 1건 이상 작성 (작성 시점은 기간 무관) |
+| funnel.generatedMusic | number | N | 코호트 중 음악 행을 1개 이상 가진 유저 (일기 경유, 시점 무관) |
+| funnel.shared | number | N | 코호트 중 공유 URL을 1개 이상 가진 유저 (음악 경유, 시점 무관) |
+| emotions[] | | N | 기간 내 일기의 감정 분석 결과 집계. count 내림차순(동률은 emotion 오름차순) 상위 10. 없으면 빈 배열 |
+| emotions[].emotion | string | N | 감정 분석 결과 값 |
+| emotions[].count | number | N | 감정 분석 행 수 (일기 1건에 감정이 여러 개면 각각 센다) |
+| categories[] | | N | 기간 내 일기의 prompt_category별 수. count 내림차순(동률은 categoryId 오름차순, 미지정이 맨 뒤). 없으면 빈 배열 |
+| categories[].categoryId | number | Y | 카테고리가 없는 일기는 null |
+| categories[].name | string | N | 카테고리 이름(main_prompt). categoryId가 null이면 `"미지정"` |
+| categories[].count | number | N | 일기 수 |
+| heatmap[] | | N | 기간 내 일기 작성 시각(Asia/Seoul) 요일×시간 집계. **168칸 항상 포함**(빈 칸 0), dayOfWeek 오름차순 → hour 오름차순 |
+| heatmap[].dayOfWeek | number | N | 1=월 ~ 7=일 |
+| heatmap[].hour | number | N | 0~23 |
+| heatmap[].count | number | N | 일기 수 |
+
+## GET /admin/usage/details — 이용 현황 KPI 상세
+
+- 파라미터: `metric` (필수: `signups` | `activeUsers` | `diaries` | `musics` | `shares` | `pushes`), `from`, `to` (필수, 공통 기간 규칙), `page` (선택, 기본 0, 0 이상), `size` (선택, 기본 20, 1~50)
+- `metric`이 위 값이 아니거나 `page`·`size` 범위 위반은 400
+- 정렬: `createdDate` 내림차순 → `id` 내림차순
+- 응답: `ApiResponse<UsageDetailPage>`
+
+| 필드 | 타입 | null | 비고 |
+|---|---|---|---|
+| content[] | UsageDetailItem[] | N | |
+| page | number | N | 요청한 page |
+| size | number | N | 요청한 size |
+| totalElements | number | N | 전체 건수 |
+
+UsageDetailItem
+
+| 필드 | 타입 | null | 비고 |
+|---|---|---|---|
+| id | number | N | signups·activeUsers=userId, diaries=diaryId, musics=musicId, shares=shareUrlId, pushes=미터링 행 id |
+| userId | number | Y | 연관 유저. 없으면 null |
+| nickname | string | Y | 유저가 없거나 닉네임이 없으면 null |
+| createdDate | string | N | yyyy-MM-ddTHH:mm:ss (Asia/Seoul). activeUsers는 기간 내 마지막 일기 시각 |
+| detail | string | Y | 서버가 만든 짧은 설명 (아래 표). **일기 본문·가사는 넣지 않는다** |
+
+| metric | detail |
+|---|---|
+| signups | 이메일 |
+| activeUsers | `일기 N건` (기간 내) |
+| diaries | `카테고리 · 감정` (감정이 여러 개면 `, `로 연결, 카테고리 없으면 `미지정`, 감정 없으면 카테고리만) |
+| musics | `일기 #{diaryId}` |
+| shares | `음악 #{musicId}` |
+| pushes | `성공` (성공 발송만 포함 — KPI `totals.pushes`와 건수 일치) |
+
+- 건수 일치: signups·activeUsers·diaries·musics·shares는 `/admin/usage`의 같은 기간 `totals`와 `totalElements`가 같다. **pushes는 실패 행도 목록에 포함**하므로 `totalElements`가 `totals.pushes`(성공만)보다 클 수 있다
 
 ## GET /admin/costs — 외부 API 과금
 
 - 파라미터: `from`, `to` (필수)
 - 응답: `ApiResponse<AdminCosts>`. 모든 값은 미터링 로그(배포 이후 호출) 기준
-- 비용은 **OPENAI만 추정값**(호출 시점 토큰 × 단가). 나머지 제공사는 산정하지 않아 `null`. 추정·실제 합산 금지
+- 비용은 **추정값**이다. OPENAI는 호출 시점 토큰 × 단가, SUNO는 `MUSIC_GENERATE` 성공 1건의 소모 크레딧 × 크레딧 단가($0.005, https://sunoapi.org/ko/billing). 소모 크레딧은 생성 호출 전후 잔여 크레딧(`GET /api/v1/generate/credit`) 차이로 실측한 **근사값**이다 — 다른 생성 요청이 동시에 겹치면 그 소모분이 섞일 수 있다. 조회 실패·차이가 0 이하이면 설정값 `metering.suno.credits-per-generate`로 대체하고, 설정도 비어 있으면 비용을 기록하지 않아 `null`. AWS_S3·FIREBASE는 산정하지 않아 `null`. 추정·실제 합산 금지
 - OPENAI 비용은 성공 호출만 포함. 단가표에 없는 모델의 호출은 비용 0으로 들어간다 (서버 WARN 로그)
 
 | 필드 | 타입 | null | 비고 |
@@ -111,23 +161,23 @@
 | providers[].failures | number | N | 실패 수 |
 | providers[].unitsIn | number | Y | 입력 토큰 합. OPENAI만 값(0 이상), 나머지 null |
 | providers[].unitsOut | number | Y | 출력 토큰 합. OPENAI만 값(0 이상), 나머지 null |
-| providers[].estimatedCostUsd | number | Y | OPENAI만 값(0 이상), 나머지 null |
-| providers[].source | string | N | `ESTIMATED` (OPENAI) / `NONE` (비용 미산정) |
+| providers[].estimatedCostUsd | number | Y | OPENAI는 항상 값(0 이상). SUNO는 기간 내 비용이 기록된 행이 하나라도 있을 때만 값(합), 없으면 null. 나머지 null |
+| providers[].source | string | N | `ESTIMATED` (OPENAI, 또는 estimatedCostUsd가 있는 SUNO) / `NONE` (비용 미산정) |
 | daily[] | | | from~to 모든 날짜 × 제공사 4개 (날짜 오름차순, 날짜 안에서 provider enum 순) |
 | daily[].date | string | N | yyyy-MM-dd |
 | daily[].provider | string | N | |
 | daily[].calls | number | N | 빈 칸 0 |
-| daily[].estimatedCostUsd | number | Y | OPENAI만 값(빈 칸 0), 나머지 null |
+| daily[].estimatedCostUsd | number | Y | OPENAI는 값(빈 칸 0). SUNO는 기간 `providers[SUNO].estimatedCostUsd`가 있으면 값(빈 칸 0), 없으면 null. 나머지 null |
 | topOperations[] | | | 호출이 있는 기능만, 비용 내림차순 → 호출 수 내림차순 상위 10 (비용 null은 맨 뒤) |
 | topOperations[].provider | string | N | |
 | topOperations[].operation | string | N | operation enum |
 | topOperations[].calls | number | N | |
-| topOperations[].estimatedCostUsd | number | Y | OPENAI 기능만 값, 나머지 null |
+| topOperations[].estimatedCostUsd | number | Y | OPENAI 기능은 값. 그 외 기능은 비용이 기록된 행이 있을 때만 값(`MUSIC_GENERATE`), 없으면 null |
 | topUsers[] | | | user_id가 있는 호출만 (배치 경로 제외), 비용 내림차순(null은 0 취급) → 호출 수 내림차순 상위 10 |
 | topUsers[].userId | number | N | |
 | topUsers[].nickname | string | Y | 유저가 삭제됐거나 닉네임이 없으면 null |
 | topUsers[].calls | number | N | 모든 제공사 합 |
-| topUsers[].estimatedCostUsd | number | Y | OPENAI 비용 합. 비용 산정된 호출이 없으면 null |
+| topUsers[].estimatedCostUsd | number | Y | 비용이 기록된 호출(OPENAI·SUNO)의 합. 비용 산정된 호출이 없으면 null |
 
 ## GET /admin/users — 유저 검색
 
@@ -177,7 +227,7 @@ UserSummary
 | costs[] | | | 기간 내, 제공사 4개 항상 포함 |
 | costs[].provider | string | N | |
 | costs[].calls | number | N | |
-| costs[].estimatedCostUsd | number | Y | OPENAI만 값(0 이상), 나머지 null |
+| costs[].estimatedCostUsd | number | Y | OPENAI는 값(0 이상). SUNO는 비용이 기록된 행이 있을 때만 값, 없으면 null. 나머지 null |
 
 ## GET /admin/system — 시스템 상태
 
