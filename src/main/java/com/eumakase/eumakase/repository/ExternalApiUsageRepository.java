@@ -2,6 +2,7 @@ package com.eumakase.eumakase.repository;
 
 import com.eumakase.eumakase.domain.ExternalApiUsage;
 import com.eumakase.eumakase.util.enums.ExternalApiOperation;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -56,6 +57,13 @@ public interface ExternalApiUsageRepository extends JpaRepository<ExternalApiUsa
             + " group by cast(e.createdDate as LocalDate)")
     List<Object[]> countDailySuccess(@Param("operation") ExternalApiOperation operation,
                                      @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 푸시 상세 목록 [from, to): 성공·실패 모두 (정렬은 Pageable)
+    long countByOperationAndSuccessTrueAndCreatedDateGreaterThanEqualAndCreatedDateLessThan(
+            ExternalApiOperation operation, LocalDateTime from, LocalDateTime to);
+
+    Page<ExternalApiUsage> findByOperationAndSuccessTrueAndCreatedDateGreaterThanEqualAndCreatedDateLessThan(
+            ExternalApiOperation operation, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     // p95 계산용 지연 시간: operation, latencyMs
     @Query("select e.operation, e.latencyMs from ExternalApiUsage e where e.createdDate >= :from and e.createdDate < :to")

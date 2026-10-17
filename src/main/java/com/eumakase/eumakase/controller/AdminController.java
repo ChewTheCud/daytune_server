@@ -3,10 +3,12 @@ package com.eumakase.eumakase.controller;
 import com.eumakase.eumakase.common.dto.ApiResponse;
 import com.eumakase.eumakase.dto.admin.AdminCostsResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminSystemResponseDto;
+import com.eumakase.eumakase.dto.admin.AdminUsageDetailResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminUsageResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminUserDetailResponseDto;
 import com.eumakase.eumakase.dto.admin.AdminUserPageResponseDto;
 import com.eumakase.eumakase.service.AdminDashboardService;
+import com.eumakase.eumakase.service.AdminUsageDetailService;
 import com.eumakase.eumakase.service.AdminUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,6 +26,7 @@ import java.time.LocalDate;
 public class AdminController {
     private final AdminDashboardService adminDashboardService;
     private final AdminUserService adminUserService;
+    private final AdminUsageDetailService adminUsageDetailService;
 
     /**
      * 이용 현황
@@ -33,6 +36,20 @@ public class AdminController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
         return ResponseEntity.ok(ApiResponse.success("이용 현황 조회에 성공했습니다.", adminDashboardService.getUsage(from, to)));
+    }
+
+    /**
+     * 이용 현황 KPI 상세 목록
+     */
+    @GetMapping("/usage/details")
+    public ResponseEntity<ApiResponse<AdminUsageDetailResponseDto>> getUsageDetails(
+            @RequestParam String metric,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return ResponseEntity.ok(ApiResponse.success("이용 현황 상세 조회에 성공했습니다.",
+                adminUsageDetailService.getDetails(metric, from, to, page, size)));
     }
 
     /**

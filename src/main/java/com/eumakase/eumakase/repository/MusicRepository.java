@@ -1,6 +1,7 @@
 package com.eumakase.eumakase.repository;
 
 import com.eumakase.eumakase.domain.Music;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,13 @@ public interface MusicRepository extends JpaRepository<Music, Long> {
             + " where m.createdDate >= :from and m.createdDate < :to"
             + " group by cast(m.createdDate as LocalDate)")
     List<Object[]> countDaily(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    long countByCreatedDateGreaterThanEqualAndCreatedDateLessThan(LocalDateTime from, LocalDateTime to);
+
+    // 상세 목록: musicId, userId, nickname, createdDate, diaryId
+    @Query("select m.id, u.id, u.nickname, m.createdDate, d.id from Music m"
+            + " left join m.diary d left join d.user u"
+            + " where m.createdDate >= :from and m.createdDate < :to"
+            + " order by m.createdDate desc, m.id desc")
+    List<Object[]> findDetailRows(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to, Pageable pageable);
 }
