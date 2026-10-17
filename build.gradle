@@ -59,8 +59,16 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'com.h2database:h2'
+	// 로컬 개발 서버(bootRun) 전용. bootJar에는 포함되지 않는다
+	developmentOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// bootRun은 항상 local 프로필(H2 + 샘플 데이터)로 띄운다.
+// 시스템 프로퍼티가 application.yml의 spring.profiles.active: prod보다 우선하므로 운영 설정이 로드되지 않는다.
+tasks.named('bootRun') {
+	systemProperty 'spring.profiles.active', 'local'
 }

@@ -1,0 +1,92 @@
+# 로컬 개발 서버(local 프로필) 설정
+# - 용도: 관리자 프론트 개발·확인용으로 운영과 완전히 분리된 서버를 띄운다. (H2 인메모리 + data-local.sql 샘플 데이터)
+# - ./gradlew bootRun 전용이다. build.gradle의 bootRun 태스크가 이 프로필을 지정한다.
+# - 운영에서 이 프로필을 사용하지 않는다.
+# - ENC(...) 값은 쓰지 않는다. 모든 비밀값은 더미 평문이다.
+# - 외부 API URL은 전부 http://localhost:1 이다. 실수로 호출돼도 즉시 연결 거부로 끝난다.
+# - [주의] 로컬에서 푸시(/api/v2/push/**)·파일 업로드 API를 호출하지 않는다.
+#   FirebaseConfig가 클래스패스의 실제 서비스 계정 JSON을 읽기 때문에, 이 설정과 무관하게 실제 Firebase로 요청이 나간다.
+
+# 이 PC에서만 접속 가능하게 한다. JWT 서명 키가 공개 저장소에 있어 같은 네트워크의 누구나 관리자 토큰을 위조할 수 있기 때문이다
+server:
+  address: 127.0.0.1
+
+spring:
+  main:
+    # 여러 설정 클래스가 restTemplate·httpHeaders 빈을 중복 정의하므로 운영 설정과 동일하게 허용한다
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:h2:mem:daytune-local;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    # Hibernate가 테이블을 만든 뒤에 data-local.sql을 실행한다
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-local.sql
+      # 샘플 데이터에 한글이 있어 JVM 기본 문자셋과 무관하게 UTF-8로 읽는다
+      encoding: UTF-8
+
+logging:
+  config: classpath:logback-local.xml
+
+# SchedulerConfig(5분 주기 배치 → Suno API 호출)를 띄우지 않는다
+scheduling:
+  enabled: false
+
+security:
+  jwt:
+    secret-key: local-only-dummy-jwt-secret-key-for-hmac256-0123456789abcdef
+    password-suffix: local-dummy-suffix
+
+chatgpt:
+  model: local-dummy-model
+  secret-key: local-dummy-chatgpt-key
+  url: http://localhost:1/chatgpt
+
+sunoai:
+  url: http://localhost:1/suno
+  secret-key: local-dummy-suno-key
+
+kakao:
+  url: http://localhost:1/kakao
+
+apple:
+  auth:
+    url: http://localhost:1/apple
+  grant-type: authorization_code
+  client-id: local-dummy-client-id
+  key-id: local-dummy-key-id
+  team-id: local-dummy-team-id
+  audience: http://localhost:1/apple
+  private-key: local-dummy-private-key
+
+google:
+  url: http://localhost:1/google
+
+firebase:
+  bucket-name: local-dummy-bucket
+
+cloud:
+  aws:
+    credentials:
+      accessKey: local-dummy-access-key
+      secretKey: local-dummy-secret-key
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: local-dummy-bucket
+    cloudfront:
+      domain: localhost
+      key-pair-id: local-dummy-key-pair-id
+      private-key-file: local-dummy-private-key-file

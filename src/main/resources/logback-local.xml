@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  로컬 개발 서버(local 프로필, bootRun) 전용 로그 설정.
+  main의 logback-spring.xml은 EC2 절대경로(/home/ubuntu/app/logs)에 파일을 쓰므로 로컬에서는 콘솔에만 출력한다.
+-->
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- SQL 로그 소음 감소 -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
