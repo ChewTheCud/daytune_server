@@ -12,6 +12,7 @@ import com.eumakase.eumakase.exception.DiaryException;
 import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.PromptCategoryDetailRepository;
 import com.eumakase.eumakase.repository.PromptCategoryRepository;
+import com.eumakase.eumakase.util.enums.ExternalApiOperation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,7 @@ public class ChatGPTService {
     private final DiaryRepository diaryRepository;
     private final PromptCategoryRepository promptCategoryRepository;
     private final PromptCategoryDetailRepository promptCategoryDetailRepository;
+    private final ExternalApiUsageRecorder usageRecorder;
 
     @Value("${chatgpt.secret-key}")
     private String SECRET_KEY;
@@ -45,12 +47,14 @@ public class ChatGPTService {
                           ObjectMapper objectMapper,
                           DiaryRepository diaryRepository,
                           @Value("${chatgpt.model}") String model,
-                          @Value("${chatgpt.url}") String url, PromptCategoryRepository promptCategoryRepository, PromptCategoryDetailRepository promptCategoryDetailRepository) {
+                          @Value("${chatgpt.url}") String url, PromptCategoryRepository promptCategoryRepository, PromptCategoryDetailRepository promptCategoryDetailRepository,
+                          ExternalApiUsageRecorder usageRecorder) {
         this.chatGPTConfig = chatGPTConfig;
         this.objectMapper = objectMapper;
         this.diaryRepository = diaryRepository;
         this.promptCategoryRepository = promptCategoryRepository;
         this.promptCategoryDetailRepository = promptCategoryDetailRepository;
+        this.usageRecorder = usageRecorder;
         this.model = model;
         this.url = url;
     }
@@ -65,9 +69,9 @@ public class ChatGPTService {
     }
 
     /**
-     * 시스템 메시지 + 사용자 입력을 기반으로 GPT 응답 반환
+     * 시스템 메시지 + 사용자 입력을 기반으로 GPT 응답 반환 (호출 1건을 미터링 기록)
      */
-    private ChatGPTResponseDto callGPT(String systemMessage, String userPrompt) {
+    private ChatGPTResponseDto callGPT(ExternalApiOperation operation, String systemMessage, String userPrompt) {
         List<Message> messages = Arrays.asList(
                 new Message("system", systemMessage),
                 new Message("user", userPrompt)
@@ -82,21 +86,36 @@ public class ChatGPTService {
                 ChatGPTConfig.PRESENCE_PENALTY
         );
 
-        ResponseEntity<ChatGPTResponseDto> responseEntity = chatGPTConfig.restTemplate().exchange(
-                url,
-                HttpMethod.POST,
-                buildHttpEntity(request),
-                ChatGPTResponseDto.class
-        );
+        long start = System.nanoTime();
+        ResponseEntity<ChatGPTResponseDto> responseEntity;
+        try {
+            responseEntity = chatGPTConfig.restTemplate().exchange(
+                    url,
+                    HttpMethod.POST,
+                    buildHttpEntity(request),
+                    ChatGPTResponseDto.class
+            );
+        } catch (RuntimeException e) {
+            usageRecorder.record(operation, start, ExternalApiUsageRecorder.currentUserId(), null, null,
+                    model, null, null, ExternalApiUsageRecorder.errorCode(e));
+            throw e;
+        }
 
-        return responseEntity.getBody();
+        ChatGPTResponseDto body = responseEntity.getBody();
+        Usage usage = body != null ? body.getUsage() : null;
+        usageRecorder.record(operation, start, ExternalApiUsageRecorder.currentUserId(), null, null,
+                body != null && body.getModel() != null ? body.getModel() : model,
+                usage != null ? usage.getPromptTokens() : null,
+                usage != null ? usage.getCompletionTokens() : null,
+                null);
+        return body;
     }
 
     /**
      * 사용자 답변 기반 후속 질문 생성
      */
     public PromptResponseDto generateFollowUpQuestion(String promptRequestDto) {
-        ChatGPTResponseDto response = callGPT(PromptMessages.COUNSELOR_QUESTION, String.valueOf(promptRequestDto));
+        ChatGPTResponseDto response = callGPT(ExternalApiOperation.FOLLOW_UP_QUESTION, PromptMessages.COUNSELOR_QUESTION, String.valueOf(promptRequestDto));
         return new PromptResponseDto(response.getChoices().get(0).getMessage().getContent());
     }
 
@@ -127,7 +146,7 @@ public class ChatGPTService {
         String keywordList = String.join(", ", keywords);
         String counselorEmotionAnalysisSystemMessage = PromptMessages.generateEmotionMessage(keywordList);
 
-        ChatGPTResponseDto response = callGPT(counselorEmotionAnalysisSystemMessage, userPrompt.toString());
+        ChatGPTResponseDto response = callGPT(ExternalApiOperation.EMOTION_INSIGHT, counselorEmotionAnalysisSystemMessage, userPrompt.toString());
         String rawContent = response.getChoices().get(0).getMessage().getContent();
         try {
             return objectMapper.readValue(rawContent, EmotionInsightResponseDto.class);
@@ -146,7 +165,7 @@ public class ChatGPTService {
                         + "[일기 내용]\n" + diaryContent + "\n\n"
                         + "위 내용을 참고해 일기의 감정과 분위기를 잘 반영한 한국어 노래 가사를 만들어주세요.";
 
-        ChatGPTResponseDto response = callGPT(systemMessage, userPrompt);
+        ChatGPTResponseDto response = callGPT(ExternalApiOperation.LYRICS_GENERATE, systemMessage, userPrompt);
         return response.getChoices().get(0).getMessage().getContent();
     }
 

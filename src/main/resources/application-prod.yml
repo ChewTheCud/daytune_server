@@ -78,3 +78,14 @@ cloud:
       domain: cdn.chewthecud.site
       key-pair-id: ENC(VnG9qeHZS28J1CWh0MNHo01IDuSPFRM6dHSa8dqF3pYKO8AEpKLf3qkZ/Lm6gFrr)
       private-key-file: ENC(kPGYKIzKFMfJosFQ5P1mWOr3jxHQKRFDFH/GyaoTREbzoY1iMiIrEA==)
+
+# 관리자 기능
+# - bootstrap: 기동 시 이 이메일의 ROLE_ADMIN 유저가 없으면 생성한다. 기존 행은 수정하지 않는다
+#   공개 저장소이므로 평문 비밀번호를 두지 않는다. BCrypt 해시만 둔다
+# - cors.allowed-origins: 관리자 프론트 도메인 확정 후 입력한다 (와일드카드 금지). 비어 있으면 교차 출처 요청 전부 거부
+admin:
+  bootstrap:
+    email: chewthecud2023@gmail.com
+    password-hash: "$2y$12$0f6DvgwdqBE1ESGA39b70OCC/p1kz2JGulerIS/fBRR7SFAgmf92i"
+  cors:
+    allowed-origins: []

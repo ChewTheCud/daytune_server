@@ -5,6 +5,7 @@ import com.eumakase.eumakase.domain.FCMToken;
 import com.eumakase.eumakase.domain.User;
 import com.eumakase.eumakase.repository.FCMTokenRepository;
 import com.eumakase.eumakase.repository.UserRepository;
+import com.eumakase.eumakase.util.enums.ExternalApiOperation;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -21,12 +22,15 @@ public class FCMService {
     private final FCMTokenRepository fcmTokenRepository;
 
     private final UserRepository userRepository;
+    private final ExternalApiUsageRecorder usageRecorder;
 
-    public FCMService(FirebaseConfig firebaseConfig, FirebaseMessaging firebaseMessaging, FCMTokenRepository fcmTokenRepository, UserRepository userRepository) {
+    public FCMService(FirebaseConfig firebaseConfig, FirebaseMessaging firebaseMessaging, FCMTokenRepository fcmTokenRepository, UserRepository userRepository,
+                      ExternalApiUsageRecorder usageRecorder) {
         this.firebaseConfig = firebaseConfig;
         this.firebaseMessaging = firebaseMessaging;
         this.fcmTokenRepository = fcmTokenRepository;
         this.userRepository = userRepository;
+        this.usageRecorder = usageRecorder;
     }
 
     public void sendPushNotification(String title, String message, String fcmToken) throws FirebaseMessagingException {
@@ -38,7 +42,14 @@ public class FCMService {
                         .build())
                 .setToken(fcmToken) // FCM 토큰 사용
                 .build();
-        firebaseMessaging.send(fcmMessage);
+        long start = System.nanoTime();
+        try {
+            firebaseMessaging.send(fcmMessage);
+        } catch (FirebaseMessagingException | RuntimeException e) {
+            usageRecorder.failure(ExternalApiOperation.PUSH_SEND, start, e);
+            throw e;
+        }
+        usageRecorder.success(ExternalApiOperation.PUSH_SEND, start);
     }
 
     // FCM 토큰 저장 또는 업데이트
