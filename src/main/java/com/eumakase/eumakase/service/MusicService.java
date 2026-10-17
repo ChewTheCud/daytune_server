@@ -515,8 +515,8 @@ public class MusicService {
         Music selectedMusic = musicRepository.findById(musicId)
                 .orElseThrow(() -> new IllegalArgumentException("Music not found with id: " + musicId));
 
-        // 이미 선택된 음악인지 확인 (이미 선택된 음악일 경우 fileUrl이 https://cdn1.suno.ai/~ -> https://storage.googleapis.com/~ 로 변경되어있음)
-        if (selectedMusic.getFileUrl() != null && selectedMusic.getFileUrl().startsWith("https://storage.googleapis.com/")) {
+        // 선택 완료된 곡은 file_url이 Firebase Storage 주소로 바뀌어 있다
+        if (isAlreadyStoredInFirebase(selectedMusic.getFileUrl())) {
             throw new MusicException("이미 선택된 음악입니다.");
         }
 
@@ -556,6 +556,11 @@ public class MusicService {
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드 중 오류가 발생했습니다.", e);
         }
+    }
+
+    private static boolean isAlreadyStoredInFirebase(String fileUrl) {
+        return fileUrl != null && (fileUrl.startsWith("https://storage.googleapis.com/")
+                || fileUrl.startsWith("https://firebasestorage.googleapis.com/"));
     }
 
     /**

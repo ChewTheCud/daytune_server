@@ -104,27 +104,43 @@ public class DiaryService {
         List<DiaryQuestionAnswer> answers = diaryQuestionAnswerRepository.findByDiaryId(diaryId);
         List<DiaryEmotionInsight> emotions = diaryEmotionInsightRepository.findByDiaryId(diaryId);
         List<Music> musics = musicRepository.findByDiaryId(diaryId);
-        // [DEBUG] Music 리스트 사이즈 및 첫 번째 Music 정보 출력
-        log.debug("🎵 musics.size() = {}", musics.size());
-        if (!musics.isEmpty()) {
-            log.debug("🎵 musics.get(0).getId() = {}", musics.get(0).getId());
-            log.debug("🎵 musics.get(0).getFileUrl() = '{}'", musics.get(0).getFileUrl());
-        }
-
-// 조건 분리
-        boolean isEmpty = musics.isEmpty();
-        boolean isNull = !isEmpty && musics.get(0).getFileUrl() == null;
-        boolean isInvalid = !isEmpty && musics.get(0).getFileUrl() != null &&
-                !musics.get(0).getFileUrl().startsWith("https://cdn1.suno.ai");
-
-        log.info("isEmpty={}, isNull={}, isInvalid={}", isEmpty, isNull, isInvalid);
-
-        String musicUrl = (isEmpty || isNull || isInvalid) ? null : musics.get(0).getFileUrl();
-
-        log.info("🎶 최종 musicUrl = '{}'", musicUrl);
+        String musicUrl = resolveMusicUrl(musics);
+        log.info("diaryId={}, musicCount={}, musicUrl='{}'", diaryId, musics.size(), musicUrl);
         boolean musicStatus = diary.isMusicStatus();
 
         return DiaryReadResponseDto.of(diary, musicStatus, musicUrl, answers, emotions);
+    }
+
+    /**
+     * 일기 응답에 넣을 재생 주소. 선택된 Firebase 파일을 우선하고, 없으면 비어 있지 않은 file_url을 쓴다.
+     */
+    static String resolveMusicUrl(List<Music> musics) {
+        if (musics == null || musics.isEmpty()) {
+            return null;
+        }
+        String playable = null;
+        for (Music music : musics) {
+            String fileUrl = music == null ? null : music.getFileUrl();
+            if (!isPlayable(fileUrl)) {
+                continue;
+            }
+            if (isFirebaseStorage(fileUrl)) {
+                return fileUrl;
+            }
+            if (playable == null) {
+                playable = fileUrl;
+            }
+        }
+        return playable;
+    }
+
+    private static boolean isPlayable(String fileUrl) {
+        return fileUrl != null && (fileUrl.startsWith("https://") || fileUrl.startsWith("http://"));
+    }
+
+    private static boolean isFirebaseStorage(String fileUrl) {
+        return fileUrl.startsWith("https://storage.googleapis.com/")
+                || fileUrl.startsWith("https://firebasestorage.googleapis.com/");
     }
 
     /**

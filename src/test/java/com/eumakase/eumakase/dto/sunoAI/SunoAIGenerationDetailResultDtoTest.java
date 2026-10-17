@@ -20,6 +20,7 @@ class SunoAIGenerationDetailResultDtoTest {
                   "data": {
                     "taskId": "5c79be8e",
                     "status": "SUCCESS",
+                    "createTime": "2025-01-01 00:00:00",
                     "response": {
                       "taskId": "5c79be8e",
                       "sunoData": [

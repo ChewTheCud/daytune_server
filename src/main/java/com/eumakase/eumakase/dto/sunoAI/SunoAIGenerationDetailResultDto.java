@@ -14,6 +14,7 @@ public class SunoAIGenerationDetailResultDto {
     private DataNode data;
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DataNode {
         @JsonProperty("taskId")
         private String taskId;
@@ -31,7 +32,6 @@ public class SunoAIGenerationDetailResultDto {
         private String operationType;
         private String errorCode;
         private String errorMessage;
-        private long createTime;
     }
 
     @Data
