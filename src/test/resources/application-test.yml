@@ -1,0 +1,71 @@
+# 테스트 프로필 설정
+# - DB는 H2 인메모리(MySQL 모드)만 사용한다. 운영 DB 접속 정보를 두지 않는다.
+# - ENC(...) 값은 쓰지 않는다. 모든 비밀값은 더미 평문이다.
+# - 외부 API URL은 전부 http://localhost:1 이다. 실수로 호출돼도 즉시 연결 거부로 끝난다.
+spring:
+  main:
+    # 여러 설정 클래스가 restTemplate·httpHeaders 빈을 중복 정의하므로 운영 설정과 동일하게 허용한다
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:h2:mem:daytune;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;NON_KEYWORDS=USER
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+# SchedulerConfig(5분 주기 배치 → Suno API 호출)를 띄우지 않는다
+scheduling:
+  enabled: false
+
+security:
+  jwt:
+    secret-key: test-only-dummy-jwt-secret-key-for-hmac256-0123456789abcdef
+    password-suffix: test-dummy-suffix
+
+chatgpt:
+  model: test-dummy-model
+  secret-key: test-dummy-chatgpt-key
+  url: http://localhost:1/chatgpt
+
+sunoai:
+  url: http://localhost:1/suno
+  secret-key: test-dummy-suno-key
+
+kakao:
+  url: http://localhost:1/kakao
+
+apple:
+  auth:
+    url: http://localhost:1/apple
+  grant-type: authorization_code
+  client-id: test-dummy-client-id
+  key-id: test-dummy-key-id
+  team-id: test-dummy-team-id
+  audience: http://localhost:1/apple
+  private-key: test-dummy-private-key
+
+google:
+  url: http://localhost:1/google
+
+firebase:
+  bucket-name: test-dummy-bucket
+
+cloud:
+  aws:
+    credentials:
+      accessKey: test-dummy-access-key
+      secretKey: test-dummy-secret-key
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    s3:
+      bucket: test-dummy-bucket
+    cloudfront:
+      domain: localhost
+      key-pair-id: test-dummy-key-pair-id
+      private-key-file: test-dummy-private-key-file

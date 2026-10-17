@@ -1,0 +1,8 @@
+# 테스트 전용 application.yml
+# 테스트 클래스패스에서는 src/test/resources가 src/main/resources보다 앞에 오므로,
+# 같은 이름의 이 파일이 main의 application.yml(spring.profiles.active: prod)을 가린다.
+# 그래서 Gradle·IDE 어느 쪽에서 실행해도 prod 설정(운영 DB, ENC 비밀값)이 로드되지 않는다.
+# 이 파일을 지우거나 이름을 바꾸면 테스트가 운영 DB에 접속하므로 주의한다.
+spring:
+  profiles:
+    active: test
