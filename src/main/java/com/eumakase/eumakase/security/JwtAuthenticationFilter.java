@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * 모든 HTTP 요청에서 JWT를 추출하고 디코딩하여 UserPrincipalAuthenticationToken으로 변환한 후, Spring Security의 SecurityContextHolder에 설정.
  * 이를 통해 각 요청에 대한 사용자 정보를 Spring Security에서 활용할 수 있도록 함.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,19 +30,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // HTTP 요청에 대한 JWT 인증 필터
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // try 범위는 토큰 처리까지만 둔다. 하위 체인(컨트롤러)의 예외까지 잡으면 서버 오류(500)가 401로 바뀐다
         try {
             extractTokenFromRequest(request) // 요청으로부터 JWT 추출
                     .map(jwtDecoder::decode) // JWT 디코드
                     .map(jwtToPrincipalConverter::convert) // 디코드된 JWT를 UserPrincipal 객체로 변환
                     .map(UserPrincipalAuthenticationToken::new) // UserPrincipal 객체를 사용하여 인증 토큰 생성
                     .ifPresent(authentication -> SecurityContextHolder.getContext().setAuthentication(authentication)); // 생성된 인증 토큰을 보안 컨텍스트에 설정
-
-            filterChain.doFilter(request, response); // 다음 필터로 요청과 응답 전달
         } catch (Exception ex) {
-            // Spring Security에 예외 처리를 위임 (AuthenticationEntryPoint로 처리)
+            // 토큰 만료·위조: 토큰이 없을 때(entry point)와 같은 401 본문으로 응답하고 체인을 중단한다. 원인은 로그에만 남긴다
             SecurityContextHolder.clearContext();
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
+            log.warn("JWT 인증 실패: {} - {}", ex.getClass().getSimpleName(), ex.getMessage());
+            UnauthorizedHandler.writeUnauthorized(response);
+            return;
         }
+
+        filterChain.doFilter(request, response); // 다음 필터로 요청과 응답 전달
     }
 
     // HTTP 요청 헤더로부터 JWT 추출

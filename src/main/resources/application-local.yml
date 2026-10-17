@@ -90,3 +90,12 @@ cloud:
       domain: localhost
       key-pair-id: local-dummy-key-pair-id
       private-key-file: local-dummy-private-key-file
+
+# 관리자 기능: 로컬 관리자는 data-local.sql의 id 1 (chewthecud2023@gmail.com, 비밀번호는 운영과 동일·별도 전달). 부트스트랩은 쓰지 않는다
+admin:
+  bootstrap:
+    email:
+    password-hash:
+  cors:
+    allowed-origins:
+      - http://localhost:5173

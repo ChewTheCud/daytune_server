@@ -3,6 +3,7 @@ package com.eumakase.eumakase.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.eumakase.eumakase.util.enums.ExternalApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ import java.io.*;
 public class S3Service {
     @Autowired
     private AmazonS3 amazonS3;
+
+    @Autowired
+    private ExternalApiUsageRecorder usageRecorder;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -40,7 +44,7 @@ public class S3Service {
             metadata.setContentType("audio/mpeg");
 
             // S3에 파일 업로드
-            amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
+            putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
         } catch (Exception e) {
             // 업로드 중 예외 발생 시 RuntimeException 발생
             throw new RuntimeException(e.getMessage());
@@ -67,10 +71,24 @@ public class S3Service {
         metadata.setContentType(contentType);
 
         // S3에 파일 업로드
-        amazonS3.putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
+        putObject(new PutObjectRequest(bucketName, fileName, inputStream, metadata));
 
         // 업로드된 파일의 CloudFront URL 반환
         return "https://" + cloudFrontDomain + "/" + fileName;
+    }
+
+    /**
+     * S3 업로드 호출 1건을 미터링 기록
+     */
+    private void putObject(PutObjectRequest request) {
+        long start = System.nanoTime();
+        try {
+            amazonS3.putObject(request);
+        } catch (RuntimeException e) {
+            usageRecorder.failure(ExternalApiOperation.S3_UPLOAD, start, e);
+            throw e;
+        }
+        usageRecorder.success(ExternalApiOperation.S3_UPLOAD, start);
     }
 
 //    /**

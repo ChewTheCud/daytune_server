@@ -4,6 +4,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.eumakase.eumakase.util.enums.ExternalApiOperation;
 import com.google.firebase.cloud.StorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,24 @@ public class FirebaseService {
 
     private static final Logger log = LoggerFactory.getLogger(FirebaseService.class);
 
+    private final ExternalApiUsageRecorder usageRecorder;
+
+    public FirebaseService(ExternalApiUsageRecorder usageRecorder) {
+        this.usageRecorder = usageRecorder;
+    }
+
     public String uploadFile(MultipartFile file) throws Exception {
         String fileName = "music/" + System.currentTimeMillis() + "_" + file.getOriginalFilename(); // 저장될 파일 이름 (경로 포함)
 
         // 파일 업로드
-        StorageClient.getInstance().bucket().create(fileName, file.getInputStream(), file.getContentType());
+        long start = System.nanoTime();
+        try {
+            StorageClient.getInstance().bucket().create(fileName, file.getInputStream(), file.getContentType());
+        } catch (Exception e) {
+            usageRecorder.failure(ExternalApiOperation.STORAGE_UPLOAD, start, e);
+            throw e;
+        }
+        usageRecorder.success(ExternalApiOperation.STORAGE_UPLOAD, start);
 
         // 업로드된 파일의 다운로드 URL 반환
         return String.format("https://storage.googleapis.com/%s/%s", bucketName, fileName);
@@ -69,16 +83,22 @@ public class FirebaseService {
      * @return 업로드된 파일의 Firebase Storage URL
      */
     public String uploadFileToFirebaseStorage(File file, String diaryId) {
+        long start = System.nanoTime();
         try {
             // Firebase Storage에 파일을 업로드
             Bucket bucket = StorageClient.getInstance().bucket();
             String blobName = "music/diaryId_" + diaryId + ".mp3"; // 파일명
             Blob blob = bucket.create(blobName, new FileInputStream(file), "audio/mpeg");
+            usageRecorder.success(ExternalApiOperation.STORAGE_UPLOAD, start);
 
             // Firebase Storage URL을 반환
             return blob.getMediaLink();
         } catch (IOException e) {
+            usageRecorder.failure(ExternalApiOperation.STORAGE_UPLOAD, start, e);
             throw new RuntimeException("Firebase Storage에 파일 업로드 중 오류가 발생했습니다.", e);
+        } catch (RuntimeException e) {
+            usageRecorder.failure(ExternalApiOperation.STORAGE_UPLOAD, start, e);
+            throw e;
         }
     }
 }
