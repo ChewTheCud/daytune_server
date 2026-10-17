@@ -1,5 +1,6 @@
 package com.eumakase.eumakase.service;
 
+import com.eumakase.eumakase.common.constant.SunoPricing;
 import com.eumakase.eumakase.config.SunoAIConfig;
 import com.eumakase.eumakase.domain.Diary;
 import com.eumakase.eumakase.domain.Music;
@@ -30,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,11 +50,19 @@ public class MusicService {
     private final FirebaseService firebaseService;
     private final FCMService fcmService;
     private final ExternalApiUsageRecorder usageRecorder;
+    private final SunoCreditClient sunoCreditClient;
 
     @Value("${sunoai.secret-key}")
     private String SECRET_KEY;
 
-    public MusicService(RestTemplate restTemplate, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService, ExternalApiUsageRecorder usageRecorder) {
+    // 미터링 비용 추정용. 생성 1회당 크레딧 수가 비어 있으면 비용을 기록하지 않는다
+    @Value("${metering.suno.credits-per-generate:#{null}}")
+    private Integer creditsPerGenerate;
+
+    @Value("${metering.suno.usd-per-credit:0.005}")
+    private BigDecimal usdPerCredit;
+
+    public MusicService(RestTemplate restTemplate, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService, ExternalApiUsageRecorder usageRecorder, SunoCreditClient sunoCreditClient) {
         this.restTemplate = restTemplate;
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
@@ -63,6 +73,7 @@ public class MusicService {
         this.firebaseService = firebaseService;
         this.fcmService = fcmService;
         this.usageRecorder = usageRecorder;
+        this.sunoCreditClient = sunoCreditClient;
     }
 
     /**
@@ -140,6 +151,9 @@ public class MusicService {
 
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
+            // 비용 실측용 생성 전 잔여 크레딧 (실패하면 null, 호출 지연에 포함하지 않으려고 start 전에 조회)
+            Long creditBefore = sunoCreditClient.fetchBalance();
+
             // SunoAIGenerationResultDto로 응답 매핑
             long start = System.nanoTime();
             ResponseEntity<SunoAIGenerationResultDto> response;
@@ -151,11 +165,11 @@ public class MusicService {
                         SunoAIGenerationResultDto.class
                 );
             } catch (RuntimeException e) {
-                recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, ExternalApiUsageRecorder.errorCode(e));
+                recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, creditBefore, ExternalApiUsageRecorder.errorCode(e));
                 throw e;
             }
             SunoAIGenerationResultDto generateBody = response.getBody();
-            recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, sunoErrorCode(
+            recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, creditBefore, sunoErrorCode(
                     response.getStatusCode().value(), generateBody != null, generateBody != null ? generateBody.getCode() : 0));
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
@@ -186,9 +200,19 @@ public class MusicService {
     /**
      * 음악 생성 호출 미터링 기록. errorCode가 null이면 성공
      */
-    private void recordMusicGenerate(long start, Long userId, Long diaryId, SunoAIRequestDto request, String errorCode) {
-        usageRecorder.record(ExternalApiOperation.MUSIC_GENERATE, start, userId, ExternalApiRefType.DIARY, diaryId,
-                request.getModel(), null, null, errorCode);
+    private void recordMusicGenerate(long start, Long userId, Long diaryId, SunoAIRequestDto request,
+                                     Long creditBefore, String errorCode) {
+        long elapsedNanos = System.nanoTime() - start;
+        Long credits = null;
+        if (errorCode == null) {
+            // 소모 크레딧 = 생성 전후 잔여 크레딧 차이 (근사: 동시 생성이 겹치면 다른 요청의 소모분이 섞인다).
+            // 조회 실패·차이가 0 이하이면 설정값으로 대체한다
+            credits = SunoPricing.resolveCredits(creditBefore, sunoCreditClient.fetchBalance(), creditsPerGenerate);
+        }
+        // 크레딧 조회 시간이 호출 지연(latency)에 섞이지 않게 start를 보정한다
+        long adjustedStart = System.nanoTime() - elapsedNanos;
+        usageRecorder.recordCredit(ExternalApiOperation.MUSIC_GENERATE, adjustedStart, userId, ExternalApiRefType.DIARY, diaryId,
+                request.getModel(), credits, SunoPricing.estimate(credits, usdPerCredit), errorCode);
     }
 
     /**

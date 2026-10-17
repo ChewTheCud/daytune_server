@@ -42,7 +42,7 @@ SELECT u.x + 1,
 FROM (SELECT x, DATEADD('HOUR', -MOD(x * 5, 24), DATEADD('DAY', -MOD(x * 7, 30), LOCALTIMESTAMP)) AS signup
       FROM SYSTEM_RANGE(1, 20) r(x)) u;
 
--- 일기 60개 (id 1~60)
+-- 일기 60개 (id 1~60). 작성 시각은 하루 24시간에 분산(히트맵 샘플)
 -- 작성자: 유저 n = 1 + MOD(x-1, 20) (id n+1), 작성일: 해당 유저 가입일 이후 0~29일 전
 -- MOD(x, 4) <> 0 인 일기(45개)는 음악 생성 완료(music_status = TRUE), 나머지 15개는 미완료
 INSERT INTO diary (id, user_id, prompt_category_id, content, summary, prompt, music_status, created_date, updated_date)
@@ -53,8 +53,8 @@ SELECT d.x,
        CONCAT('샘플 요약 ', d.x),
        CONCAT('sample diary prompt ', d.x),
        MOD(d.x, 4) <> 0,
-       DATEADD('HOUR', -MOD(d.x * 5, 12), DATEADD('DAY', -MOD(d.x * 11, MOD(d.n * 7, 30) + 1), LOCALTIMESTAMP)),
-       DATEADD('HOUR', -MOD(d.x * 5, 12), DATEADD('DAY', -MOD(d.x * 11, MOD(d.n * 7, 30) + 1), LOCALTIMESTAMP))
+       DATEADD('HOUR', -MOD(d.x * 7, 24), DATEADD('DAY', -MOD(d.x * 11, MOD(d.n * 7, 30) + 1), LOCALTIMESTAMP)),
+       DATEADD('HOUR', -MOD(d.x * 7, 24), DATEADD('DAY', -MOD(d.x * 11, MOD(d.n * 7, 30) + 1), LOCALTIMESTAMP))
 FROM (SELECT x, 1 + MOD(x - 1, 20) AS n FROM SYSTEM_RANGE(1, 60) s(x)) d;
 
 -- 일기 질문·답변: MOD(x, 5) <> 0 인 일기(48개) × 3문항
@@ -121,6 +121,7 @@ WHERE u.role = 'ROLE_USER' AND MOD(u.id - 1, 2) = 0;
 --   4 MUSIC_STATUS_POLL, 5 S3_UPLOAD, 6 STORAGE_UPLOAD, 7 PUSH_SEND
 -- - MOD(x, 17) = 0 이면 실패 (약 6%). 실패 행은 토큰·비용 없음
 -- - 상태 조회·푸시는 배치 경로라 user_id 없음. 음악 생성은 DIARY 참조
+-- - MUSIC_GENERATE 성공 행은 샘플로 10크레딧 × $0.005 = $0.05 (실제 생성당 크레딧 수는 미확인, 운영은 설정값 사용)
 -- - OpenAI 성공 행 비용 = 입력 × $10/1M + 출력 × $30/1M (gpt-4-turbo-2024-04-09 단가, OpenAiPricing과 동일)
 INSERT INTO external_api_usage (provider, operation, model, user_id, ref_type, ref_id, success, error_code, latency_ms,
                                 units_in, units_out, unit_type, estimated_cost_usd, created_date, updated_date)
@@ -142,9 +143,10 @@ SELECT CASE WHEN g.op <= 2 THEN 'OPENAI' WHEN g.op <= 4 THEN 'SUNO' WHEN g.op = 
             WHEN g.op = 4 THEN 200 + MOD(g.x * 29, 600)
             ELSE 100 + MOD(g.x * 31, 400) END,
        CASE WHEN g.op <= 2 AND g.ok THEN g.tin ELSE NULL END,
-       CASE WHEN g.op <= 2 AND g.ok THEN g.tout ELSE NULL END,
-       CASE WHEN g.op <= 2 AND g.ok THEN 'TOKEN' ELSE NULL END,
-       CASE WHEN g.op <= 2 AND g.ok THEN CAST((g.tin * 10 + g.tout * 30) / 1000000.0 AS DECIMAL(12, 6)) ELSE NULL END,
+       CASE WHEN g.op <= 2 AND g.ok THEN g.tout WHEN g.op = 3 AND g.ok THEN 10 ELSE NULL END,
+       CASE WHEN g.op <= 2 AND g.ok THEN 'TOKEN' WHEN g.op = 3 AND g.ok THEN 'CREDIT' ELSE NULL END,
+       CASE WHEN g.op <= 2 AND g.ok THEN CAST((g.tin * 10 + g.tout * 30) / 1000000.0 AS DECIMAL(12, 6))
+            WHEN g.op = 3 AND g.ok THEN 0.05 ELSE NULL END,
        g.at, g.at
 FROM (SELECT x,
              MOD(x, 8) AS op,

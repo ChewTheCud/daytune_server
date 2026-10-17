@@ -37,4 +37,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
             + " where u.createdDate >= :from and u.createdDate < :to"
             + " group by cast(u.createdDate as LocalDate)")
     List<Object[]> countDailySignups(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 가입 코호트 퍼널 [from, to): 코호트 중 일기 / 음악 / 공유 URL을 1개 이상 가진 유저 수 (작성 시점 무관)
+    @Query("select count(u) from User u where u.createdDate >= :from and u.createdDate < :to"
+            + " and exists (select 1 from Diary d where d.user.id = u.id)")
+    long countCohortWithDiary(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("select count(u) from User u where u.createdDate >= :from and u.createdDate < :to"
+            + " and exists (select 1 from Music m where m.diary.user.id = u.id)")
+    long countCohortWithMusic(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("select count(u) from User u where u.createdDate >= :from and u.createdDate < :to"
+            + " and exists (select 1 from ShareUrl s where s.music.diary.user.id = u.id)")
+    long countCohortWithShare(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    // 상세 목록용 가입 건수 [from, to)
+    long countByCreatedDateGreaterThanEqualAndCreatedDateLessThan(LocalDateTime from, LocalDateTime to);
+
+    // 상세 목록용 가입 유저 페이지 (정렬은 Pageable)
+    Page<User> findByCreatedDateGreaterThanEqualAndCreatedDateLessThan(LocalDateTime from, LocalDateTime to, Pageable pageable);
 }

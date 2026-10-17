@@ -120,4 +120,32 @@ class ExternalApiUsageRecorderTest {
         assertThat(ExternalApiUsageRecorder.errorCode(new IllegalStateException("x"))).isEqualTo("IllegalStateException");
         assertThat(ExternalApiUsageRecorder.errorCode(null)).isEqualTo("UNKNOWN");
     }
+
+    @Test
+    void Suno_성공은_크레딧과_추정_비용을_기록한다() {
+        recorder.recordCredit(ExternalApiOperation.MUSIC_GENERATE, System.nanoTime(), 7L, ExternalApiRefType.DIARY, 3L,
+                "V4_5", 10L, new BigDecimal("0.05"), null);
+
+        ExternalApiUsage usage = saved();
+        assertThat(usage.getUnitsOut()).isEqualTo(10L);
+        assertThat(usage.getUnitType()).isEqualTo("CREDIT");
+        assertThat(usage.getEstimatedCostUsd()).isEqualByComparingTo("0.05");
+    }
+
+    @Test
+    void Suno_크레딧_설정이_없거나_실패면_비용과_단위를_기록하지_않는다() {
+        recorder.recordCredit(ExternalApiOperation.MUSIC_GENERATE, System.nanoTime(), 7L, ExternalApiRefType.DIARY, 3L,
+                "V4_5", null, null, null);
+        recorder.recordCredit(ExternalApiOperation.MUSIC_GENERATE, System.nanoTime(), 7L, ExternalApiRefType.DIARY, 3L,
+                "V4_5", 10L, new BigDecimal("0.05"), "HTTP_500");
+
+        ArgumentCaptor<ExternalApiUsage> captor = ArgumentCaptor.forClass(ExternalApiUsage.class);
+        verify(repository, times(2)).save(captor.capture());
+        captor.getAllValues().forEach(usage -> {
+            assertThat(usage.getUnitType()).isNull();
+            assertThat(usage.getUnitsOut()).isNull();
+            assertThat(usage.getEstimatedCostUsd()).isNull();
+        });
+        assertThat(captor.getAllValues().get(1).isSuccess()).isFalse();
+    }
 }

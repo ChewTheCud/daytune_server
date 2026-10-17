@@ -106,9 +106,13 @@ public class AdminUserService {
         for (ExternalApiProvider provider : ExternalApiProvider.values()) {
             Object[] row = byProvider.get(provider);
             long calls = row == null ? 0 : ((Number) row[1]).longValue();
-            BigDecimal cost = null;
-            if (provider == ExternalApiProvider.OPENAI) {
-                cost = (row == null || row[2] == null ? BigDecimal.ZERO : (BigDecimal) row[2]).setScale(6, RoundingMode.HALF_UP);
+            // OPENAI는 비용이 없으면 0, 나머지는 비용이 기록된 경우(SUNO)만 값
+            BigDecimal cost = row == null || row[2] == null ? null : (BigDecimal) row[2];
+            if (cost == null && provider == ExternalApiProvider.OPENAI) {
+                cost = BigDecimal.ZERO;
+            }
+            if (cost != null) {
+                cost = cost.setScale(6, RoundingMode.HALF_UP);
             }
             costs.add(new AdminUserDetailResponseDto.ProviderCost(provider, calls, cost));
         }
