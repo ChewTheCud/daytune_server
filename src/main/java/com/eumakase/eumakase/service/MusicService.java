@@ -13,6 +13,8 @@ import com.eumakase.eumakase.repository.DiaryRepository;
 import com.eumakase.eumakase.repository.MusicRepository;
 import com.eumakase.eumakase.repository.ShareUrlRepository;
 import com.eumakase.eumakase.util.FileUtil;
+import com.eumakase.eumakase.util.enums.ExternalApiOperation;
+import com.eumakase.eumakase.util.enums.ExternalApiRefType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +47,12 @@ public class MusicService {
     private final S3Service s3Service;
     private final FirebaseService firebaseService;
     private final FCMService fcmService;
+    private final ExternalApiUsageRecorder usageRecorder;
 
     @Value("${sunoai.secret-key}")
     private String SECRET_KEY;
 
-    public MusicService(RestTemplate restTemplate, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService) {
+    public MusicService(RestTemplate restTemplate, SunoAIConfig sunoAIConfig, SunoAIConfig.SunoAIProperties sunoAIProperties, MusicRepository musicRepository, DiaryRepository diaryRepository, ShareUrlRepository shareUrlRepository, S3Service s3Service, FirebaseService firebaseService, FCMService fcmService, ExternalApiUsageRecorder usageRecorder) {
         this.restTemplate = restTemplate;
         this.sunoAIConfig = sunoAIConfig;
         this.sunoAIProperties = sunoAIProperties;
@@ -59,6 +62,7 @@ public class MusicService {
         this.s3Service = s3Service;
         this.firebaseService = firebaseService;
         this.fcmService = fcmService;
+        this.usageRecorder = usageRecorder;
     }
 
     /**
@@ -86,7 +90,9 @@ public class MusicService {
         // 3. SunoAI로부터 단일 taskId 획득
         String taskId;
         try {
-            taskId = generateSunoAIMusic(sunoAIRequestDto);
+            // 생성은 배치 경로로 이어지므로 유저·일기 식별자를 요청 시점에 넘겨 기록한다
+            Long userId = diary.getUser() != null ? diary.getUser().getId() : null;
+            taskId = generateSunoAIMusic(sunoAIRequestDto, userId, diary.getId());
         } catch (Exception e) {
             log.error("SunoAI 음악 생성 중 오류가 발생했습니다: {}", e.getMessage(), e);
             throw new RuntimeException("SunoAI 음악 생성 실패: " + e.getMessage(), e);
@@ -112,10 +118,12 @@ public class MusicService {
     /**
      * SunoAI 음악 생성
      * @param sunoAIRequestDto SunoAI 음악 생성 요청 DTO
+     * @param userId 미터링 기록용 요청 유저 ID
+     * @param diaryId 미터링 기록용 일기 ID
      * @return 생성된 음악 ID 목록
      * @throws Exception 예외 발생 시
      */
-    public String generateSunoAIMusic(SunoAIRequestDto sunoAIRequestDto) throws Exception {
+    public String generateSunoAIMusic(SunoAIRequestDto sunoAIRequestDto, Long userId, Long diaryId) throws Exception {
         String uri = sunoAIProperties.getUrl() + "/api/v1/generate";
 
         HttpHeaders headers = sunoAIConfig.httpHeaders(sunoAIProperties);
@@ -133,12 +141,22 @@ public class MusicService {
             HttpEntity<SunoAIRequestDto> requestEntity = new HttpEntity<>(sunoAIRequestDto, headers);
 
             // SunoAIGenerationResultDto로 응답 매핑
-            ResponseEntity<SunoAIGenerationResultDto> response = restTemplate.exchange(
-                    uri,
-                    HttpMethod.POST,
-                    requestEntity,
-                    SunoAIGenerationResultDto.class
-            );
+            long start = System.nanoTime();
+            ResponseEntity<SunoAIGenerationResultDto> response;
+            try {
+                response = restTemplate.exchange(
+                        uri,
+                        HttpMethod.POST,
+                        requestEntity,
+                        SunoAIGenerationResultDto.class
+                );
+            } catch (RuntimeException e) {
+                recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, ExternalApiUsageRecorder.errorCode(e));
+                throw e;
+            }
+            SunoAIGenerationResultDto generateBody = response.getBody();
+            recordMusicGenerate(start, userId, diaryId, sunoAIRequestDto, sunoErrorCode(
+                    response.getStatusCode().value(), generateBody != null, generateBody != null ? generateBody.getCode() : 0));
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new Exception("Suno AI 생성 API 호출 실패. HTTP 상태: " + response.getStatusCode());
@@ -166,6 +184,30 @@ public class MusicService {
     }
 
     /**
+     * 음악 생성 호출 미터링 기록. errorCode가 null이면 성공
+     */
+    private void recordMusicGenerate(long start, Long userId, Long diaryId, SunoAIRequestDto request, String errorCode) {
+        usageRecorder.record(ExternalApiOperation.MUSIC_GENERATE, start, userId, ExternalApiRefType.DIARY, diaryId,
+                request.getModel(), null, null, errorCode);
+    }
+
+    /**
+     * Suno 응답 → 미터링 error_code. 정상(2xx + 응답 code 200)이면 null
+     */
+    private static String sunoErrorCode(int httpStatus, boolean hasBody, int bodyCode) {
+        if (httpStatus < 200 || httpStatus >= 300) {
+            return "HTTP_" + httpStatus;
+        }
+        if (!hasBody) {
+            return "SUNO_EMPTY_BODY";
+        }
+        if (bodyCode != 200) {
+            return "SUNO_" + bodyCode;
+        }
+        return null;
+    }
+
+    /**
      * Suno AI 음악 생성 세부 정보 조회 (GET /api/v2/generate/record-info)
      * @param taskId Suno AI에서 생성된 taskId
      * @return 상태가 "SUCCESS" 또는 "complete"인 트랙들의 ID와 audio_url을 담은 리스트
@@ -187,12 +229,28 @@ public class MusicService {
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
 
-            ResponseEntity<SunoAIGenerationDetailResultDto> response = restTemplate.exchange(
-                    uri,
-                    HttpMethod.GET,
-                    requestEntity,
-                    SunoAIGenerationDetailResultDto.class
-            );
+            long start = System.nanoTime();
+            ResponseEntity<SunoAIGenerationDetailResultDto> response;
+            try {
+                response = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requestEntity,
+                        SunoAIGenerationDetailResultDto.class
+                );
+            } catch (RuntimeException e) {
+                usageRecorder.failure(ExternalApiOperation.MUSIC_STATUS_POLL, start, e);
+                throw e;
+            }
+            // 아직 생성 중(sunoData 없음)인 응답도 조회 호출 자체는 성공으로 기록한다
+            SunoAIGenerationDetailResultDto pollBody = response.getBody();
+            String pollErrorCode = sunoErrorCode(
+                    response.getStatusCode().value(), pollBody != null, pollBody != null ? pollBody.getCode() : 0);
+            if (pollErrorCode == null) {
+                usageRecorder.success(ExternalApiOperation.MUSIC_STATUS_POLL, start);
+            } else {
+                usageRecorder.failure(ExternalApiOperation.MUSIC_STATUS_POLL, start, pollErrorCode);
+            }
 
             if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
                 throw new Exception("Suno AI 조회 API 호출 실패: HTTP 상태 " + response.getStatusCode());

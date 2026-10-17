@@ -18,6 +18,11 @@ class UnauthorizedHandler implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
+        writeUnauthorized(response);
+    }
+
+    // 토큰 없음(entry point)과 토큰 만료·위조(JwtAuthenticationFilter)가 같은 401 본문을 쓰도록 공유한다
+    static void writeUnauthorized(HttpServletResponse response) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"status\": \"ERROR\", \"message\": \"Access Token 값이 유효하지 않습니다.\"}");

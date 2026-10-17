@@ -3,6 +3,7 @@ package com.eumakase.eumakase.config.batch;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
  * 배치 작업 스케줄링
  */
 @Configuration
+@ConditionalOnProperty(name = "scheduling.enabled", havingValue = "true", matchIfMissing = true) // 테스트에서 끄기 위한 스위치, 운영은 프로퍼티가 없어 항상 활성
 @EnableScheduling // 스케줄링 활성화
 public class SchedulerConfig {
 
