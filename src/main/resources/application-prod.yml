@@ -94,7 +94,8 @@ admin:
 # 미터링 비용 추정 (Suno)
 # - usd-per-credit: 크레딧 1개의 가치 $0.005 (https://sunoapi.org/ko/billing, 2026-10-18 확인)
 # - credits-per-generate: 대체값. 생성 전후 잔여 크레딧 조회(근사)가 실패하거나 차이가 0 이하일 때만 쓴다. 비어 있으면 그 경우 Suno 비용을 기록하지 않는다
+#   10 = billing 페이지 공개 코드의 음악 생성 기본값(consumeCreditsMap.MUSIC || 10, 2026-10-24 확인). 생성 요청 1회(곡 2개) 기준
 metering:
   suno:
     usd-per-credit: 0.005
-    credits-per-generate:
+    credits-per-generate: 10
