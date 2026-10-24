@@ -59,6 +59,17 @@ class ExternalApiUsageRecorderTest {
     }
 
     @Test
+    void OpenAI_비용은_요청한_모델_단가로_계산하고_응답_모델명을_저장한다() {
+        // 응답 model이 날짜 스냅샷이라 단가표에 없어도 요청 모델(gpt-5.6-terra) 단가로 계산한다
+        recorder.record(ExternalApiOperation.FOLLOW_UP_QUESTION, System.nanoTime(), 7L, null, null,
+                "gpt-5.6-terra-2026-10-01", "gpt-5.6-terra", 1000L, 300L, null);
+
+        ExternalApiUsage usage = saved();
+        assertThat(usage.getModel()).isEqualTo("gpt-5.6-terra-2026-10-01");
+        assertThat(usage.getEstimatedCostUsd()).isEqualByComparingTo(new BigDecimal("0.0056"));
+    }
+
+    @Test
     void OpenAI_실패는_비용을_남기지_않는다() {
         recorder.record(ExternalApiOperation.FOLLOW_UP_QUESTION, System.nanoTime(), null, null, null,
                 "gpt-4-turbo", null, null, "HTTP_429");

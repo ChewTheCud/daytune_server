@@ -71,7 +71,18 @@ public class ExternalApiUsageRecorder {
     public void record(ExternalApiOperation operation, long startNanos,
                        Long userId, ExternalApiRefType refType, Long refId,
                        String model, Long unitsIn, Long unitsOut, String errorCode) {
-        save(operation, startNanos, userId, refType, refId, model, unitsIn, unitsOut, errorCode, null, null);
+        record(operation, startNanos, userId, refType, refId, model, model, unitsIn, unitsOut, errorCode);
+    }
+
+    /**
+     * 전체 항목 기록 (단가 조회용 모델을 따로 지정).
+     * model은 응답의 실제 처리 모델로 저장하고, 비용은 pricingModel(요청한 모델) 단가로 계산한다.
+     * 별칭으로 요청하면 응답에 날짜 스냅샷 이름이 와서 단가표와 맞지 않을 수 있기 때문이다
+     */
+    public void record(ExternalApiOperation operation, long startNanos,
+                       Long userId, ExternalApiRefType refType, Long refId,
+                       String model, String pricingModel, Long unitsIn, Long unitsOut, String errorCode) {
+        save(operation, startNanos, userId, refType, refId, model, pricingModel, unitsIn, unitsOut, errorCode, null, null);
     }
 
     /**
@@ -81,13 +92,13 @@ public class ExternalApiUsageRecorder {
                              Long userId, ExternalApiRefType refType, Long refId,
                              String model, Long credits, BigDecimal creditCost, String errorCode) {
         boolean success = errorCode == null;
-        save(operation, startNanos, userId, refType, refId, model, null, success ? credits : null, errorCode,
+        save(operation, startNanos, userId, refType, refId, model, null, null, success ? credits : null, errorCode,
                 success && credits != null ? UNIT_TYPE_CREDIT : null, success ? creditCost : null);
     }
 
     private void save(ExternalApiOperation operation, long startNanos,
                       Long userId, ExternalApiRefType refType, Long refId,
-                      String model, Long unitsIn, Long unitsOut, String errorCode,
+                      String model, String pricingModel, Long unitsIn, Long unitsOut, String errorCode,
                       String creditUnitType, BigDecimal creditCost) {
         try {
             int latencyMs = (int) Math.min(Integer.MAX_VALUE, (System.nanoTime() - startNanos) / 1_000_000);
@@ -95,9 +106,9 @@ public class ExternalApiUsageRecorder {
             boolean hasTokens = unitsIn != null || unitsOut != null;
             BigDecimal cost = creditCost;
             if (success && operation.getProvider() == ExternalApiProvider.OPENAI) {
-                cost = OpenAiPricing.estimate(model, unitsIn, unitsOut);
+                cost = OpenAiPricing.estimate(pricingModel, unitsIn, unitsOut);
                 if (cost == null) {
-                    log.warn("[미터링] OpenAI 비용을 산정하지 못했습니다. 단가표에 없는 모델이거나 토큰 수가 없습니다: model={}", model);
+                    log.warn("[미터링] OpenAI 비용을 산정하지 못했습니다. 단가표에 없는 모델이거나 토큰 수가 없습니다: model={}, pricingModel={}", model, pricingModel);
                 }
             }
 

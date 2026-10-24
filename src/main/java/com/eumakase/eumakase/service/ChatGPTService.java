@@ -106,6 +106,7 @@ public class ChatGPTService {
         Usage usage = body != null ? body.getUsage() : null;
         usageRecorder.record(operation, start, ExternalApiUsageRecorder.currentUserId(), null, null,
                 body != null && body.getModel() != null ? body.getModel() : model,
+                model,
                 usage != null ? usage.getPromptTokens() : null,
                 usage != null ? usage.getCompletionTokens() : null,
                 null);
