@@ -17,7 +17,7 @@ public class ChatGPTRequestDto implements Serializable {
 
     private List<Message> messages;
     private Double temperature;
-    @JsonProperty("max_tokens")
+    @JsonProperty("max_completion_tokens")
     private Integer maxTokens;
     @JsonProperty("top_p")
     private Double topP;
@@ -25,8 +25,10 @@ public class ChatGPTRequestDto implements Serializable {
     private Integer choiceNumber;
     @JsonProperty("presence_penalty")
     private Double presencePenalty;
+    @JsonProperty("reasoning_effort")
+    private String reasoningEffort;
 
-    public ChatGPTRequestDto(String model, List<Message> messages, Double temperature, Integer maxTokens, Double topP, Integer choiceNumber, Double presencePenalty) {
+    public ChatGPTRequestDto(String model, List<Message> messages, Double temperature, Integer maxTokens, Double topP, Integer choiceNumber, Double presencePenalty, String reasoningEffort) {
         this.model = model;
         this.messages = messages;
         this.temperature = temperature;
@@ -34,5 +36,6 @@ public class ChatGPTRequestDto implements Serializable {
         this.topP = topP;
         this.choiceNumber = choiceNumber;
         this.presencePenalty = presencePenalty;
+        this.reasoningEffort = reasoningEffort;
     }
 }

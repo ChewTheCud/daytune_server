@@ -83,7 +83,8 @@ public class ChatGPTService {
                 ChatGPTConfig.MAX_TOKEN,
                 ChatGPTConfig.TOP_P,
                 ChatGPTConfig.CHOICE_NUMBER,
-                ChatGPTConfig.PRESENCE_PENALTY
+                ChatGPTConfig.PRESENCE_PENALTY,
+                ChatGPTConfig.REASONING_EFFORT
         );
 
         long start = System.nanoTime();

@@ -36,7 +36,7 @@ security:
     password-suffix: ENC(J6v3Kqog2zLTL0lvTVzLmA==)
 
 chatgpt:
-  model: gpt-4-turbo
+  model: gpt-5.6-terra
   secret-key: ENC(gIEgGH1KOl9TWH2yDT+0PI45pg9+U2lqQoOTMCY7oqsN4RgUdykz38NwD3XHNO8Fy3aKEZ1TDQ38Q29vYSPbhjgW3SKLRtYz)
   url: https://api.openai.com/v1/chat/completions
 

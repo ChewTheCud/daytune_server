@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ChatGPTConfig {
     public static final Integer MAX_TOKEN = 300;
+    // gpt-5.6는 생략 시 medium이라 추론 토큰이 출력 요금으로 붙는다. 기존 gpt-4-turbo와 같이 추론 없이 답만 받는다
+    public static final String REASONING_EFFORT = "none";
     public static final Double TEMPERATURE = 1.0; //사용할 샘플링 온도 0~2. 값이 높을수록 무작위 출력, 값이 낮을수록 집중적&결정적
     public static final Double TOP_P = 1.0;
     public static final Integer CHOICE_NUMBER = 1;

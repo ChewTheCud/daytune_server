@@ -16,6 +16,13 @@ class OpenAiPricingTest {
     }
 
     @Test
+    void gpt_5_6_terra는_입력2_출력12_달러_per_1M으로_계산한다() {
+        // 1000 × 2 / 1M + 300 × 12 / 1M = 0.002 + 0.0036
+        assertThat(OpenAiPricing.estimate("gpt-5.6-terra", 1000L, 300L))
+                .isEqualByComparingTo(new BigDecimal("0.005600"));
+    }
+
+    @Test
     void 별칭_gpt_4_turbo도_같은_단가다() {
         assertThat(OpenAiPricing.estimate("gpt-4-turbo", 1L, 1L)).isEqualByComparingTo(new BigDecimal("0.000040"));
     }
